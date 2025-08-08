@@ -2,56 +2,44 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation, useRouter } from "expo-router";
 import React from "react";
 import { StatusBar, StyleSheet, View } from "react-native";
-import {
-  Appbar,
-  Divider,
-  Text,
-  TouchableRipple,
-  useTheme,
-} from "react-native-paper";
+import { Divider, Text, TouchableRipple, useTheme } from "react-native-paper";
+import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
+import { ROUTES } from "../../helpers/routePaths";
 
 export default function SettingsScreen() {
   const router = useRouter();
   const navigation = useNavigation();
   const { colors, dark, fonts } = useTheme();
 
-  const screenBg = dark ? colors.primary : colors.background;
-  const textColor = dark ? colors.onPrimary : colors.primary;
+  const screenBg = colors.background;
+  const textColor = colors.text;
+  const iconColor = colors.text;
 
   const options = [
     {
       label: "Change Password",
       icon: "lock-outline",
-      onPress: () => router.push("screens/(account)/NewPassword"),
+      onPress: () => router.push(ROUTES.NEW_PASSWORD),
     },
     {
       label: "Change Email",
       icon: "email-outline",
-      onPress: () => router.push("screens/(account)/NewEmail"),
+      onPress: () => router.push(ROUTES.NEW_EMAIL),
     },
     {
       label: "Change Mobile Number",
       icon: "phone-outline",
-      onPress: () => router.push("screens/(account)/NewMobile"),
+      onPress: () => router.push(ROUTES.NEW_PHONE),
     },
   ];
 
   return (
     <View style={[styles.container, { backgroundColor: screenBg }]}>
-      <StatusBar
-        barStyle={"light-content"}
-        backgroundColor={colors.secondary}
+      <StatusBar barStyle={"light-content"} backgroundColor={colors.primary} />
+      <CenteredAppbarHeader
+        title={"Settings"}
+        onBack={() => navigation.goBack()}
       />
-      <Appbar.Header style={{ backgroundColor: colors.primary }}>
-        <Appbar.BackAction
-          onPress={() => navigation.goBack()}
-          color={colors.onPrimary}
-        />
-        <Appbar.Content
-          title="Settings"
-          titleStyle={{ color: colors.onPrimary }}
-        />
-      </Appbar.Header>
 
       <View style={styles.content}>
         {options.map((item, idx) => (
@@ -61,7 +49,7 @@ export default function SettingsScreen() {
                 <MaterialCommunityIcons
                   name={item.icon}
                   size={24}
-                  color={dark ? colors.onPrimary : colors.primary}
+                  color={iconColor}
                 />
                 <Text
                   variant="bodyMedium"
@@ -79,7 +67,9 @@ export default function SettingsScreen() {
                 />
               </View>
             </TouchableRipple>
-            <Divider />
+            <Divider
+              style={{ height: 0.5, backgroundColor: colors.outlineVariant }}
+            />
           </React.Fragment>
         ))}
       </View>

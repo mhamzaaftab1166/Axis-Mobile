@@ -27,12 +27,11 @@ const AppPhoneInput = ({
           styles.phoneInput,
           {
             borderColor: touched && error ? colors.error : "#ccc",
-            backgroundColor: dark ? colors.primary : colors.background,
+            backgroundColor: "transparent",
           },
         ]}
         textContainerStyle={{
-          backgroundColor: dark ? colors.primary : colors.background,
-          borderTopRightRadius: 8,
+          backgroundColor: "transparent",
           borderBottomRightRadius: 8,
           paddingVertical: 0,
         }}
@@ -43,6 +42,10 @@ const AppPhoneInput = ({
           paddingVertical: 0,
           includeFontPadding: false,
           textAlignVertical: "center",
+        }}
+        textInputProps={{
+          placeholderTextColor: colors.placeholder,
+          selectionColor: colors.text,
         }}
         codeTextStyle={{ color: colors.onSurface, fontSize: 16 }}
       />

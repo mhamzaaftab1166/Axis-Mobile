@@ -1,13 +1,15 @@
 import { router, useNavigation } from "expo-router";
 import { ScrollView, StatusBar, StyleSheet, View } from "react-native";
-import { Appbar, Text, TextInput, useTheme } from "react-native-paper";
+import { Text, TextInput, useTheme } from "react-native-paper";
 import * as Yup from "yup";
 
+import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
 import AppForm from "../../components/forms/AppForm";
 import AppFormField from "../../components/forms/AppFormFeild";
 import AppImagePickerField from "../../components/forms/AppImagePickerFeild";
 import SubmitButton from "../../components/forms/AppSubmitButton";
 import { getGreeting } from "../../helpers/general";
+import { ROUTES } from "../../helpers/routePaths";
 
 const validationSchema = Yup.object().shape({
   full_name: Yup.string().required("Full name is required"),
@@ -16,10 +18,10 @@ const validationSchema = Yup.object().shape({
 
 export default function MyProfile() {
   const navigation = useNavigation();
-  const { colors, dark, fonts } = useTheme();
+  const { colors, fonts } = useTheme();
 
-  const screenBg = dark ? colors.primary : colors.background;
-  const textColor = colors.onSurface;
+  const screenBg = colors.background;
+  const textColor = colors.text;
   const disabledBg = colors.surfaceDisabled;
   const disabledText = colors.onSurfaceDisabled;
 
@@ -39,27 +41,16 @@ export default function MyProfile() {
   };
 
   const handleSubmit = ({ full_name, profile_image }) => {
-    console.log("Updated name:", full_name);
-    console.log("Updated profile image:", profile_image);
-    router.dismissTo("(tabs)/account");
+    router.dismissTo(ROUTES.ACCOUNT_TAB);
   };
 
   return (
     <View style={[styles.container, { backgroundColor: screenBg }]}>
-      <StatusBar
-        barStyle={"light-content"}
-        backgroundColor={colors.secondary}
+      <StatusBar barStyle={"light-content"} backgroundColor={colors.primary} />
+      <CenteredAppbarHeader
+        title={"My Profile"}
+        onBack={() => navigation.goBack()}
       />
-      <Appbar.Header style={{ backgroundColor: colors.primary }}>
-        <Appbar.BackAction
-          onPress={() => navigation.goBack()}
-          color={colors.onPrimary}
-        />
-        <Appbar.Content
-          title="My Profile"
-          titleStyle={{ color: colors.onPrimary }}
-        />
-      </Appbar.Header>
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
@@ -80,6 +71,7 @@ export default function MyProfile() {
           </Text>
           <AppFormField
             name="full_name"
+            label="Full Name"
             placeholder="Full Name"
             icon="account"
             parentStyles={styles.input}

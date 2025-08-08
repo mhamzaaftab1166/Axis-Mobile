@@ -21,20 +21,17 @@ const AppInput = ({
   const isDark = theme.dark;
 
   const backgroundColor = editable
-    ? isDark
-      ? "transparent"
-      : theme.colors.background
+    ? "transparent"
     : theme.colors.surfaceDisabled;
 
-  const textColor = editable ? theme.colors.onSurface : theme.colors.outline;
-  const labelColor = isDark ? theme.colors.onPrimary : theme.colors.primary;
-  const iconColor = isDark ? theme.colors.onPrimary : theme.colors.primary;
+  const textColor = editable ? theme.colors.onSurface : theme.colors.text;
+  const iconColor = theme.colors.text;
 
   return (
     <View style={[styles.container, parentStyles]}>
       <TextInput
         placeholder={placeholder}
-        placeholderTextColor={theme.colors.outline}
+        placeholderTextColor={theme.colors.placeholder}
         value={value}
         onChangeText={onChangeText}
         editable={editable}
@@ -54,15 +51,11 @@ const AppInput = ({
           },
           style,
         ]}
-        underlineColor={theme.colors.outline}
-        activeUnderlineColor={
-          isDark ? theme.colors.onPrimary : theme.colors.primary
-        }
+        underlineColor={theme.colors.outlineVariant}
+        activeUnderlineColor={theme.colors.primary}
         theme={{
           colors: {
             text: textColor,
-            placeholder: labelColor,
-            primary: isDark ? theme.colors.onPrimary : theme.colors.primary,
           },
         }}
         left={

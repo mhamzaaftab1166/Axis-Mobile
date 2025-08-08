@@ -1,11 +1,13 @@
 import { router, useNavigation } from "expo-router";
 import { StatusBar, StyleSheet, View } from "react-native";
-import { Appbar, useTheme } from "react-native-paper";
+import { useTheme } from "react-native-paper";
 import * as Yup from "yup";
 
+import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
 import AppForm from "../../components/forms/AppForm";
 import AppPhoneFormField from "../../components/forms/AppPhoneFormField";
 import SubmitButton from "../../components/forms/AppSubmitButton";
+import { ROUTES } from "../../helpers/routePaths";
 
 const validationSchema = Yup.object().shape({
   phone: Yup.string()
@@ -18,34 +20,25 @@ const validationSchema = Yup.object().shape({
 
 export default function SetPasswordScreen() {
   const navigation = useNavigation();
-  const { colors, dark } = useTheme();
+  const { colors } = useTheme();
 
-  const screenBg = dark ? colors.primary : colors.background;
+  const screenBg = colors.background;
 
   const handleSubmit = (values) => {
     console.log("Phone values:", values);
     router.replace({
-      pathname: "screens/(account)/OTPVerification",
+      pathname: ROUTES.OTP_SCREEN,
       params: { isMobile: true },
     });
   };
 
   return (
     <View style={[styles.container, { backgroundColor: screenBg }]}>
-      <StatusBar
-        barStyle={"light-content"}
-        backgroundColor={colors.secondary}
+      <StatusBar barStyle={"light-content"} backgroundColor={colors.primary} />
+      <CenteredAppbarHeader
+        title={"Change Mobile"}
+        onBack={() => navigation.goBack()}
       />
-      <Appbar.Header style={{ backgroundColor: colors.primary }}>
-        <Appbar.BackAction
-          onPress={() => navigation.goBack()}
-          color={colors.onPrimary}
-        />
-        <Appbar.Content
-          title="Set Mobile Number"
-          titleStyle={{ color: colors.onPrimary }}
-        />
-      </Appbar.Header>
 
       <View style={styles.content}>
         <AppForm
@@ -54,7 +47,7 @@ export default function SetPasswordScreen() {
           validationSchema={validationSchema}
         >
           <AppPhoneFormField name="phone" />
-          <SubmitButton title="Update Mobile Number" />
+          <SubmitButton title="Update Mobile" />
         </AppForm>
       </View>
     </View>

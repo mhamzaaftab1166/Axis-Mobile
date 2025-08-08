@@ -10,16 +10,17 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Appbar, useTheme } from "react-native-paper";
+import { useTheme } from "react-native-paper";
 import { SwipeListView } from "react-native-swipe-list-view";
 import AvatarPlaceholder from "../../../assets/images/account/avatar.avif";
+import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
 
 export default function Notifications() {
   const { colors, dark, fonts } = useTheme();
   const navigation = useNavigation();
 
-  const screenBg = dark ? colors.primary : colors.background;
-  const textColor = dark ? colors.primary : colors.primary;
+  const screenBg = colors.background;
+  const textColor = colors.text;
   const cardBg = dark ? colors.secondary : colors.surface;
 
   const [refreshing, setRefreshing] = useState(false);
@@ -52,8 +53,7 @@ export default function Notifications() {
   }, []);
 
   const handleDelete = (rowKey) => {
-   console.log(rowKey);
-   
+    console.log(rowKey);
   };
 
   const renderItem = (dataItem) => {
@@ -106,21 +106,12 @@ export default function Notifications() {
 
   return (
     <View style={[styles.container, { backgroundColor: screenBg }]}>
-      <StatusBar
-        barStyle={ "light-content"}
-        backgroundColor={colors.secondary}
-      />
+      <StatusBar barStyle={"light-content"} backgroundColor={colors.primary} />
 
-      <Appbar.Header style={{ backgroundColor: colors.primary }}>
-        <Appbar.BackAction
-          onPress={() => navigation.goBack()}
-          color={colors.onPrimary}
-        />
-        <Appbar.Content
-          title="Notifications"
-          titleStyle={{ color: colors.onPrimary }}
-        />
-      </Appbar.Header>
+      <CenteredAppbarHeader
+        title={"Notifications"}
+        onBack={() => navigation.goBack()}
+      />
 
       {/* List */}
       <SwipeListView

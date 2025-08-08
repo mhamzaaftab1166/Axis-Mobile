@@ -1,11 +1,13 @@
 import { router, useNavigation } from "expo-router";
 import { StatusBar, StyleSheet, View } from "react-native";
-import { Appbar, useTheme } from "react-native-paper";
+import { useTheme } from "react-native-paper";
 import * as Yup from "yup";
 
+import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
 import AppForm from "../../components/forms/AppForm";
 import AppFormField from "../../components/forms/AppFormFeild";
 import SubmitButton from "../../components/forms/AppSubmitButton";
+import { ROUTES } from "../../helpers/routePaths";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string()
@@ -15,31 +17,22 @@ const validationSchema = Yup.object().shape({
 
 export default function SetEmailScreen() {
   const navigation = useNavigation();
-  const { colors, dark } = useTheme();
+  const { colors } = useTheme();
 
-  const screenBg = dark ? colors.primary : colors.background;
+  const screenBg = colors.background;
 
   const handleSubmit = (values) => {
     console.log("Email values:", values);
-    router.replace("screens/(account)/OTPVerification");
+    router.replace(ROUTES.OTP_SCREEN);
   };
 
   return (
     <View style={[styles.container, { backgroundColor: screenBg }]}>
-      <StatusBar
-        barStyle={"light-content"}
-        backgroundColor={colors.secondary}
+      <StatusBar barStyle={"light-content"} backgroundColor={colors.primary} />
+      <CenteredAppbarHeader
+        title={"Change Email"}
+        onBack={() => navigation.goBack()}
       />
-      <Appbar.Header style={{ backgroundColor: colors.primary }}>
-        <Appbar.BackAction
-          onPress={() => navigation.goBack()}
-          color={colors.onPrimary}
-        />
-        <Appbar.Content
-          title="Set Email"
-          titleStyle={{ color: colors.onPrimary }}
-        />
-      </Appbar.Header>
 
       <View style={styles.content}>
         <AppForm
@@ -57,7 +50,7 @@ export default function SetEmailScreen() {
             autoCapitalize="none"
           />
 
-          <SubmitButton title="Update Email" />
+          <SubmitButton title="Change Email" />
         </AppForm>
       </View>
     </View>
