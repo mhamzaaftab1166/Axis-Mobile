@@ -28,8 +28,8 @@ export default function TabLayout() {
             borderTopWidth: 0,
             elevation: 4,
           },
-          tabBarActiveTintColor: colors.secondary,
-          tabBarInactiveTintColor: colors.onPrimary,
+          tabBarActiveTintColor: colors.onPrimary,
+          tabBarInactiveTintColor: colors.secondary,
           tabBarLabelStyle: {
             fontSize: 12,
             fontFamily: fonts.regular,
