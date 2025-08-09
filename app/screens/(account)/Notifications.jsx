@@ -14,10 +14,13 @@ import { useTheme } from "react-native-paper";
 import { SwipeListView } from "react-native-swipe-list-view";
 import AvatarPlaceholder from "../../../assets/images/account/avatar.avif";
 import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
+import ConfirmDialog from "../../components/common/ConfirmDialog";
 
 export default function Notifications() {
   const { colors, dark, fonts } = useTheme();
   const navigation = useNavigation();
+  const [confirmVisible, setConfirmVisible] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
 
   const screenBg = colors.background;
   const textColor = colors.text;
@@ -52,8 +55,20 @@ export default function Notifications() {
     setTimeout(() => setRefreshing(false), 1000);
   }, []);
 
-  const handleDelete = (rowKey) => {
-    console.log(rowKey);
+  const handleDelete = (id) => {
+    setSelectedId(id);
+    setConfirmVisible(true);
+  };
+
+  const onConfirmDelete = () => {
+    console.log("Deleted item id:", selectedId);
+    setConfirmVisible(false);
+    setSelectedId(null);
+  };
+
+  const onCancelDelete = () => {
+    setConfirmVisible(false);
+    setSelectedId(null);
   };
 
   const renderItem = (dataItem) => {
@@ -126,6 +141,14 @@ export default function Notifications() {
         }
         contentContainerStyle={{ padding: 16 }}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+      />
+
+      <ConfirmDialog
+        visible={confirmVisible}
+        title="Delete Notification"
+        message="Are you sure you want to delete this notification?"
+        onCancel={onCancelDelete}
+        onConfirm={onConfirmDelete}
       />
     </View>
   );

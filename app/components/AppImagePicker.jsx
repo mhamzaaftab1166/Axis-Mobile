@@ -7,14 +7,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import {
-  Button,
-  Dialog,
-  IconButton,
-  Portal,
-  Text,
-  useTheme,
-} from "react-native-paper";
+import { IconButton, useTheme } from "react-native-paper";
+import PermissionDialog from "./common/PermissionsDialog";
 
 const AppImagePicker = ({ imageUri, onChangeImage, onError }) => {
   const theme = useTheme();
@@ -32,7 +26,7 @@ const AppImagePicker = ({ imageUri, onChangeImage, onError }) => {
 
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-       mediaTypes: ["images"],
+        mediaTypes: ["images"],
         quality: 0.5,
         allowsEditing: true,
         aspect: [1, 1],
@@ -74,53 +68,11 @@ const AppImagePicker = ({ imageUri, onChangeImage, onError }) => {
         </View>
       </TouchableOpacity>
 
-      <Portal>
-        <Dialog
-          visible={showDialog}
-          onDismiss={() => setShowDialog(false)}
-          style={{
-            backgroundColor: theme.dark
-              ? theme.colors.onPrimary
-              : theme.colors.primary,
-            borderRadius: 12,
-          }}
-        >
-          <Dialog.Title
-            style={{
-              color: theme.dark ? theme.colors.primary : theme.colors.onPrimary,
-              fontFamily: theme.fonts.bold?.fontFamily,
-            }}
-          >
-            Permission Required
-          </Dialog.Title>
-          <Dialog.Content>
-            <Text
-              variant="bodyMedium"
-              style={{
-                color: theme.dark
-                  ? theme.colors.primary
-                  : theme.colors.onPrimary,
-                fontFamily: theme.fonts.regular?.fontFamily,
-              }}
-            >
-              To change your profile image, please allow access to your gallery
-              in the device settings.
-            </Text>
-          </Dialog.Content>
-          <Dialog.Actions style={{ justifyContent: "flex-end" }}>
-            <Button
-              onPress={handleGoToSettings}
-              labelStyle={{
-                color: theme.dark
-                  ? theme.colors.primary
-                  : theme.colors.onPrimary,
-              }}
-            >
-              Allow
-            </Button>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
+      <PermissionDialog
+        visible={showDialog}
+        onDismiss={() => setShowDialog(false)}
+        onAllow={handleGoToSettings}
+      />
     </View>
   );
 };

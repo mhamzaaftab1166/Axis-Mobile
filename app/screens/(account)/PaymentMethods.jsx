@@ -9,9 +9,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Button, Dialog, FAB, Portal, useTheme } from "react-native-paper";
+import { FAB, useTheme } from "react-native-paper";
 import { SwipeListView } from "react-native-swipe-list-view";
 import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
+import ConfirmDialog from "../../components/common/ConfirmDialog";
 import { getCardIcon } from "../../helpers/general";
 import { ROUTES } from "../../helpers/routePaths";
 
@@ -132,51 +133,13 @@ export default function PaymentMethods() {
         style={[styles.fab, { backgroundColor: fabBg }]}
         color={fabColor}
       />
-
-      <Portal>
-        <Dialog
-          visible={confirmVisible}
-          onDismiss={hideConfirm}
-          style={{
-            backgroundColor: dark ? colors.onPrimary : colors.primary,
-            borderRadius: 12,
-          }}
-        >
-          <Dialog.Title
-            style={{
-              color: dark ? colors.primary : colors.onPrimary,
-              fontFamily: fonts.bold?.fontFamily,
-            }}
-          >
-            Delete Card
-          </Dialog.Title>
-          <Dialog.Content>
-            <Text
-              style={{
-                color: dark ? colors.primary : colors.onPrimary,
-                fontFamily: fonts.regular?.fontFamily,
-              }}
-            >
-              Are you sure you want to delete this card?
-            </Text>
-          </Dialog.Content>
-          <Dialog.Actions>
-            <Button
-              labelStyle={{ color: dark ? colors.primary : colors.onPrimary }}
-              style={{ marginRight: 8 }}
-              onPress={hideConfirm}
-            >
-              No
-            </Button>
-            <Button
-              labelStyle={{ color: dark ? colors.primary : colors.onPrimary }}
-              onPress={handleDelete}
-            >
-              Yes
-            </Button>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
+      <ConfirmDialog
+        visible={confirmVisible}
+        title="Delete Card"
+        message="Are you sure you want to delete this card?"
+        onCancel={hideConfirm}
+        onConfirm={handleDelete}
+      />
     </View>
   );
 }
