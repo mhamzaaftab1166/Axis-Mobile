@@ -1,13 +1,29 @@
-import { StyleSheet, Text, View } from "react-native";
+// screens/Home.js
+import { ScrollView, StyleSheet } from "react-native";
+import { useTheme } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-const index = () => {
+import GreetingHeader from "../components/home/GreetingsHeader";
+
+export default function Home() {
+  const { colors } = useTheme();
+  const bg = colors.background;
+
   return (
-    <View>
-      <Text>index</Text>
-    </View>
+    <SafeAreaView style={[styles.safe, { backgroundColor: bg }]}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <GreetingHeader name="Hamza" />
+      </ScrollView>
+    </SafeAreaView>
   );
-};
+}
 
-export default index;
-
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  safe: {
+    flex: 1,
+  },
+  container: {
+    flexGrow: 1,
+    padding: 16,
+  },
+});

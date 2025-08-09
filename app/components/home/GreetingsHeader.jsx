@@ -6,9 +6,9 @@ import { getGreeting } from "../../helpers/general";
 
 const GreetingHeader = ({ name = "User" }) => {
   const { colors, dark } = useTheme();
-  const textColor = dark ? colors.onPrimary : colors.primary;
-  const cardBg = dark ? colors.secondary : colors.surface;
-  const accentColor = dark ? colors.onPrimary : colors.primary;
+  const textColor = colors.onPrimary;
+  const cardBg = colors.primary;
+  const accentColor = dark ? colors.onPrimary : colors.secondary;
   const [pressed, setPressed] = useState(false);
 
   return (
