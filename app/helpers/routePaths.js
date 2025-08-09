@@ -3,6 +3,7 @@ export const ROUTES = {
   NOTIFICATIONS: "screens/(account)/Notifications",
   SETTINGS: "screens/(account)/SettingsScreen",
   PAYMENT_METHODS: "screens/(account)/PaymentMethods",
+  ADD_PAYMENT_METHOD: "screens/(account)/AddNewPaymentCard",
   ACCOUNT_TAB: "(tabs)/account",
   NEW_PASSWORD: "screens/(account)/NewPassword",
   NEW_EMAIL: "screens/(account)/NewEmail",

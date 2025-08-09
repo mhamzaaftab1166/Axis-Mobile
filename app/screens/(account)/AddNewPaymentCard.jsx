@@ -1,12 +1,14 @@
 // screens/(account)/AddNewCard.tsx
 import { useNavigation, useRouter } from "expo-router";
 import { StatusBar, StyleSheet, View } from "react-native";
-import { Appbar, useTheme } from "react-native-paper";
+import { useTheme } from "react-native-paper";
 import * as Yup from "yup";
 
+import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
 import AppForm from "../../components/forms/AppForm";
 import AppFormField from "../../components/forms/AppFormFeild";
 import SubmitButton from "../../components/forms/AppSubmitButton";
+import { ROUTES } from "../../helpers/routePaths";
 
 const validationSchema = Yup.object().shape({
   cardHolder: Yup.string()
@@ -23,29 +25,23 @@ const validationSchema = Yup.object().shape({
 export default function AddNewCard() {
   const navigation = useNavigation();
   const router = useRouter();
-  const { colors, dark } = useTheme();
+  const { colors } = useTheme();
 
-  const screenBg = dark ? colors.primary : colors.background;
+  const screenBg = colors.background;
 
   const handleSubmit = (values) => {
     console.log("New card values:", values);
-    router.dismissTo("screens/(account)/PaymentMethods");
+    router.dismissTo(ROUTES.PAYMENT_METHODS);
   };
 
   return (
     <View style={[styles.container, { backgroundColor: screenBg }]}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.secondary} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
 
-      <Appbar.Header style={{ backgroundColor: colors.primary }}>
-        <Appbar.BackAction
-          onPress={() => navigation.goBack()}
-          color={colors.onPrimary}
-        />
-        <Appbar.Content
-          title="Add New Card"
-          titleStyle={{ color: colors.onPrimary }}
-        />
-      </Appbar.Header>
+      <CenteredAppbarHeader
+        title={"Add New Card"}
+        onBack={() => navigation.goBack()}
+      />
 
       <View style={styles.content}>
         <AppForm

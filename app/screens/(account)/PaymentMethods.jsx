@@ -9,27 +9,22 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import {
-  Appbar,
-  Button,
-  Dialog,
-  FAB,
-  Portal,
-  useTheme,
-} from "react-native-paper";
+import { Button, Dialog, FAB, Portal, useTheme } from "react-native-paper";
 import { SwipeListView } from "react-native-swipe-list-view";
+import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
 import { getCardIcon } from "../../helpers/general";
+import { ROUTES } from "../../helpers/routePaths";
 
 export default function PaymentMethods() {
   const { colors, dark, fonts } = useTheme();
   const navigation = useNavigation();
   const router = useRouter();
 
-  const screenBg = dark ? colors.primary : colors.background;
-  const textColor = colors.onBackground;
+  const screenBg = colors.background;
+  const textColor = colors.text;
   const cardBg = dark ? colors.secondary : colors.surface;
-  const fabBg = dark ? colors.onPrimary : colors.primary;
-  const fabColor = dark ? colors.primary : colors.onPrimary;
+  const fabBg = colors.primary;
+  const fabColor = colors.onPrimary;
 
   const [cards, setCards] = useState([
     { id: "1", type: "visa", last4: "1234", cardHolder: "John Doe" },
@@ -114,16 +109,10 @@ export default function PaymentMethods() {
   return (
     <View style={[styles.container, { backgroundColor: screenBg }]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
-      <Appbar.Header style={{ backgroundColor: colors.primary }}>
-        <Appbar.BackAction
-          onPress={() => navigation.goBack()}
-          color={colors.onPrimary}
-        />
-        <Appbar.Content
-          title="Saved Cards"
-          titleStyle={{ color: colors.onPrimary }}
-        />
-      </Appbar.Header>
+      <CenteredAppbarHeader
+        title={"Saved Cards"}
+        onBack={() => navigation.goBack()}
+      />
 
       <SwipeListView
         data={cards}
@@ -139,7 +128,7 @@ export default function PaymentMethods() {
       <FAB
         icon="credit-card-plus-outline"
         label="Add New Card"
-        onPress={() => router.push("screens/(account)/AddNewPaymentCard")}
+        onPress={() => router.push(ROUTES.ADD_PAYMENT_METHOD)}
         style={[styles.fab, { backgroundColor: fabBg }]}
         color={fabColor}
       />
