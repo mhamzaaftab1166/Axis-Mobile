@@ -1,4 +1,5 @@
 export const ROUTES = {
+  HOME: "(tabs)",
   MY_PROFILE: "screens/(account)/MyProfile",
   NOTIFICATIONS: "screens/(account)/Notifications",
   SETTINGS: "screens/(account)/SettingsScreen",
@@ -9,4 +10,6 @@ export const ROUTES = {
   NEW_EMAIL: "screens/(account)/NewEmail",
   NEW_PHONE: "screens/(account)/NewMobile",
   OTP_SCREEN: "screens/(account)/OTPVerification",
+  LOGIN: "screens/(auth)/Login",
+  REGISTER: "screens/(auth)/Signup",
 };
