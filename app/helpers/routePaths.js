@@ -12,4 +12,5 @@ export const ROUTES = {
   OTP_SCREEN: "screens/(account)/OTPVerification",
   LOGIN: "screens/(auth)/Login",
   REGISTER: "screens/(auth)/Signup",
+  OTP: "screens/(auth)/OTP",
 };

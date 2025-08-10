@@ -46,7 +46,7 @@ export default function SignupScreen() {
 
   const handleSubmit = (values) => {
     console.log("Signup values:", values);
-    router.push(ROUTES.HOME);
+    router.replace(ROUTES.OTP);
   };
 
   return (
@@ -87,10 +87,10 @@ export default function SignupScreen() {
           >
             <AppForm
               initialValues={{
-                email: "",
-                fullName: "",
-                phone: "",
-                password: "",
+                email: "mhamza@gmail.com",
+                fullName: "M Hamza Aftab",
+                phone: "+971521096472",
+                password: "Hamza1234@@@",
               }}
               onSubmit={handleSubmit}
               validationSchema={validationSchema}

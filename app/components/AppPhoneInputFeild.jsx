@@ -11,12 +11,29 @@ const AppPhoneInput = ({
 }) => {
   const { colors, dark } = useTheme();
 
+  let displayValue = value ?? "";
+  let defaultCode = "AE";
+
+  if (typeof value === "string" && value.startsWith("+")) {
+    if (value.startsWith("+971")) {
+      defaultCode = "AE";
+      displayValue = value.replace(/^\+971/, "").replace(/\D/g, "");
+    } else {
+      const m = value.match(/^\+(\d{1,3})(\d+)$/);
+      if (m) {
+        displayValue = m[2] || "";
+      }
+    }
+  } else {
+    displayValue = value ?? "";
+  }
+
   return (
     <View style={styles.wrapper}>
       <PhoneInput
         ref={phoneInputRef}
-        defaultValue={value}
-        defaultCode="AE"
+        value={displayValue}
+        defaultCode={defaultCode}
         layout="first"
         onChangeFormattedText={onChangeText}
         disableArrowIcon
