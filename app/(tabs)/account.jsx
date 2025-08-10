@@ -48,6 +48,12 @@ export default function AccountScreen() {
       onPress: () => router.push(ROUTES.PAYMENT_METHODS),
     },
     {
+      key: "theme",
+      label: "Theme",
+      icon: "theme-light-dark",
+      onPress: () => router.push(ROUTES.THEME_TOGGLE),
+    },
+    {
       key: "logout",
       label: "Logout",
       icon: "logout",

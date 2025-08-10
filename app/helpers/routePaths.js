@@ -13,4 +13,5 @@ export const ROUTES = {
   LOGIN: "screens/(auth)/Login",
   REGISTER: "screens/(auth)/Signup",
   OTP: "screens/(auth)/OTP",
+  THEME_TOGGLE: "screens/(account)/ThemeToggle",
 };
