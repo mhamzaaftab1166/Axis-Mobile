@@ -20,9 +20,7 @@ const validationSchema = Yup.object().shape({
   email: Yup.string()
     .required("Email is required")
     .email("Please enter a valid email"),
-  password: Yup.string()
-    .required("Password is required")
-    .min(8, "Password must be at least 8 characters"),
+  password: Yup.string().required("Password is required"),
 });
 
 export default function LoginScreen() {
@@ -30,7 +28,7 @@ export default function LoginScreen() {
 
   const handleSubmit = (values) => {
     console.log("Login values:", values);
-    router.push(ROUTES.HOME);
+    router.replace(ROUTES.HOME);
   };
 
   return (
@@ -94,7 +92,7 @@ export default function LoginScreen() {
 
               <Text
                 style={[styles.forgotText, { color: colors.primary }]}
-                onPress={() => router.push(ROUTES.FORGOT_PASSWORD)}
+                onPress={() => router.push(ROUTES.FORGOT_PASS_OPTION)}
               >
                 Forgot Password?
               </Text>

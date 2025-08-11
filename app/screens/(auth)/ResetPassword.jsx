@@ -4,7 +4,6 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
-  Text as RNText,
   ScrollView,
   StyleSheet,
   View,
@@ -14,21 +13,10 @@ import * as Yup from "yup";
 
 import AppForm from "../../components/forms/AppForm";
 import AppFormField from "../../components/forms/AppFormFeild";
-import AppPhoneFormField from "../../components/forms/AppPhoneFormField";
 import SubmitButton from "../../components/forms/AppSubmitButton";
 import { ROUTES } from "../../helpers/routePaths";
 
 const validationSchema = Yup.object().shape({
-  email: Yup.string()
-    .email("Please enter a valid email address")
-    .required("Email is required"),
-  fullName: Yup.string().required("Full name is required").min(2, "Too short"),
-  phone: Yup.string()
-    .required("Mobile number is required")
-    .matches(
-      /^\+9715[0-9]{8}$/,
-      "Enter a valid UAE mobile number (+9715XXXXXXXX)"
-    ),
   password: Yup.string()
     .required("Password is required")
     .min(8, "Password must be at least 8 characters")
@@ -39,17 +27,17 @@ const validationSchema = Yup.object().shape({
       /[@$!%*?&]/,
       "Password must contain at least one special character (@, $, !, %, *, ?, &)"
     ),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref("password")], "Passwords must match")
+    .required("Confirm Password is required"),
 });
 
-export default function SignupScreen() {
+export default function ResetPasswordScreen() {
   const { colors } = useTheme();
 
   const handleSubmit = (values) => {
-    console.log("Signup values:", values);
-    router.replace({
-      pathname: ROUTES.OTP,
-      params: { goToHome: true },
-    });
+    console.log("Reset Password values:", values);
+    router.dismissAll(ROUTES.LOGIN);
   };
 
   return (
@@ -75,13 +63,13 @@ export default function SignupScreen() {
               variant="headlineSmall"
               style={[styles.heading, { color: "white" }]}
             >
-              Create your Account
+              Reset Password
             </Text>
             <Text
               variant="bodyMedium"
               style={[styles.subText, { color: "white" }]}
             >
-              Please fill the form to get started.
+              Enter your new password below.
             </Text>
           </View>
 
@@ -89,51 +77,27 @@ export default function SignupScreen() {
             style={[styles.formCard, { backgroundColor: colors.background }]}
           >
             <AppForm
-              initialValues={{
-                email: "mhamza@gmail.com",
-                fullName: "M Hamza Aftab",
-                phone: "+971521096472",
-                password: "Hamza1234@@@",
-              }}
+              initialValues={{ password: "", confirmPassword: "" }}
               onSubmit={handleSubmit}
               validationSchema={validationSchema}
             >
               <AppFormField
-                name="fullName"
-                placeholder="Full Name"
-                autoCapitalize="words"
-                icon="account-outline"
-              />
-
-              <AppFormField
-                name="email"
-                placeholder="Email"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                icon="email-outline"
-              />
-
-              <AppFormField
                 name="password"
-                placeholder="Password"
+                placeholder="New Password"
                 isPassword
                 autoCapitalize="none"
                 icon="lock-outline"
               />
 
-              <AppPhoneFormField name="phone" />
+              <AppFormField
+                name="confirmPassword"
+                placeholder="Confirm New Password"
+                isPassword
+                autoCapitalize="none"
+                icon="lock-check-outline"
+              />
 
-              <SubmitButton title="Sign Up" />
-
-              <RNText style={[styles.loginText, { color: colors.text }]}>
-                Already have an account?{" "}
-                <Text
-                  style={{ color: colors.primary, fontWeight: "600" }}
-                  onPress={() => router.replace(ROUTES.LOGIN)}
-                >
-                  Login
-                </Text>
-              </RNText>
+              <SubmitButton title="Reset Password" />
             </AppForm>
           </View>
         </ScrollView>
@@ -176,10 +140,5 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
     elevation: 4,
-  },
-  loginText: {
-    textAlign: "center",
-    marginTop: 20,
-    fontSize: 14,
   },
 });

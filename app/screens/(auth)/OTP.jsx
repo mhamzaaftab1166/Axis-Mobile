@@ -1,5 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { Formik } from "formik";
 import { useRef, useState } from "react";
 import {
@@ -25,6 +25,10 @@ export default function OtpVerificationScreen() {
   const { colors } = useTheme();
   const [otpError, setOtpError] = useState("");
   const inputs = useRef([]);
+
+  const params = useLocalSearchParams();
+  const goToHome = params.goToHome === "true";
+  console.log("Go to Home?", goToHome);
 
   const focusNext = (index, value) => {
     if (value && index < inputs.current.length - 1) {
@@ -91,7 +95,10 @@ export default function OtpVerificationScreen() {
                 }
                 console.log("OTP Verified:", values.otp);
                 resetForm();
-                router.push(ROUTES.HOME);
+
+                goToHome
+                  ? router.replace(ROUTES.HOME)
+                  : router.replace(ROUTES.RESET_PASS);
               }}
             >
               {({ handleSubmit, setFieldValue, values, errors, touched }) => {

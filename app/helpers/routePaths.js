@@ -12,6 +12,10 @@ export const ROUTES = {
   OTP_SCREEN: "screens/(account)/OTPVerification",
   LOGIN: "screens/(auth)/Login",
   REGISTER: "screens/(auth)/Signup",
+  FORGOT_PASS_OPTION: "screens/(auth)/ForgotPasswordOption",
+  FORGOT_BY_EMAIL: "screens/(auth)/ForgotByEmail",
+  FORGOT_BY_PHONE: "screens/(auth)/ForgotByPhone",
+  RESET_PASS: "screens/(auth)/ResetPassword",
   OTP: "screens/(auth)/OTP",
   THEME_TOGGLE: "screens/(account)/ThemeToggle",
 };
