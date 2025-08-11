@@ -19,7 +19,7 @@ const validationSchema = Yup.object().shape({
     .matches(/^\d{16}$/, "Must be 16 digits"),
   expiry: Yup.string()
     .required("Expiration date is required")
-    .matches(/^(0[1-9]|1[0-2])\/?([0-9]{2})$/, "Format MMYY"),
+    .matches(/^(0[1-9]|1[0-2])\/([0-9]{2})$/, "Format MM/YY"),
 });
 
 export default function AddNewCard() {
@@ -72,8 +72,7 @@ export default function AddNewCard() {
             name="expiry"
             placeholder="MM/YY"
             icon="calendar"
-            keyboardType="number-pad"
-            maxLength={4}
+            maxLength={5}
           />
 
           <SubmitButton title="Save Card" />
