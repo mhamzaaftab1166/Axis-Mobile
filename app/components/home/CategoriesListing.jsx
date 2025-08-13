@@ -23,9 +23,9 @@ const categories = [
   {
     id: "2",
     icon: "calendar-plus",
-    label: "Book Service",
+    label: "Bookings",
     color: "#34C759",
-    route: "/book-service",
+    route: "/bookinga",
   },
   {
     id: "3",

@@ -2,9 +2,12 @@ import { useNavigation } from "expo-router";
 import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { useTheme } from "react-native-paper";
+import DummyImg from "../../../assets/dummy.jpg";
 import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
 import SearchBarWithToggle from "../../components/common/SearchBarWithToggle";
 import SelectableChips from "../../components/common/SelectableChips";
+import ServiceCardGrid from "../../components/home/services/ServiceCardGrid";
+import ServiceCardList from "../../components/home/services/ServiceCardList";
 
 const categories = [
   "Cleaning",
@@ -13,6 +16,39 @@ const categories = [
   "Electrical",
   "Painting",
   "Gardening",
+];
+
+const services = [
+  {
+    id: "1",
+    name: "Home Cleaning",
+    image: DummyImg,
+    rating: 4.5,
+    price: 150,
+    badge: "Popular",
+    description:
+      "Thorough cleaning for your entire home, including living areas, kitchen, and bathrooms.",
+  },
+  {
+    id: "2",
+    name: "Electrical Work",
+    image: DummyImg,
+    rating: 4.8,
+    price: 200,
+    badge: "Top Rated",
+    description:
+      "Professional electrical services for repairs, installations, and maintenance work.",
+  },
+  {
+    id: "3",
+    name: "Gardening Service",
+    image: DummyImg,
+    rating: 2.4,
+    price: 120,
+    badge: "Popular",
+    description:
+      "Lawn mowing, plant care, and garden maintenance to keep your outdoors looking great.",
+  },
 ];
 
 export default function ServiceListing() {
@@ -44,21 +80,29 @@ export default function ServiceListing() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        {/* TODO: Your grid/list of services */}
+        {viewMode === "grid" ? (
+          <View style={styles.grid}>
+            {services.map((service) => (
+              <ServiceCardGrid key={service.id} service={service} />
+            ))}
+          </View>
+        ) : (
+          services.map((service) => (
+            <ServiceCardList key={service.id} service={service} />
+          ))
+        )}
       </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  controlsContainer: {
-    paddingVertical: 8,
-  },
-  content: {
-    padding: 16,
-    flexGrow: 1,
+  container: { flex: 1 },
+  controlsContainer: { paddingVertical: 8 },
+  content: { paddingVertical: 8, paddingHorizontal: 16, flexGrow: 1 },
+  grid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
   },
 });

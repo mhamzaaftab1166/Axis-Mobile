@@ -68,7 +68,7 @@ export default function LoginScreen() {
             style={[styles.formCard, { backgroundColor: colors.background }]}
           >
             <AppForm
-              initialValues={{ email: "", password: "" }}
+              initialValues={{ email: "m@gmail", password: "a" }}
               onSubmit={handleSubmit}
               validationSchema={validationSchema}
             >
