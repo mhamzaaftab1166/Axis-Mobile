@@ -60,7 +60,7 @@ export default function CategoryListing({ allowScroll = false }) {
           <Card
             style={[
               styles.card,
-              { backgroundColor: colors.surface },
+              { backgroundColor: `${item.color}1A` },
               Platform.OS === "android" && { elevation: 0 },
             ]}
             mode="contained"
@@ -72,7 +72,7 @@ export default function CategoryListing({ allowScroll = false }) {
               <View
                 style={[
                   styles.iconCircle,
-                  { backgroundColor: `${item.color}22` },
+                  { backgroundColor: `${item.color}35` },
                 ]}
               >
                 <Icon name={item.icon} size={28} color={item.color} />
@@ -112,15 +112,14 @@ const styles = StyleSheet.create({
   itemWrapper: {
     flex: 1,
     paddingHorizontal: 6,
-    paddingVertical: 8,
     minWidth: 0,
+    marginBottom: 30,
   },
   card: {
     borderRadius: 14,
     aspectRatio: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 12,
   },
   cardContent: {
     alignItems: "center",

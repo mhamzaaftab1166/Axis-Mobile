@@ -4,7 +4,11 @@ import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { Card, useTheme } from "react-native-paper";
 import StarView from "react-native-star-view";
 
-export default function ServiceCardGrid({ service, onBookPress }) {
+export default function ServiceCardGrid({
+  service,
+  onBookPress,
+  horizontalMode,
+}) {
   const { colors, dark } = useTheme();
   const [showFullDescription, setShowFullDescription] = useState(false);
 
@@ -33,6 +37,7 @@ export default function ServiceCardGrid({ service, onBookPress }) {
     <Card
       style={[
         styles.card,
+        horizontalMode ? { width: 200 } : {},
         {
           backgroundColor: colors.background,
           shadowColor: "#000",
