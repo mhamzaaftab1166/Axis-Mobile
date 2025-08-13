@@ -2,8 +2,8 @@ import { MaterialCommunityIcons as Icon } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useCallback } from "react";
 import {
+  Dimensions,
   FlatList,
-  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -37,9 +37,12 @@ const categories = [
 ];
 
 const NUM_COLS = 3;
+const SCREEN_WIDTH = Dimensions.get("window").width;
+const SPACING = 16;
+const CARD_WIDTH = (SCREEN_WIDTH - SPACING * (NUM_COLS + 1)) / NUM_COLS;
 
 export default function CategoryListing({ allowScroll = false }) {
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
   const router = useRouter();
 
   const onPressItem = useCallback(
@@ -51,33 +54,27 @@ export default function CategoryListing({ allowScroll = false }) {
 
   const renderItem = useCallback(
     ({ item }) => (
-      <View style={styles.itemWrapper}>
+      <View style={{ width: CARD_WIDTH, marginBottom: SPACING }}>
         <TouchableOpacity
-          activeOpacity={0.5}
+          activeOpacity={0.7}
           onPress={() => onPressItem(item.route)}
-          style={{ flex: 1 }}
         >
           <Card
             style={[
               styles.card,
-              { backgroundColor: `${item.color}1A` },
-              Platform.OS === "android" && { elevation: 0 },
+              { backgroundColor: dark ? "#4d4c4cff" : "#faf4eeff" },
             ]}
             mode="contained"
-            theme={{
-              roundness: 14,
-            }}
           >
             <View style={styles.cardContent}>
               <View
                 style={[
                   styles.iconCircle,
-                  { backgroundColor: `${item.color}35` },
+                  { backgroundColor: `${item.color}33` },
                 ]}
               >
                 <Icon name={item.icon} size={28} color={item.color} />
               </View>
-
               <Text style={[styles.label, { color: colors.text }]}>
                 {item.label}
               </Text>
@@ -86,7 +83,7 @@ export default function CategoryListing({ allowScroll = false }) {
         </TouchableOpacity>
       </View>
     ),
-    [colors, onPressItem]
+    [colors.text, dark, onPressItem]
   );
 
   return (
@@ -97,45 +94,28 @@ export default function CategoryListing({ allowScroll = false }) {
       numColumns={NUM_COLS}
       scrollEnabled={allowScroll}
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={styles.listContainer}
-      columnWrapperStyle={styles.columnWrapper}
-      removeClippedSubviews
+      contentContainerStyle={{ padding: SPACING / 2 }}
+      columnWrapperStyle={{ justifyContent: "space-between" }}
     />
   );
 }
 
 const styles = StyleSheet.create({
-  listContainer: {},
-  columnWrapper: {
-    justifyContent: "space-between",
-  },
-  itemWrapper: {
-    flex: 1,
-    paddingHorizontal: 6,
-    minWidth: 0,
-    marginBottom: 30,
-  },
   card: {
-    borderRadius: 14,
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 12,
     aspectRatio: 1,
-    justifyContent: "center",
-    alignItems: "center",
   },
-  cardContent: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
+  cardContent: { alignItems: "center", justifyContent: "center" },
   iconCircle: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 10,
+    marginBottom: 12,
   },
-  label: {
-    fontSize: 14,
-    fontWeight: "600",
-    textAlign: "center",
-  },
+  label: { fontSize: 15, fontWeight: "600", textAlign: "center" },
 });
