@@ -1,8 +1,10 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import { Formik } from "formik";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
+  Animated,
+  Easing,
   KeyboardAvoidingView,
   Platform,
   Text as RNText,
@@ -25,10 +27,32 @@ export default function OtpVerificationScreen() {
   const { colors } = useTheme();
   const [otpError, setOtpError] = useState("");
   const inputs = useRef([]);
+  const [focusedIndex, setFocusedIndex] = useState(-1);
+
+  const blinkAnim = useRef(new Animated.Value(1)).current;
+  useEffect(() => {
+    const anim = Animated.loop(
+      Animated.sequence([
+        Animated.timing(blinkAnim, {
+          toValue: 0,
+          duration: 500,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        }),
+        Animated.timing(blinkAnim, {
+          toValue: 1,
+          duration: 500,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    anim.start();
+    return () => anim.stop();
+  }, [blinkAnim]);
 
   const params = useLocalSearchParams();
   const goToHome = params.goToHome === "true";
-  console.log("Go to Home?", goToHome);
 
   const focusNext = (index, value) => {
     if (value && index < inputs.current.length - 1) {
@@ -108,43 +132,88 @@ export default function OtpVerificationScreen() {
                 return (
                   <>
                     <View style={styles.otpContainer}>
-                      {[0, 1, 2, 3, 4, 5].map((i) => (
-                        <TextInput
-                          key={i}
-                          ref={(el) => (inputs.current[i] = el)}
-                          style={[
-                            styles.otpInput,
-                            {
-                              borderColor: colors.primary,
-                              color: colors.text,
-                              backgroundColor: colors.surface,
-                            },
-                          ]}
-                          keyboardType="number-pad"
-                          maxLength={1}
-                          onChangeText={(text) => {
-                            if (/^\d$/.test(text) || text === "") {
-                              const newOtp = otpDigits.slice();
-                              newOtp[i] = text;
-                              setFieldValue("otp", newOtp.join(""));
-                              if (text) {
-                                focusNext(i, text);
+                      {[0, 1, 2, 3, 4, 5].map((i) => {
+                        const isEmpty = otpDigits[i] === "";
+                        const showFauxCaret =
+                          Platform.OS === "android" &&
+                          isEmpty &&
+                          focusedIndex === i;
+                        return (
+                          <View
+                            key={i}
+                            style={[
+                              styles.inputWrapper,
+                              { backgroundColor: colors.surface },
+                            ]}
+                          >
+                            <TextInput
+                              ref={(el) => (inputs.current[i] = el)}
+                              style={[
+                                styles.otpInput,
+                                {
+                                  borderColor: colors.primary,
+                                  color: colors.text,
+                                },
+                              ]}
+                              keyboardType={
+                                Platform.OS === "android"
+                                  ? "numeric"
+                                  : "number-pad"
                               }
-                              setCursorToEnd(inputs.current[i], text); // cursor fix here
-                            }
-                          }}
-                          onKeyPress={({ nativeEvent }) =>
-                            focusPrev(i, nativeEvent.key)
-                          }
-                          value={otpDigits[i]}
-                          returnKeyType="done"
-                          textAlign="center"
-                          autoFocus={i === 0}
-                          selectionColor={colors.primary}
-                          placeholder="•"
-                          placeholderTextColor={colors.onSurfaceVariant}
-                        />
-                      ))}
+                              maxLength={1}
+                              onChangeText={(text) => {
+                                if (/^\d$/.test(text) || text === "") {
+                                  const newOtp = otpDigits.slice();
+                                  newOtp[i] = text;
+                                  setFieldValue("otp", newOtp.join(""));
+                                  if (text) {
+                                    focusNext(i, text);
+                                  }
+                                  // keep native selection synced
+                                  setCursorToEnd(inputs.current[i], text);
+                                }
+                              }}
+                              onKeyPress={({ nativeEvent }) =>
+                                focusPrev(i, nativeEvent.key)
+                              }
+                              onFocus={() => {
+                                setFocusedIndex(i);
+                                setCursorToEnd(
+                                  inputs.current[i],
+                                  otpDigits[i] || ""
+                                );
+                              }}
+                              onBlur={() => setFocusedIndex(-1)}
+                              value={otpDigits[i]}
+                              returnKeyType="done"
+                              textAlign="center"
+                              autoFocus={i === 0}
+                              selectionColor={colors.primary}
+                              placeholder="•"
+                              placeholderTextColor={colors.onSurfaceVariant}
+                              allowFontScaling={false}
+                              importantForAutofill="no"
+                              // Hide native caret on Android only when empty (we render faux caret)
+                              caretHidden={Platform.OS === "android" && isEmpty}
+                              // remove possible interfering props:
+                              // don't pass `selection` prop - we use setNativeProps instead
+                            />
+
+                            {showFauxCaret ? (
+                              <Animated.View
+                                pointerEvents="none"
+                                style={[
+                                  styles.fauxCaret,
+                                  {
+                                    opacity: blinkAnim,
+                                    backgroundColor: colors.primary,
+                                  },
+                                ]}
+                              />
+                            ) : null}
+                          </View>
+                        );
+                      })}
                     </View>
 
                     {(touched.otp && errors.otp) || otpError ? (
@@ -212,13 +281,37 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 16,
   },
-  otpInput: {
-    borderWidth: 2,
-    borderRadius: 12,
+  // wrapper so we can overlay faux caret centered
+  inputWrapper: {
     width: 50,
     height: 55,
+    borderRadius: 12,
+    borderWidth: 2,
+    overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
+    position: "relative",
+  },
+  otpInput: {
+    width: "100%",
+    height: "100%",
+    textAlign: "center",
+    textAlignVertical: "center",
+    includeFontPadding: false,
+    paddingVertical: 0,
+    paddingHorizontal: 0,
     fontSize: 24,
     fontWeight: "700",
+    lineHeight: 28,
+  },
+  fauxCaret: {
+    position: "absolute",
+    width: 2,
+    height: 22,
+    borderRadius: 1,
+    left: "50%",
+    top: "50%",
+    transform: [{ translateX: -1 }, { translateY: -11 }],
   },
   errorText: {
     textAlign: "center",

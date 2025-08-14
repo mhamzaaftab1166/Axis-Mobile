@@ -54,16 +54,13 @@ export default function CategoryListing({ allowScroll = false }) {
 
   const renderItem = useCallback(
     ({ item }) => (
-      <View style={{ width: CARD_WIDTH, marginBottom: SPACING }}>
+      <View style={{ width: CARD_WIDTH, marginBottom: 10 }}>
         <TouchableOpacity
           activeOpacity={0.7}
           onPress={() => onPressItem(item.route)}
         >
           <Card
-            style={[
-              styles.card,
-              { backgroundColor: dark ? "#4d4c4cff" : "#faf4eeff" },
-            ]}
+            style={[styles.card, { backgroundColor: colors.background }]}
             mode="contained"
           >
             <View style={styles.cardContent}>

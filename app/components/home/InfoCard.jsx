@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
-    marginBottom: 30,
+    marginBottom: 10,
   },
   clipContainer: {
     borderRadius: 8,

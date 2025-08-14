@@ -103,7 +103,6 @@ export const parseTimeToPicker = (timeString) => {
 const UAE_OFFSET_MINUTES = 4 * 60;
 
 function toUAEDate(date) {
-  // Convert a Date to UAE timezone equivalent
   const utc = date.getTime() + date.getTimezoneOffset() * 60000;
   return new Date(utc + UAE_OFFSET_MINUTES * 60000);
 }
@@ -121,13 +120,12 @@ export function calculateTotalServiceDays(
 
   if (!repeatDuration) {
     if (type === "all") return 7;
-    return selectedDays.length || 1;
+    return selectedDays.length || 0;
   }
 
   const amount = parseInt(repeatDuration);
   const unit = repeatDuration.slice(-1).toLowerCase();
 
-  // Calculate end date based on repeat duration
   if (unit === "w") {
     endDate.setUTCDate(endDate.getUTCDate() + amount * 7 - 1);
   } else if (unit === "m") {
