@@ -49,93 +49,90 @@ export default function ServiceCardList({ service, onBookPress }) {
         },
       ]}
     >
-      <TouchableOpacity activeOpacity={0.85} style={styles.row}>
-        {/* Left: Image */}
-        <View style={styles.left}>
-          <Image
-            source={service.image}
-            style={styles.image}
-            resizeMode="cover"
-          />
-          {service.badge && (
-            <View
-              style={[
-                styles.badgeContainer,
-                { backgroundColor: badgeDetails.color },
-              ]}
-            >
-              <MaterialIcons
-                name={badgeDetails.icon}
-                size={12}
-                color="#fff"
-                style={{ marginRight: 6 }}
-              />
-              <Text style={styles.badgeText}>{service.badge}</Text>
-            </View>
-          )}
-        </View>
+      <View style={styles.innerWrapper}>
+        <TouchableOpacity activeOpacity={0.85} style={styles.row}>
+          <View style={styles.left}>
+            <Image
+              source={service.image}
+              style={styles.image}
+              resizeMode="cover"
+            />
+            {service.badge && (
+              <View
+                style={[
+                  styles.badgeContainer,
+                  { backgroundColor: badgeDetails.color },
+                ]}
+              >
+                <MaterialIcons
+                  name={badgeDetails.icon}
+                  size={12}
+                  color="#fff"
+                  style={{ marginRight: 6 }}
+                />
+                <Text style={styles.badgeText}>{service.badge}</Text>
+              </View>
+            )}
+          </View>
 
-        {/* Right: Info */}
-        <View style={styles.right}>
-          <View style={styles.titleRow}>
+          <View style={styles.right}>
+            <View style={styles.titleRow}>
+              <Text
+                style={[styles.name, { color: colors.text }]}
+                numberOfLines={1}
+              >
+                {service.name}
+              </Text>
+              <Text style={[styles.price, { color: "#28a745" }]}>
+                AED {service.price}
+              </Text>
+            </View>
+
             <Text
-              style={[styles.name, { color: colors.text }]}
-              numberOfLines={1}
+              style={[styles.description, { color: colors.placeholder }]}
+              numberOfLines={showFullDescription ? undefined : 2}
             >
-              {service.name}
+              {showFullDescription ? service.description : truncatedDescription}
             </Text>
 
-            <Text style={[styles.price, { color: "#28a745" }]}>
-              AED {service.price}
-            </Text>
-          </View>
+            {showMoreButton && (
+              <Pressable
+                onPress={() => setShowFullDescription((s) => !s)}
+                style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
+              >
+                <Text style={styles.moreLessLink}>
+                  {showFullDescription ? "Less" : "More"}
+                </Text>
+              </Pressable>
+            )}
 
-          <Text
-            style={[styles.description, { color: colors.placeholder }]}
-            numberOfLines={showFullDescription ? undefined : 2}
-          >
-            {showFullDescription ? service.description : truncatedDescription}
-          </Text>
+            <View style={styles.bottomRow}>
+              <View style={styles.ratingRow}>
+                <StarView
+                  score={service.rating}
+                  totalScore={5}
+                  style={{ width: 84, height: 16 }}
+                />
+                <Text
+                  style={[styles.ratingText, { color: colors.placeholder }]}
+                >
+                  ({service.rating})
+                </Text>
+              </View>
 
-          {showMoreButton && (
-            <Pressable
-              onPress={() => setShowFullDescription((s) => !s)}
-              style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
-              accessibilityRole="button"
-              accessibilityLabel={
-                showFullDescription ? "Show less" : "Show more"
-              }
-            >
-              <Text style={[styles.moreLessLink]}>
-                {showFullDescription ? "Less" : "More"}
-              </Text>
-            </Pressable>
-          )}
-
-          <View style={styles.bottomRow}>
-            <View style={styles.ratingRow}>
-              <StarView
-                score={service.rating}
-                totalScore={5}
-                style={{ width: 84, height: 16 }}
-              />
-              <Text style={[styles.ratingText, { color: colors.placeholder }]}>
-                ({service.rating})
-              </Text>
+              <Pressable
+                onPress={() => onBookPress && onBookPress(service)}
+                style={({ pressed }) => [
+                  styles.bookButton,
+                  { opacity: pressed ? 0.8 : 1 },
+                ]}
+              >
+                <Text style={styles.bookButtonText}>Book</Text>
+              </Pressable>
             </View>
-
-            <Pressable
-              onPress={() => onBookPress && onBookPress(service)}
-              style={({ pressed }) => [
-                styles.bookButton,
-                { opacity: pressed ? 0.8 : 1, backgroundColor: "#ff6b6b" },
-              ]}
-            >
-              <Text style={styles.bookButtonText}>Book</Text>
-            </Pressable>
           </View>
-        </View>
-      </TouchableOpacity>
+        </TouchableOpacity>
+      </View>
     </Card>
   );
 }
@@ -145,7 +142,10 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     borderRadius: 12,
     elevation: 3,
+  },
+  innerWrapper: {
     overflow: "hidden",
+    borderRadius: 12,
   },
   row: {
     flexDirection: "row",
@@ -229,6 +229,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderRadius: 8,
+    backgroundColor: "#ff6b6b",
   },
   bookButtonText: {
     color: "#fff",

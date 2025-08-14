@@ -18,6 +18,6 @@ export const ROUTES = {
   RESET_PASS: "screens/(auth)/ResetPassword",
   OTP: "screens/(auth)/OTP",
   THEME_TOGGLE: "screens/(account)/ThemeToggle",
-
+  BOOK_SERVICE: "screens/(home)/booking/BookService",
   SERVICE_LISTING: "screens/(home)/ServiceListing",
 };

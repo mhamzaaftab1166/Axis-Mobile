@@ -53,7 +53,7 @@ export default function Home() {
     <SafeAreaView style={[styles.safe, { backgroundColor: bg }]}>
       <ScrollView contentContainerStyle={styles.container}>
         <GreetingHeader name="Hamza" />
-        <InfoCard onBookService={() => router.push(ROUTES.SERVICE_LISTING)} />
+        <InfoCard onBookService={() => router.push(ROUTES.BOOK_SERVICE)} />
         <CategoryListing />
         <HomeServiceSection
           title="Popular Services"

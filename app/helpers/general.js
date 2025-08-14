@@ -73,3 +73,29 @@ export const getCardIcon = (type) => {
       );
   }
 };
+
+export const formatDate = (date) => {
+  const d = new Date(date);
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+};
+export const formatTime = (date) => {
+  const d = new Date(date);
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  return `${hh}:${mm}`;
+};
+export const parseDateToPicker = (dateString) => {
+  if (!dateString) return new Date();
+  const [yyyy, mm, dd] = dateString.split("-").map(Number);
+  return new Date(yyyy, mm - 1, dd);
+};
+export const parseTimeToPicker = (timeString) => {
+  if (!timeString) return new Date();
+  const [hh, mm] = timeString.split(":").map(Number);
+  const d = new Date();
+  d.setHours(hh, mm, 0, 0);
+  return d;
+};
