@@ -99,3 +99,61 @@ export const parseTimeToPicker = (timeString) => {
   d.setHours(hh, mm, 0, 0);
   return d;
 };
+
+const UAE_OFFSET_MINUTES = 4 * 60;
+
+function toUAEDate(date) {
+  // Convert a Date to UAE timezone equivalent
+  const utc = date.getTime() + date.getTimezoneOffset() * 60000;
+  return new Date(utc + UAE_OFFSET_MINUTES * 60000);
+}
+
+export function calculateTotalServiceDays(
+  startDateStr,
+  type = "all",
+  selectedDays = [],
+  repeatDuration = null
+) {
+  const dayMap = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
+
+  let startDate = toUAEDate(new Date(startDateStr));
+  let endDate = new Date(startDate);
+
+  if (!repeatDuration) {
+    if (type === "all") return 7;
+    return selectedDays.length || 1;
+  }
+
+  const amount = parseInt(repeatDuration);
+  const unit = repeatDuration.slice(-1).toLowerCase();
+
+  // Calculate end date based on repeat duration
+  if (unit === "w") {
+    endDate.setUTCDate(endDate.getUTCDate() + amount * 7 - 1);
+  } else if (unit === "m") {
+    endDate.setUTCMonth(endDate.getUTCMonth() + amount);
+    endDate.setUTCDate(endDate.getUTCDate() - 1);
+  } else if (unit === "y") {
+    endDate.setUTCFullYear(endDate.getUTCFullYear() + amount);
+    endDate.setUTCDate(endDate.getUTCDate() - 1);
+  }
+
+  // Count days
+  let totalDays = 0;
+  for (
+    let d = new Date(startDate);
+    d <= endDate;
+    d.setUTCDate(d.getUTCDate() + 1)
+  ) {
+    if (type === "all") {
+      totalDays++;
+    } else if (type === "selected") {
+      const dayStr = Object.keys(dayMap).find(
+        (key) => dayMap[key] === d.getUTCDay()
+      );
+      if (selectedDays.includes(dayStr)) totalDays++;
+    }
+  }
+
+  return totalDays;
+}

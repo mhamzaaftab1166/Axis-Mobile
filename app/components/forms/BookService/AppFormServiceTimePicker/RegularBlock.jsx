@@ -54,9 +54,6 @@ export default function RegularBlock({
   toggleDay,
   errors = {},
   touched = {},
-  setRootFieldValue,
-  field,
-  name,
 }) {
   const { colors, dark, fonts } = useTheme();
   const [iosPicker, setIosPicker] = useState(null);

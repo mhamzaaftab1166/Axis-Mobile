@@ -1,14 +1,12 @@
 import { useNavigation } from "expo-router";
 import { StatusBar, StyleSheet, View } from "react-native";
 import { useTheme } from "react-native-paper";
-import * as Yup from "yup";
 
 import CenteredAppbarHeader from "../../../components/common/CenteredAppBar";
 import AppForm from "../../../components/forms/AppForm";
 import SubmitButton from "../../../components/forms/AppSubmitButton";
 import AppFormServiceTimePicker from "../../../components/forms/BookService/AppFormServiceTimePicker";
-
-const validationSchema = Yup.object().shape({});
+import { bookingValidationSchema } from "../../../helpers/validations";
 
 export default function SetEmailScreen() {
   const navigation = useNavigation();
@@ -32,7 +30,7 @@ export default function SetEmailScreen() {
         <AppForm
           initialValues={{ serviceTime: {} }}
           onSubmit={handleSubmit}
-          validationSchema={null}
+          validationSchema={bookingValidationSchema}
         >
           <AppFormServiceTimePicker name="serviceTime" />
           <SubmitButton title="Confirm & Pay" />

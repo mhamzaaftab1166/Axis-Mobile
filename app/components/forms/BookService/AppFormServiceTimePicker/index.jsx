@@ -4,7 +4,11 @@ import { Keyboard, Text, TouchableWithoutFeedback, View } from "react-native";
 import { useTheme } from "react-native-paper";
 
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { formatDate, formatTime } from "../../../../helpers/general";
+import {
+  calculateTotalServiceDays,
+  formatDate,
+  formatTime,
+} from "../../../../helpers/general";
 import AppErrorMessage from "../../AppErrorMessage";
 import ModeSelector from "./ModeSelector";
 import OneTimeBlock from "./OneTimeBlock";
@@ -44,30 +48,17 @@ export default function AppFormServiceTimePicker({ name }) {
   const isRepeat = Boolean(regular?.repeat);
   const currentRepeat = regular?.repeatDuration;
 
-  const repeatToWeeks = {
-    "1w": 1,
-    "2w": 2,
-    "3w": 3,
-    "1m": 4,
-    "2m": 8,
-    "3m": 12,
-    "6m": 26,
-    "9m": 39,
-    "1y": 52,
-  };
-
+  // total days calculation using helper
   let totalDays = 0;
-  if (mode === "regular") {
-    const weeklyCount = regType === "all" ? 7 : selectedDays.length;
-    totalDays =
-      isRepeat && currentRepeat
-        ? weeklyCount * (repeatToWeeks[currentRepeat] || 0)
-        : weeklyCount;
-  }
-
-  // NEW: ensure one-time bookings count as 1 service day
   if (mode === "oneTime") {
     totalDays = 1;
+  } else if (mode === "regular") {
+    totalDays = calculateTotalServiceDays(
+      regular.startDate || defaultRegDate,
+      regType,
+      selectedDays,
+      regular.repeat ? currentRepeat : null
+    );
   }
 
   const init = useRef(false);
@@ -98,10 +89,6 @@ export default function AppFormServiceTimePicker({ name }) {
     defaultOneDate,
     defaultOneTime,
   ]);
-
-  const cardStyle = {
-    backgroundColor: dark ? colors.primary : "",
-  };
 
   const onModeChange = (newMode) => {
     if (newMode === mode) return;
@@ -152,7 +139,6 @@ export default function AppFormServiceTimePicker({ name }) {
         <ModeSelector
           mode={mode}
           onChange={onModeChange}
-          cardStyle={cardStyle}
           dark={dark}
           colors={colors}
         />
@@ -199,11 +185,6 @@ export default function AppFormServiceTimePicker({ name }) {
             toggleDay={toggleDay}
             errors={errors?.[name]?.regular}
             touched={touched?.[name]?.regular}
-            setRootFieldValue={setFieldValue}
-            field={field}
-            name={name}
-            dark={dark}
-            colors={colors}
           />
         )}
 
@@ -212,16 +193,10 @@ export default function AppFormServiceTimePicker({ name }) {
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "center",
-            backgroundColor: colors.surface,
             paddingVertical: 10,
             paddingHorizontal: 16,
             borderRadius: 8,
             marginVertical: 8,
-            elevation: 2,
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.15,
-            shadowRadius: 3,
           }}
         >
           <MaterialCommunityIcons
