@@ -56,8 +56,8 @@ export default function CenteredAppbarHeader({
                 <View
                   style={{
                     position: "absolute",
-                    top: -4, // slightly above the icon
-                    right: -4, // slightly to the right
+                    top: -4,
+                    right: -4,
                     backgroundColor: "red",
                     borderRadius: 8,
                     minWidth: 16,

@@ -7,6 +7,7 @@ import {
   View,
 } from "react-native";
 import { useTheme } from "react-native-paper";
+import useBookingStore from "../../store/useBookingStore";
 import ServiceCardGrid from "./services/ServiceCardGrid";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
@@ -15,9 +16,12 @@ export default function HomeServiceSection({
   title,
   homePageServices = [],
   onViewAll,
-  onBookPress,
 }) {
   const { colors } = useTheme();
+
+  const toggleService = useBookingStore((state) => state.toggleService);
+  const isSelected = useBookingStore((state) => state.isSelected);
+  const selectedServices = useBookingStore((state) => state.selectedServices);
 
   return (
     <View style={styles.sectionContainer}>
@@ -41,11 +45,13 @@ export default function HomeServiceSection({
         keyExtractor={(item) => item.id}
         showsHorizontalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
+        extraData={selectedServices}
         renderItem={({ item }) => (
           <ServiceCardGrid
             service={item}
-            onBookPress={onBookPress}
             horizontalMode
+            isSelected={isSelected(item)}
+            onToggleSelect={toggleService}
           />
         )}
       />

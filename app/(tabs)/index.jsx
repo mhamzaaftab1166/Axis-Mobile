@@ -59,7 +59,6 @@ export default function Home() {
           title="Popular Services"
           homePageServices={services}
           onViewAll={() => router.push(ROUTES.SERVICE_LISTING)}
-          onBookPress={(service) => console.log("Book", service.name)}
         />
       </ScrollView>
     </SafeAreaView>
