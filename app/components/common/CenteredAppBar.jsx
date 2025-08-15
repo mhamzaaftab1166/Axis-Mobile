@@ -13,7 +13,7 @@ export default function CenteredAppbarHeader({
 }) {
   const { colors } = useTheme();
   const selectedCount = useBookingStore(
-    (state) => state.selectedServices.length
+    (state) => state.booking.selectedServices.length
   );
 
   return (

@@ -6,27 +6,53 @@ import { createJSONStorage, persist } from "zustand/middleware";
 const useBookingStore = create(
   persist(
     (set, get) => ({
-      selectedServices: [],
+      // ===== Initial State =====
+      booking: {
+        selectedServices: [],
+        serviceTime: null,
+      },
 
+      // ===== Service Actions =====
       addService: (service) => {
-        const exists = get().selectedServices.find((s) => s.id === service.id);
+        const state = get();
+        if (!state || !state.booking) return;
+
+        const exists = state.booking.selectedServices.find(
+          (s) => s.id === service.id
+        );
         if (!exists) {
-          set((state) => ({
-            selectedServices: [...state.selectedServices, service],
-          }));
+          set({
+            ...state,
+            booking: {
+              ...state.booking,
+              selectedServices: [...state.booking.selectedServices, service],
+            },
+          });
         }
       },
 
       removeService: (service) => {
-        set((state) => ({
-          selectedServices: state.selectedServices.filter(
-            (s) => s.id !== service.id
-          ),
-        }));
+        const state = get();
+        if (!state || !state.booking) return;
+
+        set({
+          ...state,
+          booking: {
+            ...state.booking,
+            selectedServices: state.booking.selectedServices.filter(
+              (s) => s.id !== service.id
+            ),
+          },
+        });
       },
 
       toggleService: (service) => {
-        const exists = get().selectedServices.find((s) => s.id === service.id);
+        const state = get();
+        if (!state || !state.booking) return;
+
+        const exists = state.booking.selectedServices.find(
+          (s) => s.id === service.id
+        );
         if (exists) {
           get().removeService(service);
         } else {
@@ -35,15 +61,45 @@ const useBookingStore = create(
       },
 
       isSelected: (service) => {
-        return !!get().selectedServices.find((s) => s.id === service.id);
+        const state = get();
+        if (!state || !state.booking) return false;
+
+        return !!state.booking.selectedServices.find(
+          (s) => s.id === service.id
+        );
       },
 
-      clearAll: () => set({ selectedServices: [] }),
+      // ===== Service Time Actions =====
+      setServiceTime: (time) => {
+        const state = get();
+        if (!state || !state.booking) return;
+
+        set({
+          ...state,
+          booking: {
+            ...state.booking,
+            serviceTime: time,
+          },
+        });
+      },
+
+      // ===== Clear Booking =====
+      clearBooking: () => {
+        const state = get();
+        if (!state) return;
+
+        set({
+          ...state,
+          booking: {
+            selectedServices: [],
+            serviceTime: null,
+          },
+        });
+      },
     }),
     {
       name: "booking-storage",
       storage: createJSONStorage(() => AsyncStorage),
-      // optional: helpful for debugging rehydrate errors
       onRehydrateStorage: () => (state, error) => {
         if (error) {
           console.warn("[useBookingStore] Rehydrate error:", error);

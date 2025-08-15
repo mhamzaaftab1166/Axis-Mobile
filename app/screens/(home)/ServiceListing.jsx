@@ -62,7 +62,9 @@ export default function ServiceListing() {
 
   const toggleService = useBookingStore((state) => state.toggleService);
   const isSelectedService = useBookingStore((state) => state.isSelected);
-  const selectedServices = useBookingStore((state) => state.selectedServices);
+  const selectedServices = useBookingStore(
+    (state) => state.booking.selectedServices
+  );
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -85,7 +87,15 @@ export default function ServiceListing() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        {viewMode === "grid" ? (
+        {services.length === 0 ? (
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          >
+            <Text style={{ color: colors.onBackground }}>
+              No services available
+            </Text>
+          </View>
+        ) : viewMode === "grid" ? (
           <View style={styles.grid}>
             {services.map((service) => (
               <ServiceCardGrid

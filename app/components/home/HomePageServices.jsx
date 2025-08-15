@@ -1,16 +1,7 @@
-import {
-  Dimensions,
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "react-native-paper";
 import useBookingStore from "../../store/useBookingStore";
 import ServiceCardGrid from "./services/ServiceCardGrid";
-
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 export default function HomeServiceSection({
   title,
@@ -21,7 +12,9 @@ export default function HomeServiceSection({
 
   const toggleService = useBookingStore((state) => state.toggleService);
   const isSelected = useBookingStore((state) => state.isSelected);
-  const selectedServices = useBookingStore((state) => state.selectedServices);
+  const selectedServices = useBookingStore(
+    (state) => state.booking?.selectedServices || []
+  );
 
   return (
     <View style={styles.sectionContainer}>
