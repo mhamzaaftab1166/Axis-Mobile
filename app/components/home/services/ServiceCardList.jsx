@@ -11,7 +11,11 @@ import {
 import { Card, useTheme } from "react-native-paper";
 import StarView from "react-native-star-view";
 
-export default function ServiceCardList({ service, onBookPress }) {
+export default function ServiceCardList({
+  service,
+  isSelected,
+  onToggleSelect,
+}) {
   const { colors, dark } = useTheme();
   const [showFullDescription, setShowFullDescription] = useState(false);
 
@@ -121,13 +125,20 @@ export default function ServiceCardList({ service, onBookPress }) {
               </View>
 
               <Pressable
-                onPress={() => onBookPress && onBookPress(service)}
+                onPress={() => onToggleSelect && onToggleSelect(service)}
+                accessibilityLabel={
+                  isSelected
+                    ? "Remove this service from your booking"
+                    : "Add this service to your booking"
+                }
                 style={({ pressed }) => [
                   styles.bookButton,
                   { opacity: pressed ? 0.8 : 1 },
                 ]}
               >
-                <Text style={styles.bookButtonText}>Book</Text>
+                <Text style={styles.bookButtonText}>
+                  {isSelected ? "Remove Item" : "Add Item"}
+                </Text>
               </Pressable>
             </View>
           </View>

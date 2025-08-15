@@ -8,6 +8,7 @@ import SearchBarWithToggle from "../../components/common/SearchBarWithToggle";
 import SelectableChips from "../../components/common/SelectableChips";
 import ServiceCardGrid from "../../components/home/services/ServiceCardGrid";
 import ServiceCardList from "../../components/home/services/ServiceCardList";
+import useBookingStore from "../../store/useBookingStore";
 
 const categories = [
   "Cleaning",
@@ -59,6 +60,10 @@ export default function ServiceListing() {
   const [viewMode, setViewMode] = useState("grid");
   const [selectedCategories, setSelectedCategories] = useState([]);
 
+  const toggleService = useBookingStore((state) => state.toggleService);
+  const isSelectedService = useBookingStore((state) => state.isSelected);
+  const selectedServices = useBookingStore((state) => state.selectedServices);
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <CenteredAppbarHeader
@@ -83,12 +88,22 @@ export default function ServiceListing() {
         {viewMode === "grid" ? (
           <View style={styles.grid}>
             {services.map((service) => (
-              <ServiceCardGrid key={service.id} service={service} />
+              <ServiceCardGrid
+                key={service.id}
+                service={service}
+                isSelected={isSelectedService(service)}
+                onToggleSelect={toggleService}
+              />
             ))}
           </View>
         ) : (
           services.map((service) => (
-            <ServiceCardList key={service.id} service={service} />
+            <ServiceCardList
+              key={service.id}
+              service={service}
+              isSelected={isSelectedService(service)}
+              onToggleSelect={toggleService}
+            />
           ))
         )}
       </ScrollView>

@@ -6,8 +6,9 @@ import StarView from "react-native-star-view";
 
 export default function ServiceCardGrid({
   service,
-  onBookPress,
   horizontalMode,
+  isSelected = false,
+  onToggleSelect,
 }) {
   const { colors, dark } = useTheme();
   const [showFullDescription, setShowFullDescription] = useState(false);
@@ -27,11 +28,16 @@ export default function ServiceCardGrid({
 
   const TRUNCATE_LIMIT = 37;
   const truncatedDescription =
-    service.description.length > TRUNCATE_LIMIT
+    service.description && service.description.length > TRUNCATE_LIMIT
       ? service.description.slice(0, TRUNCATE_LIMIT) + "... "
-      : service.description;
+      : service.description || "";
 
-  const showMoreButton = service.description.length > TRUNCATE_LIMIT;
+  const showMoreButton = (service.description || "").length > TRUNCATE_LIMIT;
+
+  const handleToggle = () => {
+    if (!onToggleSelect) return;
+    onToggleSelect(service);
+  };
 
   return (
     <Card
@@ -113,13 +119,29 @@ export default function ServiceCardGrid({
           </View>
 
           <Pressable
-            onPress={() => onBookPress && onBookPress(service)}
+            onPress={handleToggle}
             style={({ pressed }) => [
               styles.bookButton,
-              { backgroundColor: "#ff6b6b", opacity: pressed ? 0.8 : 1 },
+              isSelected ? styles.removeButton : styles.addButton,
+              { opacity: pressed ? 0.85 : 1 },
             ]}
+            accessibilityLabel={
+              isSelected
+                ? "Remove this service from your booking"
+                : "Add this service to your booking"
+            }
           >
-            <Text style={styles.bookButtonText}>Book Now</Text>
+            <View style={styles.buttonInner}>
+              <MaterialIcons
+                name={isSelected ? "remove-shopping-cart" : "add-shopping-cart"}
+                size={16}
+                color="#fff"
+                style={{ marginRight: 8 }}
+              />
+              <Text style={styles.bookButtonText}>
+                {isSelected ? "Remove Item" : "Add Item"}
+              </Text>
+            </View>
           </Pressable>
         </View>
       </View>
@@ -203,6 +225,17 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     width: "100%",
     paddingVertical: 6,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  addButton: {
+    backgroundColor: "#ff6b6b",
+  },
+  removeButton: {
+    backgroundColor: "#d9534f",
+  },
+  buttonInner: {
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
   },
