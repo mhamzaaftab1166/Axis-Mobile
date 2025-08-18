@@ -1,13 +1,18 @@
-import { useNavigation } from "expo-router";
+import { MaterialIcons } from "@expo/vector-icons";
+import { router, useNavigation } from "expo-router";
 import { useCallback, useRef, useState } from "react";
 import { Animated, Easing, StatusBar, StyleSheet, View } from "react-native";
 import { Appbar, Button, ProgressBar, useTheme } from "react-native-paper";
+import EmptyState from "../../../components/common/EmptyState";
 import { ROUTES } from "../../../helpers/routePaths";
-import useBookingStore from "../../../store/useBookingStore"; // ✅ import store
+import useBookingStore from "../../../store/useBookingStore";
 import Step1 from "./Step1";
 import Step2 from "./Step2";
 
 export default function AddPropertyWizard() {
+  const booking = useBookingStore((state) => state.booking);
+  const selectedServices = booking.selectedServices;
+
   const { colors, dark } = useTheme();
   const navigation = useNavigation();
   const [step, setStep] = useState(0);
@@ -70,7 +75,20 @@ export default function AddPropertyWizard() {
       navigation.replace(ROUTES.HOME);
     }
   };
-
+  if (selectedServices.length === 0)
+    return (
+      <View style={styles.emptyWrapper}>
+        <EmptyState
+          icon={MaterialIcons}
+          iconSize={80}
+          iconColor={colors.placeholder}
+          title="No Services Selected"
+          description="You haven’t selected any services yet. Please select a service to continue."
+          buttonLabel="Browse Services"
+          onButtonPress={() => router.replace(ROUTES.SERVICE_LISTING)}
+        />
+      </View>
+    );
   return (
     <View style={[styles.container, { backgroundColor: bg }]}>
       <StatusBar
@@ -138,4 +156,5 @@ const styles = StyleSheet.create({
     flex: 0.45,
     justifyContent: "center",
   },
+  emptyWrapper: { flex: 1, padding: 16 },
 });

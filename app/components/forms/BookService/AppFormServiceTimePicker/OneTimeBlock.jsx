@@ -10,6 +10,7 @@ import {
   View,
 } from "react-native";
 import { Card, useTheme } from "react-native-paper";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import {
   formatDate,
   formatTime,
@@ -28,7 +29,7 @@ export default function OneTimeBlock({
   errors,
   touched,
 }) {
-  const { colors, fonts } = useTheme();
+  const { colors, fonts, dark } = useTheme();
   const [iosPicker, setIosPicker] = useState(null);
 
   const onOneTimeDateChange = (event, date) => {
@@ -81,7 +82,18 @@ export default function OneTimeBlock({
   };
 
   return (
-    <Card style={[styles.card]}>
+    <Card
+      style={[
+        styles.card,
+        {
+          backgroundColor: colors.background,
+          borderWidth: 1,
+          elevation: 3,
+          borderWidth: dark ? 1 : 0,
+          borderColor: dark ? "#333" : "transparent",
+        },
+      ]}
+    >
       <Card.Content>
         <View style={styles.rowEqual}>
           <View style={[styles.flexItem, styles.leftItem]}>
@@ -107,14 +119,26 @@ export default function OneTimeBlock({
               accessibilityRole="button"
               accessibilityLabel="Open date picker"
             >
-              <Text
-                style={[
-                  styles.pickerText,
-                  { color: colors.text, fontFamily: fonts.medium?.fontFamily },
-                ]}
-              >
-                {oneTimeDate || defaultOneDate}
-              </Text>
+              <View style={styles.pickerInner}>
+                <MaterialCommunityIcons
+                  name="calendar-month"
+                  size={18}
+                  color={colors.text}
+                  style={styles.icon}
+                />
+                <Text
+                  style={[
+                    styles.pickerText,
+                    {
+                      color: colors.text,
+                      fontFamily: fonts.medium?.fontFamily,
+                    },
+                  ]}
+                  numberOfLines={1}
+                >
+                  {oneTimeDate || defaultOneDate}
+                </Text>
+              </View>
             </TouchableOpacity>
 
             <AppErrorMessage
@@ -146,14 +170,26 @@ export default function OneTimeBlock({
               accessibilityRole="button"
               accessibilityLabel="Open time picker"
             >
-              <Text
-                style={[
-                  styles.pickerText,
-                  { color: colors.text, fontFamily: fonts.medium?.fontFamily },
-                ]}
-              >
-                {oneTimeTime || defaultOneTime}
-              </Text>
+              <View style={styles.pickerInner}>
+                <MaterialCommunityIcons
+                  name="clock-outline"
+                  size={18}
+                  color={colors.text}
+                  style={styles.icon}
+                />
+                <Text
+                  style={[
+                    styles.pickerText,
+                    {
+                      color: colors.text,
+                      fontFamily: fonts.medium?.fontFamily,
+                    },
+                  ]}
+                  numberOfLines={1}
+                >
+                  {oneTimeTime || defaultOneTime}
+                </Text>
+              </View>
             </TouchableOpacity>
 
             <AppErrorMessage
@@ -203,18 +239,31 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   label: {
-    fontSize: 14,
-    marginBottom: 8,
+    fontSize: 13,
+    marginBottom: 6,
     fontWeight: "600",
+    opacity: 0.9,
   },
   pickerButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 16,
+    height: 40,
     borderRadius: 8,
-    alignItems: "center",
     borderWidth: 1,
+    justifyContent: "center",
+    paddingHorizontal: 10,
+  },
+  pickerInner: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
+  icon: {
+    marginRight: 8,
+    opacity: 0.9,
   },
   pickerText: {
-    fontSize: 16,
+    fontSize: 15,
+    fontWeight: "500",
+    letterSpacing: 0.2,
   },
 });

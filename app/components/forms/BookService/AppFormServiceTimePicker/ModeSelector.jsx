@@ -16,11 +16,11 @@ export default function ModeSelector({
     {
       value: "oneTime",
       label: "One Time",
-
-      checkedColor: dark ? colors.secondary : colors.primary,
-      uncheckedColor: colors.text,
+      style: {
+        backgroundColor: mode === "oneTime" ? colors.tertiary : colors.surface,
+      },
       labelStyle: {
-        color: colors.text,
+        color: mode === "oneTime" ? "#fff" : colors.text,
         fontFamily: theme.fonts?.medium?.fontFamily,
       },
       showSelectedCheck: false,
@@ -29,10 +29,11 @@ export default function ModeSelector({
     {
       value: "regular",
       label: "Regular",
-      checkedColor: dark ? colors.secondary : colors.primary,
-      uncheckedColor: colors.text,
+      style: {
+        backgroundColor: mode === "regular" ? colors.tertiary : colors.surface,
+      },
       labelStyle: {
-        color: colors.text,
+        color: mode === "regular" ? "#fff" : colors.text,
         fontFamily: theme.fonts?.medium?.fontFamily,
       },
       showSelectedCheck: false,
@@ -52,6 +53,6 @@ export default function ModeSelector({
 
 const styles = StyleSheet.create({
   segmented: {
-    marginVertical: 8,
+    marginVertical: 12,
   },
 });

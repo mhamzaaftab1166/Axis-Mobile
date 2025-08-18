@@ -104,7 +104,7 @@ export default function ServiceCardList({
                 onPress={() => setShowFullDescription((s) => !s)}
                 style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
               >
-                <Text style={styles.moreLessLink}>
+                <Text style={[styles.moreLessLink, { color: colors.tertiary }]}>
                   {showFullDescription ? "Less" : "More"}
                 </Text>
               </Pressable>
@@ -133,7 +133,10 @@ export default function ServiceCardList({
                 }
                 style={({ pressed }) => [
                   styles.bookButton,
-                  { opacity: pressed ? 0.8 : 1 },
+                  {
+                    opacity: pressed ? 0.8 : 1,
+                    backgroundColor: colors.tertiary,
+                  },
                 ]}
               >
                 <Text style={styles.bookButtonText}>
@@ -212,7 +215,6 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   moreLessLink: {
-    color: "#ff6b6b",
     fontWeight: "600",
     textDecorationLine: "underline",
     marginBottom: 8,
@@ -240,7 +242,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderRadius: 8,
-    backgroundColor: "#ff6b6b",
   },
   bookButtonText: {
     color: "#fff",

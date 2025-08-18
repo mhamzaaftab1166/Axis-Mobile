@@ -1,3 +1,4 @@
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import DateTimePicker, {
   DateTimePickerAndroid,
 } from "@react-native-community/datetimepicker";
@@ -122,7 +123,18 @@ export default function RegularBlock({
   };
 
   return (
-    <Card style={[styles.card]}>
+    <Card
+      style={[
+        styles.card,
+        {
+          backgroundColor: colors.background,
+          borderWidth: 1,
+          elevation: 3,
+          borderWidth: dark ? 1 : 0,
+          borderColor: dark ? "#333" : "transparent",
+        },
+      ]}
+    >
       <Card.Content>
         <Text
           style={[
@@ -141,29 +153,38 @@ export default function RegularBlock({
             {
               value: "all",
               label: "All Days",
-              style: { borderColor: dark ? colors.secondary : colors.primary },
-              checkedColor: dark ? colors.secondary : colors.primary,
-              uncheckedColor: colors.text,
+              style: {
+                borderColor: colors.outline,
+                borderWidth: 1,
+                backgroundColor:
+                  regType === "all" ? colors.tertiary : colors.surface,
+              },
               labelStyle: {
-                color: colors.text,
+                color: regType === "all" ? "#fff" : colors.text,
                 fontFamily: fonts.medium?.fontFamily,
               },
               showSelectedCheck: false,
+              accessibilityLabel: "Choose all days",
             },
             {
               value: "selected",
               label: "Select Days",
-              style: { borderColor: dark ? colors.secondary : colors.primary },
-              checkedColor: dark ? colors.secondary : colors.primary,
-              uncheckedColor: colors.text,
+              style: {
+                borderColor: colors.outline,
+                borderWidth: 1,
+                backgroundColor:
+                  regType === "selected" ? colors.tertiary : colors.surface,
+              },
               labelStyle: {
-                color: colors.text,
+                color: regType === "selected" ? "#fff" : colors.text,
                 fontFamily: fonts.medium?.fontFamily,
               },
               showSelectedCheck: false,
+              accessibilityLabel: "Choose selected days",
             },
           ]}
         />
+
         <AppErrorMessage error={errors?.type} visible={touched?.type} />
 
         {regType === "selected" && (
@@ -180,9 +201,7 @@ export default function RegularBlock({
                     styles.chip,
                     selected
                       ? {
-                          backgroundColor: dark
-                            ? colors.secondary
-                            : colors.primary,
+                          backgroundColor: colors.tertiary,
                           borderColor: dark ? colors.secondary : colors.primary,
                         }
                       : {
@@ -230,6 +249,12 @@ export default function RegularBlock({
               accessibilityRole="button"
               accessibilityLabel="Open start date picker"
             >
+              <MaterialCommunityIcons
+                name="calendar-month"
+                size={18}
+                color={colors.text}
+                style={{ marginRight: 8 }}
+              />
               <Text
                 style={[
                   styles.pickerText,
@@ -269,6 +294,12 @@ export default function RegularBlock({
               accessibilityRole="button"
               accessibilityLabel="Open start time picker"
             >
+              <MaterialCommunityIcons
+                name="clock-outline"
+                size={18}
+                color={colors.text}
+                style={{ marginRight: 8 }}
+              />
               <Text
                 style={[
                   styles.pickerText,
@@ -302,7 +333,7 @@ export default function RegularBlock({
           </Text>
           <Switch
             value={Boolean(regular?.repeat)}
-            color={dark ? colors.secondary : colors.primary}
+            color={colors.tertiary}
             onValueChange={(val) =>
               setRegular({
                 ...regular,
@@ -329,9 +360,7 @@ export default function RegularBlock({
                     styles.chip,
                     selected
                       ? {
-                          backgroundColor: dark
-                            ? colors.secondary
-                            : colors.primary,
+                          backgroundColor: colors.tertiary,
                           borderColor: dark ? colors.secondary : colors.primary,
                         }
                       : {
@@ -407,19 +436,24 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   fieldLabel: {
-    fontSize: 14,
-    marginBottom: 8,
+    fontSize: 13,
+    marginBottom: 6,
     fontWeight: "600",
+    opacity: 0.9,
   },
   pickerButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 8,
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    height: 36,
+    borderRadius: 8,
     borderWidth: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 0,
   },
   pickerText: {
-    fontSize: 16,
+    fontSize: 14,
+    lineHeight: 18,
   },
   repeatRow: {
     flexDirection: "row",
