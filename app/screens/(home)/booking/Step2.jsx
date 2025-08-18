@@ -1,17 +1,22 @@
 import { Formik } from "formik";
 import { forwardRef, useImperativeHandle, useRef } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "react-native-paper";
+import useBookingStore from "../../../store/useBookingStore";
+import BookingSummary from "./BookingSummary";
 
 const Step2 = forwardRef(function Step2({ onSubmit }, ref) {
-  const { colors } = useTheme();
+  const booking = useBookingStore((state) => state.booking);
+  const { colors, fonts } = useTheme();
   const formikRef = useRef(null);
+  console.log(booking);
 
-  // Expose submitForm to parent via ref
   useImperativeHandle(ref, () => ({
     submitForm: () => {
       if (formikRef.current) {
-        formikRef.current.handleSubmit();
+        formikRef.current.setSubmitting(true);
+        onSubmit(booking);
+        formikRef.current.setSubmitting(false);
       }
     },
   }));
@@ -21,12 +26,23 @@ const Step2 = forwardRef(function Step2({ onSubmit }, ref) {
       innerRef={formikRef}
       initialValues={{}}
       validationSchema={null}
-      onSubmit={onSubmit}
+      onSubmit={() => onSubmit(booking)}
     >
       {() => (
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={[styles.inner, { backgroundColor: colors.background }]}>
-            {/* Your form fields go here */}
+            <Text
+              style={[
+                styles.title,
+                { color: colors.text, fontFamily: fonts.medium?.fontFamily },
+              ]}
+            >
+              Booking Summary
+            </Text>
+
+            <BookingSummary booking={booking} />
+
+            <View style={{ height: 24 }} />
           </View>
         </ScrollView>
       )}
@@ -38,4 +54,5 @@ export default Step2;
 
 const styles = StyleSheet.create({
   inner: { flex: 1, padding: 16 },
+  title: { fontSize: 18, marginBottom: 12, fontWeight: "700" },
 });

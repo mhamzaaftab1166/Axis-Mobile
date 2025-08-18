@@ -25,7 +25,7 @@ export default function AddPropertyWizard() {
 
   const bg = colors.background;
   const progressColor = dark ? colors.onPrimary : colors.secondary;
-  const nextBg = colors.primary;
+  const nextBg = colors.tertiary;
   const nextText = colors.onPrimary;
   const prevBorder = dark ? colors.onPrimary : colors.primary;
   const prevText = dark ? colors.onPrimary : colors.primary;
@@ -125,11 +125,17 @@ export default function AddPropertyWizard() {
           mode="outlined"
           onPress={back}
           disabled={step === 0}
-          style={[styles.prevBtn, { borderColor: prevBorder }]}
-          labelStyle={{ color: prevText }}
+          style={[
+            styles.prevBtn,
+            { borderColor: step === 0 ? colors.surfaceDisabled : prevBorder },
+          ]}
+          labelStyle={{
+            color: step === 0 ? colors.onSurfaceDisabled : prevText,
+          }}
         >
           Previous
         </Button>
+
         <Button
           mode="contained"
           onPress={next}
