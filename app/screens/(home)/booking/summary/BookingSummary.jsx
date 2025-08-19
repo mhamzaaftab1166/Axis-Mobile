@@ -1,6 +1,7 @@
-import { Image, StyleSheet, Text, View } from "react-native";
-import { Card, Chip, Divider, useTheme } from "react-native-paper";
+import { StyleSheet, View } from "react-native";
+import { Card, Chip, Divider, Text, useTheme } from "react-native-paper";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import ServiceRow from "./ServiceRow";
 
 const TAX_RATE = 0.05;
 
@@ -50,118 +51,6 @@ const formatReadableTime = (timeStr) => {
   return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
 };
 
-const getBadgeStyle = (tag) => {
-  switch (tag) {
-    case "Top Rated":
-      return { backgroundColor: "#4CAF50", icon: "star" };
-    case "Popular":
-      return { backgroundColor: "#FF5722", icon: "whatshot" };
-    default:
-      return { backgroundColor: "#9E9E9E", icon: "tag" };
-  }
-};
-
-function ServiceRow({ service, colors, fonts }) {
-  const imgSource =
-    typeof service.image === "number"
-      ? service.image
-      : service.image
-      ? { uri: service.image }
-      : null;
-
-  const badgeStyle = service.badge ? getBadgeStyle(service.badge) : null;
-
-  return (
-    <View style={styles.serviceRow}>
-      <View style={styles.serviceLeft}>
-        <View style={[styles.imageWrap, { backgroundColor: colors.surface }]}>
-          {imgSource ? (
-            <Image
-              source={imgSource}
-              style={styles.serviceImage}
-              resizeMode="cover"
-            />
-          ) : (
-            <View
-              style={[styles.placeholder, { backgroundColor: colors.disabled }]}
-            />
-          )}
-        </View>
-      </View>
-
-      <View style={styles.serviceBody}>
-        <View style={styles.serviceHeader}>
-          <Text
-            style={[
-              styles.serviceName,
-              { color: colors.text, fontFamily: fonts.medium?.fontFamily },
-            ]}
-          >
-            {service.name}
-          </Text>
-
-          {badgeStyle && (
-            <View
-              style={[
-                styles.badge,
-                { backgroundColor: badgeStyle.backgroundColor },
-              ]}
-            >
-              <MaterialIcons
-                name={badgeStyle.icon}
-                size={12}
-                color="#fff"
-                style={{ marginRight: 4 }}
-              />
-              <Text
-                style={[
-                  styles.badgeText,
-                  { color: "#fff", fontFamily: fonts.medium?.fontFamily },
-                ]}
-              >
-                {service.badge}
-              </Text>
-            </View>
-          )}
-        </View>
-
-        {service.description ? (
-          <Text
-            numberOfLines={2}
-            style={[
-              styles.serviceDesc,
-              { color: colors.text, fontFamily: fonts.regular?.fontFamily },
-            ]}
-          >
-            {service.description}
-          </Text>
-        ) : null}
-
-        <View style={styles.priceRow}>
-          <Text
-            style={[
-              styles.qtyText,
-              { color: colors.text, fontFamily: fonts.medium?.fontFamily },
-            ]}
-          >
-            x{service.quantity || 1}
-          </Text>
-          <Text
-            style={[
-              styles.lineTotal,
-              { color: colors.text, fontFamily: fonts.medium?.fontFamily },
-            ]}
-          >
-            {formatCurrency(
-              (Number(service.price) || 0) * (service.quantity || 1)
-            )}
-          </Text>
-        </View>
-      </View>
-    </View>
-  );
-}
-
 export default function BookingSummary({ booking = {} }) {
   const { colors, fonts, dark } = useTheme();
   const services = Array.isArray(booking.selectedServices)
@@ -173,7 +62,6 @@ export default function BookingSummary({ booking = {} }) {
   );
   const tax = subtotal * TAX_RATE;
   const total = subtotal + tax;
-
   const svcTime = booking.serviceTime || {};
 
   return (
@@ -321,14 +209,22 @@ export default function BookingSummary({ booking = {} }) {
       >
         <Card.Content>
           <View style={styles.scheduleRow}>
-            <Text
-              style={[
-                styles.scheduleLabel,
-                { color: colors.text, fontFamily: fonts.regular?.fontFamily },
-              ]}
-            >
-              Mode
-            </Text>
+            <View style={styles.scheduleLeft}>
+              <MaterialIcons
+                name="event"
+                size={18}
+                color={colors.placeholder}
+                style={{ marginRight: 8 }}
+              />
+              <Text
+                style={[
+                  styles.scheduleLabel,
+                  { color: colors.text, fontFamily: fonts.regular?.fontFamily },
+                ]}
+              >
+                Mode
+              </Text>
+            </View>
             <Text
               style={[
                 styles.scheduleValue,
@@ -346,17 +242,25 @@ export default function BookingSummary({ booking = {} }) {
           {svcTime.mode === "oneTime" && (
             <>
               <View style={styles.scheduleRow}>
-                <Text
-                  style={[
-                    styles.scheduleLabel,
-                    {
-                      color: colors.text,
-                      fontFamily: fonts.regular?.fontFamily,
-                    },
-                  ]}
-                >
-                  Date
-                </Text>
+                <View style={styles.scheduleLeft}>
+                  <MaterialIcons
+                    name="date-range"
+                    size={18}
+                    color={colors.placeholder}
+                    style={{ marginRight: 8 }}
+                  />
+                  <Text
+                    style={[
+                      styles.scheduleLabel,
+                      {
+                        color: colors.text,
+                        fontFamily: fonts.regular?.fontFamily,
+                      },
+                    ]}
+                  >
+                    Date
+                  </Text>
+                </View>
                 <Text
                   style={[
                     styles.scheduleValue,
@@ -371,17 +275,25 @@ export default function BookingSummary({ booking = {} }) {
               </View>
 
               <View style={styles.scheduleRow}>
-                <Text
-                  style={[
-                    styles.scheduleLabel,
-                    {
-                      color: colors.text,
-                      fontFamily: fonts.regular?.fontFamily,
-                    },
-                  ]}
-                >
-                  Time
-                </Text>
+                <View style={styles.scheduleLeft}>
+                  <MaterialIcons
+                    name="access-time"
+                    size={18}
+                    color={colors.placeholder}
+                    style={{ marginRight: 8 }}
+                  />
+                  <Text
+                    style={[
+                      styles.scheduleLabel,
+                      {
+                        color: colors.text,
+                        fontFamily: fonts.regular?.fontFamily,
+                      },
+                    ]}
+                  >
+                    Time
+                  </Text>
+                </View>
                 <Text
                   style={[
                     styles.scheduleValue,
@@ -400,17 +312,25 @@ export default function BookingSummary({ booking = {} }) {
           {svcTime.mode === "regular" && svcTime.regular && (
             <>
               <View style={styles.scheduleRow}>
-                <Text
-                  style={[
-                    styles.scheduleLabel,
-                    {
-                      color: colors.text,
-                      fontFamily: fonts.regular?.fontFamily,
-                    },
-                  ]}
-                >
-                  Start date
-                </Text>
+                <View style={styles.scheduleLeft}>
+                  <MaterialIcons
+                    name="calendar-today"
+                    size={18}
+                    color={colors.placeholder}
+                    style={{ marginRight: 8 }}
+                  />
+                  <Text
+                    style={[
+                      styles.scheduleLabel,
+                      {
+                        color: colors.text,
+                        fontFamily: fonts.regular?.fontFamily,
+                      },
+                    ]}
+                  >
+                    Start date
+                  </Text>
+                </View>
                 <Text
                   style={[
                     styles.scheduleValue,
@@ -425,17 +345,25 @@ export default function BookingSummary({ booking = {} }) {
               </View>
 
               <View style={styles.scheduleRow}>
-                <Text
-                  style={[
-                    styles.scheduleLabel,
-                    {
-                      color: colors.text,
-                      fontFamily: fonts.regular?.fontFamily,
-                    },
-                  ]}
-                >
-                  Start time
-                </Text>
+                <View style={styles.scheduleLeft}>
+                  <MaterialIcons
+                    name="schedule"
+                    size={18}
+                    color={colors.placeholder}
+                    style={{ marginRight: 8 }}
+                  />
+                  <Text
+                    style={[
+                      styles.scheduleLabel,
+                      {
+                        color: colors.text,
+                        fontFamily: fonts.regular?.fontFamily,
+                      },
+                    ]}
+                  >
+                    Start time
+                  </Text>
+                </View>
                 <Text
                   style={[
                     styles.scheduleValue,
@@ -450,17 +378,25 @@ export default function BookingSummary({ booking = {} }) {
               </View>
 
               <View style={styles.scheduleRow}>
-                <Text
-                  style={[
-                    styles.scheduleLabel,
-                    {
-                      color: colors.text,
-                      fontFamily: fonts.regular?.fontFamily,
-                    },
-                  ]}
-                >
-                  Type
-                </Text>
+                <View style={styles.scheduleLeft}>
+                  <MaterialIcons
+                    name="today"
+                    size={18}
+                    color={colors.placeholder}
+                    style={{ marginRight: 8 }}
+                  />
+                  <Text
+                    style={[
+                      styles.scheduleLabel,
+                      {
+                        color: colors.text,
+                        fontFamily: fonts.regular?.fontFamily,
+                      },
+                    ]}
+                  >
+                    Type
+                  </Text>
+                </View>
                 <Text
                   style={[
                     styles.scheduleValue,
@@ -477,17 +413,25 @@ export default function BookingSummary({ booking = {} }) {
               </View>
 
               <View style={styles.scheduleRow}>
-                <Text
-                  style={[
-                    styles.scheduleLabel,
-                    {
-                      color: colors.text,
-                      fontFamily: fonts.regular?.fontFamily,
-                    },
-                  ]}
-                >
-                  Repeat
-                </Text>
+                <View style={styles.scheduleLeft}>
+                  <MaterialIcons
+                    name="repeat"
+                    size={18}
+                    color={colors.placeholder}
+                    style={{ marginRight: 8 }}
+                  />
+                  <Text
+                    style={[
+                      styles.scheduleLabel,
+                      {
+                        color: colors.text,
+                        fontFamily: fonts.regular?.fontFamily,
+                      },
+                    ]}
+                  >
+                    Repeat
+                  </Text>
+                </View>
                 <Text
                   style={[
                     styles.scheduleValue,
@@ -568,13 +512,7 @@ export default function BookingSummary({ booking = {} }) {
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderRadius: 10,
-    marginBottom: 8,
-
-    borderWidth: 1,
-    elevation: 2,
-  },
+  card: { borderRadius: 12, marginBottom: 12, borderWidth: 1, elevation: 3 },
   sectionTitle: { fontSize: 14, marginBottom: 8, fontWeight: "600" },
 
   serviceRow: { flexDirection: "row", alignItems: "flex-start" },
@@ -583,7 +521,6 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 8,
-    overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -619,7 +556,7 @@ const styles = StyleSheet.create({
   totRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingVertical: 4,
+    paddingVertical: 6,
   },
   totLabel: { fontSize: 14 },
   totValue: { fontSize: 14 },
@@ -627,8 +564,10 @@ const styles = StyleSheet.create({
   scheduleRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingVertical: 6,
+    alignItems: "center",
+    paddingVertical: 10,
   },
+  scheduleLeft: { flexDirection: "row", alignItems: "center" },
   scheduleLabel: { fontSize: 13 },
   scheduleValue: { fontSize: 13, fontWeight: "600" },
 

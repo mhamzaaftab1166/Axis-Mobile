@@ -8,10 +8,13 @@ import { ROUTES } from "../../../helpers/routePaths";
 import useBookingStore from "../../../store/useBookingStore";
 import Step1 from "./Step1";
 import Step2 from "./Step2";
+import Step3 from "./Step3";
 
 export default function AddPropertyWizard() {
   const booking = useBookingStore((state) => state.booking);
-  const selectedServices = booking.selectedServices;
+  const selectedServices = Array.isArray(booking?.selectedServices)
+    ? booking.selectedServices
+    : [];
 
   const { colors, dark } = useTheme();
   const navigation = useNavigation();
@@ -30,26 +33,29 @@ export default function AddPropertyWizard() {
   const prevBorder = dark ? colors.onPrimary : colors.primary;
   const prevText = dark ? colors.onPrimary : colors.primary;
 
+  const TOTAL_STEPS = 3;
+
   const animateStepChange = useCallback(
     (nextStep) => {
+      const forward = nextStep > step;
       Animated.timing(opacity, {
         toValue: 0,
-        duration: 250,
+        duration: 220,
         useNativeDriver: true,
         easing: Easing.out(Easing.ease),
       }).start(() => {
         setStep(nextStep);
-        translateX.setValue(nextStep > step ? 100 : -100);
+        translateX.setValue(forward ? 100 : -100);
         Animated.parallel([
           Animated.timing(opacity, {
             toValue: 1,
-            duration: 250,
+            duration: 220,
             useNativeDriver: true,
             easing: Easing.out(Easing.ease),
           }),
           Animated.timing(translateX, {
             toValue: 0,
-            duration: 250,
+            duration: 260,
             useNativeDriver: true,
             easing: Easing.out(Easing.ease),
           }),
@@ -61,21 +67,26 @@ export default function AddPropertyWizard() {
 
   const next = () => formRef.current?.submitForm();
   const back = () => {
-    if (step > 0) {
-      animateStepChange(step - 1);
-    }
+    if (step > 0) animateStepChange(step - 1);
   };
 
   const onStepSubmit = async (values) => {
     if (step === 0) {
-      setServiceTime(values.serviceTime);
+      if (values?.serviceTime) setServiceTime(values.serviceTime);
       animateStepChange(1);
-    } else {
+      return;
+    }
+    if (step === 1) {
+      animateStepChange(2);
+      return;
+    }
+    if (step === 2) {
       clearBooking();
       navigation.replace(ROUTES.HOME);
     }
   };
-  if (selectedServices.length === 0)
+
+  if (selectedServices.length === 0) {
     return (
       <View style={styles.emptyWrapper}>
         <EmptyState
@@ -89,6 +100,8 @@ export default function AddPropertyWizard() {
         />
       </View>
     );
+  }
+
   return (
     <View style={[styles.container, { backgroundColor: bg }]}>
       <StatusBar
@@ -96,15 +109,17 @@ export default function AddPropertyWizard() {
         backgroundColor={colors.secondary}
       />
       <Appbar.Header style={{ backgroundColor: colors.primary }}>
-        {step > 0 && <Appbar.BackAction onPress={back} color={prevText} />}
+        {step > 0 ? (
+          <Appbar.BackAction onPress={back} color={colors.onPrimary} />
+        ) : null}
         <Appbar.Content
-          title={`Step ${step + 1} of 2`}
+          title={`Step ${step + 1} of ${TOTAL_STEPS}`}
           titleStyle={{ color: colors.onPrimary }}
         />
       </Appbar.Header>
 
       <ProgressBar
-        progress={(step + 1) / 2}
+        progress={(step + 1) / TOTAL_STEPS}
         color={progressColor}
         style={styles.progress}
       />
@@ -118,6 +133,7 @@ export default function AddPropertyWizard() {
       >
         {step === 0 && <Step1 ref={formRef} onSubmit={onStepSubmit} />}
         {step === 1 && <Step2 ref={formRef} onSubmit={onStepSubmit} />}
+        {step === 2 && <Step3 ref={formRef} onSubmit={onStepSubmit} />}
       </Animated.View>
 
       <View style={styles.footer}>
@@ -126,8 +142,15 @@ export default function AddPropertyWizard() {
           onPress={back}
           disabled={step === 0}
           style={[
-            styles.prevBtn,
-            { borderColor: step === 0 ? colors.surfaceDisabled : prevBorder },
+            step === TOTAL_STEPS - 1
+              ? styles.fullWidthBtn
+              : [
+                  styles.prevBtn,
+                  {
+                    borderColor:
+                      step === 0 ? colors.surfaceDisabled : prevBorder,
+                  },
+                ],
           ]}
           labelStyle={{
             color: step === 0 ? colors.onSurfaceDisabled : prevText,
@@ -136,14 +159,16 @@ export default function AddPropertyWizard() {
           Previous
         </Button>
 
-        <Button
-          mode="contained"
-          onPress={next}
-          style={[styles.nextBtn, { backgroundColor: nextBg }]}
-          labelStyle={{ color: nextText }}
-        >
-          {step === 1 ? "Finish" : "Next"}
-        </Button>
+        {step < TOTAL_STEPS - 1 && (
+          <Button
+            mode="contained"
+            onPress={next}
+            style={[styles.nextBtn, { backgroundColor: nextBg }]}
+            labelStyle={{ color: nextText }}
+          >
+            Next
+          </Button>
+        )}
       </View>
     </View>
   );
@@ -158,9 +183,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   prevBtn: { flex: 0.45, borderWidth: 1 },
-  nextBtn: {
-    flex: 0.45,
-    justifyContent: "center",
-  },
+  nextBtn: { flex: 0.45, justifyContent: "center" },
+  fullWidthBtn: { flex: 1, borderWidth: 1 },
   emptyWrapper: { flex: 1, padding: 16 },
 });
