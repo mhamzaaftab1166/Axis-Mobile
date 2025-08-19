@@ -30,8 +30,8 @@ export default function AddPropertyWizard() {
   const progressColor = dark ? colors.onPrimary : colors.secondary;
   const nextBg = colors.tertiary;
   const nextText = colors.onPrimary;
-  const prevBorder = dark ? colors.onPrimary : colors.primary;
-  const prevText = dark ? colors.onPrimary : colors.primary;
+  const prevBorder = dark ? colors.onPrimary : colors.tertiary;
+  const prevText = dark ? colors.onPrimary : colors.tertiary;
 
   const TOTAL_STEPS = 3;
 
