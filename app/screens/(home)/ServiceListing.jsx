@@ -1,4 +1,4 @@
-import { useNavigation } from "expo-router";
+import { useLocalSearchParams, useNavigation } from "expo-router";
 import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { useTheme } from "react-native-paper";
@@ -53,6 +53,8 @@ const services = [
 ];
 
 export default function ServiceListing() {
+  const { selectedItem } = useLocalSearchParams();
+  console.log("Selected item:", selectedItem);
   const navigation = useNavigation();
   const { colors } = useTheme();
 
@@ -62,9 +64,6 @@ export default function ServiceListing() {
 
   const toggleService = useBookingStore((state) => state.toggleService);
   const isSelectedService = useBookingStore((state) => state.isSelected);
-  const selectedServices = useBookingStore(
-    (state) => state.booking.selectedServices
-  );
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>

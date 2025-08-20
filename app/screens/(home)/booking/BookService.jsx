@@ -143,17 +143,22 @@ export default function AddPropertyWizard() {
           disabled={step === 0}
           style={[
             step === TOTAL_STEPS - 1
-              ? styles.fullWidthBtn
+              ? [styles.fullWidthBtn, { borderColor: colors.tertiary }]
               : [
                   styles.prevBtn,
                   {
                     borderColor:
-                      step === 0 ? colors.surfaceDisabled : prevBorder,
+                      step === 0 ? colors.surfaceDisabled : colors.tertiary,
                   },
                 ],
           ]}
+          theme={{
+            colors: {
+              outline: step === 0 ? colors.surfaceDisabled : colors.tertiary,
+            },
+          }}
           labelStyle={{
-            color: step === 0 ? colors.onSurfaceDisabled : prevText,
+            color: step === 0 ? colors.onSurfaceDisabled : colors.tertiary,
           }}
         >
           Previous

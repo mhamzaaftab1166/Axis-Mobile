@@ -11,6 +11,7 @@ import InfoCard from "../components/home/InfoCard";
 import { ROUTES } from "../helpers/routePaths";
 
 import DummyImg from "../../assets/dummy.jpg";
+import SearchWithDropdown from "../components/common/SeaarchBar";
 
 export default function Home() {
   const { colors } = useTheme();
@@ -52,6 +53,9 @@ export default function Home() {
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: bg }]}>
       <ScrollView contentContainerStyle={styles.container}>
+        <SearchWithDropdown
+          onNotificationPress={() => router.push(ROUTES.NOTIFICATIONS)}
+        />
         <GreetingHeader name="Hamza" />
         <InfoCard onBookService={() => router.push(ROUTES.BOOK_SERVICE)} />
         <CategoryListing />
