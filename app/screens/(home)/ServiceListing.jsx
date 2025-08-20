@@ -1,9 +1,11 @@
+import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { useTheme } from "react-native-paper";
 import DummyImg from "../../../assets/dummy.jpg";
 import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
+import EmptyState from "../../components/common/EmptyState";
 import SearchBarWithToggle from "../../components/common/SearchBarWithToggle";
 import SelectableChips from "../../components/common/SelectableChips";
 import ServiceCardGrid from "../../components/home/services/ServiceCardGrid";
@@ -18,7 +20,6 @@ const categories = [
   "Painting",
   "Gardening",
 ];
-
 const services = [
   {
     id: "1",
@@ -73,28 +74,34 @@ export default function ServiceListing() {
         title="Service Listing"
         onBack={() => navigation.goBack()}
       />
-      <View style={styles.controlsContainer}>
-        <SelectableChips
-          options={categories}
-          selectedOptions={selectedCategories}
-          onChange={setSelectedCategories}
-        />
-        <SearchBarWithToggle
-          searchValue={searchText}
-          onSearchChange={setSearchText}
-          viewMode={viewMode}
-          onToggleView={setViewMode}
-        />
-      </View>
+      {services.length !== 0 && (
+        <View style={styles.controlsContainer}>
+          <SelectableChips
+            options={categories}
+            selectedOptions={selectedCategories}
+            onChange={setSelectedCategories}
+          />
+          <SearchBarWithToggle
+            searchValue={searchText}
+            onSearchChange={setSearchText}
+            viewMode={viewMode}
+            onToggleView={setViewMode}
+          />
+        </View>
+      )}
 
       <ScrollView contentContainerStyle={styles.content}>
         {services.length === 0 ? (
           <View
             style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
           >
-            <Text style={{ color: colors.onBackground }}>
-              No services available
-            </Text>
+            <EmptyState
+              icon={MaterialIcons}
+              iconSize={80}
+              iconColor={colors.placeholder}
+              title="No Services Available"
+              description="Currently, there are no services available. Please check back later."
+            />
           </View>
         ) : viewMode === "grid" ? (
           <View style={styles.grid}>

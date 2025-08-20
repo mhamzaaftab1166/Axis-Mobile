@@ -25,7 +25,7 @@ const categories = [
     icon: "calendar-plus",
     label: "Bookings",
     color: "#34C759",
-    route: "/bookinga",
+    route: ROUTES.MY_BOOKINGS,
   },
   {
     id: "3",
