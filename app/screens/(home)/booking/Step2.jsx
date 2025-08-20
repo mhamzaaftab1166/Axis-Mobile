@@ -2,8 +2,8 @@ import { Formik } from "formik";
 import { forwardRef, useImperativeHandle, useRef } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "react-native-paper";
+import BookingSummary from "../../../components/home/summary/BookingSummary";
 import useBookingStore from "../../../store/useBookingStore";
-import BookingSummary from "./summary/BookingSummary";
 
 const Step2 = forwardRef(function Step2({ onSubmit }, ref) {
   const booking = useBookingStore((state) => state.booking);

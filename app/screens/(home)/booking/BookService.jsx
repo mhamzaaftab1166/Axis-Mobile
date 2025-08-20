@@ -3,6 +3,7 @@ import { router, useNavigation } from "expo-router";
 import { useCallback, useRef, useState } from "react";
 import { Animated, Easing, StatusBar, StyleSheet, View } from "react-native";
 import { Appbar, Button, ProgressBar, useTheme } from "react-native-paper";
+import CenteredAppbarHeader from "../../../components/common/CenteredAppBar";
 import EmptyState from "../../../components/common/EmptyState";
 import { ROUTES } from "../../../helpers/routePaths";
 import useBookingStore from "../../../store/useBookingStore";
@@ -30,8 +31,6 @@ export default function AddPropertyWizard() {
   const progressColor = dark ? colors.onPrimary : colors.secondary;
   const nextBg = colors.tertiary;
   const nextText = colors.onPrimary;
-  const prevBorder = dark ? colors.onPrimary : colors.tertiary;
-  const prevText = dark ? colors.onPrimary : colors.tertiary;
 
   const TOTAL_STEPS = 3;
 
@@ -89,6 +88,11 @@ export default function AddPropertyWizard() {
   if (selectedServices.length === 0) {
     return (
       <View style={styles.emptyWrapper}>
+        <CenteredAppbarHeader
+          title="Book Service"
+          onBack={() => navigation.goBack()}
+          cartDisplay={false}
+        />
         <EmptyState
           icon={MaterialIcons}
           iconSize={80}
@@ -190,5 +194,5 @@ const styles = StyleSheet.create({
   prevBtn: { flex: 0.45, borderWidth: 1 },
   nextBtn: { flex: 0.45, justifyContent: "center" },
   fullWidthBtn: { flex: 1, borderWidth: 1 },
-  emptyWrapper: { flex: 1, padding: 16 },
+  emptyWrapper: { flex: 1 },
 });

@@ -63,7 +63,9 @@ export default function ServiceListing() {
   const [selectedCategories, setSelectedCategories] = useState([]);
 
   const toggleService = useBookingStore((state) => state.toggleService);
-  const isSelectedService = useBookingStore((state) => state.isSelected);
+  const isSelected = useBookingStore((state) => state.isSelected);
+  const booking = useBookingStore((state) => state.booking);
+  const selectedServices = booking.selectedServices;
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -100,7 +102,7 @@ export default function ServiceListing() {
               <ServiceCardGrid
                 key={service.id}
                 service={service}
-                isSelected={isSelectedService(service)}
+                isSelected={isSelected(service)}
                 onToggleSelect={toggleService}
               />
             ))}
@@ -110,7 +112,7 @@ export default function ServiceListing() {
             <ServiceCardList
               key={service.id}
               service={service}
-              isSelected={isSelectedService(service)}
+              isSelected={isSelected(service)}
               onToggleSelect={toggleService}
             />
           ))

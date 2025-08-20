@@ -16,7 +16,9 @@ export default function EmptyState({
   const finalIconColor = iconColor || colors.primary;
 
   return (
-    <View style={[styles.container, style]}>
+    <View
+      style={[styles.container, style, { backgroundColor: colors.background }]}
+    >
       {iconName && (
         <MaterialIcons name={iconName} size={iconSize} color={finalIconColor} />
       )}
