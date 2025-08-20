@@ -1,14 +1,16 @@
 import { useNavigation } from "expo-router";
 import { useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { FlatList, StyleSheet, View } from "react-native";
 import { useTheme } from "react-native-paper";
 import ButtonSegmented from "../../../../components/common/ButtonSegmented";
 import CenteredAppbarHeader from "../../../../components/common/CenteredAppBar";
+import BookedServiceCard from "../../../../components/home/bookings/BookingCard";
+import { bookedServices } from "../../../../helpers/contantData";
 
 export default function ServiceListing() {
-  const [mode, setMode] = useState("upcoming"); // default selected
+  const [mode, setMode] = useState("upcoming");
   const navigation = useNavigation();
-  const { colors } = useTheme();
+  const { colors, fonts, dark } = useTheme();
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -17,26 +19,38 @@ export default function ServiceListing() {
         onBack={() => navigation.goBack()}
       />
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <ButtonSegmented
-          options={[
-            { value: "upcoming", label: "Upcoming Booking" },
-            { value: "previous", label: "Previous Booking" },
-          ]}
-          selected={mode}
-          onChange={(val) => setMode(val)}
-        />
-
-        {/* Add your booking list content here */}
-      </ScrollView>
+      <FlatList
+        data={bookedServices}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <BookedServiceCard
+            item={item}
+            colors={colors}
+            fonts={fonts}
+            dark={dark}
+          />
+        )}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.list}
+        ListHeaderComponent={
+          <View style={styles.header}>
+            <ButtonSegmented
+              options={[
+                { value: "upcoming", label: "Upcoming Booking" },
+                { value: "previous", label: "Previous Booking" },
+              ]}
+              selected={mode}
+              onChange={(val) => setMode(val)}
+            />
+          </View>
+        }
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  scrollContent: {
-    padding: 16,
-    flexGrow: 1,
-  },
+  list: { padding: 16 },
+  header: { marginBottom: 16 },
 });
