@@ -10,13 +10,6 @@ export const cities = [
   "Umm Al Quwain",
 ];
 
-export const serviceTableColumns = [
-  { title: "Property", key: "property" },
-  { title: "Date", key: "date" },
-  { title: "Time", key: "time" },
-  { title: "Status", key: "status" },
-];
-
 //dummy
 export const bookedServices = [
   {
@@ -127,5 +120,44 @@ export const bookedServices = [
       },
     },
     materialRequired: true,
+  },
+];
+
+export const serviceTableColumns = [
+  { title: "Date", key: "date" },
+  { title: "Time", key: "time" },
+  { title: "Status", key: "status" },
+];
+
+export const staticServiceData = [
+  {
+    id: "2",
+    date: "2025-08-06",
+    time: "14:30",
+    status: "Success",
+  },
+  {
+    id: "3",
+    date: "2025-08-08",
+    time: "12:00",
+    status: "Failed",
+  },
+  {
+    id: "4",
+    date: "2025-08-10",
+    time: "16:00",
+    status: "Upcoming",
+  },
+  {
+    id: "5",
+    date: "2025-08-10",
+    time: "16:00",
+    status: "Pending",
+  },
+  {
+    id: "1",
+    date: "2025-08-05",
+    time: "09:00",
+    status: "Pending",
   },
 ];

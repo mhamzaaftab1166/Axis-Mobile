@@ -54,7 +54,7 @@ export default function HomeServiceSection({
 
 const styles = StyleSheet.create({
   sectionContainer: {
-    marginBottom: 30,
+    marginBottom: 20,
   },
   header: {
     flexDirection: "row",

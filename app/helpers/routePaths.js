@@ -20,5 +20,7 @@ export const ROUTES = {
   THEME_TOGGLE: "screens/(account)/ThemeToggle",
   BOOK_SERVICE: "screens/(home)/booking/BookService",
   MY_BOOKINGS: "screens/(home)/booking/MyBookings/Bookings",
+  BOOKED_SERVIICE_DETAIL:
+    "screens/(home)/booking/MyBookings/BookedServiceDetail",
   SERVICE_LISTING: "screens/(home)/ServiceListing",
 };

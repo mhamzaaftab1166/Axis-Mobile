@@ -24,37 +24,6 @@ export function getStatusColor(status) {
   }
 }
 
-// utils/getInitialPropertyData.js
-export const getInitialPropertyData = (parsed) => {
-  return parsed
-    ? {
-        propertyType: parsed.propertyType || [],
-        property_name: parsed.property_name || "",
-        property_category: parsed.property_category || "",
-        bhk: parsed.bhk != null ? parsed.bhk : null,
-        flat_villa_shop_no: parsed?.address?.flat_villa_shop_no || "",
-        tower_villa_shop_name: parsed?.address?.tower_villa_shop_name || "",
-        floor: parsed?.address?.floor || "",
-        city: parsed?.address?.city || "",
-        full_address: parsed.address?.full_address || "",
-        pinLink: parsed.pinLink || "",
-        area: parsed.area || { exact: true, unit: "Sq Mt", value: "" },
-      }
-    : {
-        propertyType: [],
-        property_name: "",
-        property_category: "",
-        bhk: null,
-        flat_villa_shop_no: "",
-        tower_villa_shop_name: "",
-        floor: "",
-        city: "",
-        full_address: "",
-        pinLink: "",
-        area: { exact: true, unit: "Sq Mt", value: "" },
-      };
-};
-
 export const getCardIcon = (type) => {
   switch (type.toLowerCase()) {
     case "visa":
@@ -155,3 +124,76 @@ export function calculateTotalServiceDays(
 
   return totalDays;
 }
+
+// helpers/bookingHelpers.js
+export const getScheduleText = (item) => {
+  if (!item?.serviceTime) return "";
+
+  if (item.serviceTime.mode === "oneTime") {
+    return `${item.serviceTime.oneTimeDate} • ${item.serviceTime.oneTimeTime}`;
+  }
+
+  if (item.serviceTime.regular) {
+    const { type, selectedDays, startDate, startTime } =
+      item.serviceTime.regular;
+
+    const daysText =
+      type === "all"
+        ? "Daily"
+        : selectedDays
+            ?.map((d) => d.charAt(0).toUpperCase() + d.slice(1))
+            .join(", ");
+
+    return `${daysText} • from ${startDate} ${startTime}`;
+  }
+
+  return "";
+};
+
+export const getAddressText = (item) => {
+  if (!item?.address) return "";
+  const { towerName, blockNo, floor, flatNo } = item.address;
+  return `${towerName}, Block ${blockNo}, Floor ${floor}, Flat ${flatNo}`;
+};
+
+export const getScheduleTextDetail = (service) => {
+  const st = service?.serviceTime;
+  if (!st) return "";
+
+  if (st.mode === "oneTime") {
+    const date = st.oneTimeDate ?? "";
+    const time = st.oneTimeTime ?? "";
+    return `${date} @ ${time}`.trim();
+  }
+
+  const reg = st.regular;
+  if (!reg) return "";
+
+  const daysText =
+    reg.type === "all"
+      ? "Daily"
+      : reg.selectedDays
+          ?.map((d) => d[0].toUpperCase() + d.slice(1))
+          .join(", ");
+
+  const startDate = reg.startDate ?? "";
+  const startTime = reg.startTime ?? "";
+
+  let base = `${daysText} from ${startDate} ${startTime}`.trim();
+
+  if (reg.repeat) {
+    const dur = reg.repeatDuration
+      ? ` • Repeats ${reg.repeatDuration}`
+      : " • Repeats";
+    base += dur;
+  }
+
+  return base;
+};
+
+export const getAddressTextDetail = (service) => {
+  const a = service?.address;
+  if (!a) return "";
+  const { towerName, blockNo, floor, flatNo } = a;
+  return `${towerName}, Block ${blockNo}, Floor ${floor}, Flat ${flatNo}`;
+};

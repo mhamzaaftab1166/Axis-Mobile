@@ -1,32 +1,26 @@
 import { router } from "expo-router";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
-import { IconButton, Surface } from "react-native-paper";
-import { getStatusColor } from "../../../helpers/general";
+import { IconButton, Surface, useTheme } from "react-native-paper";
+import {
+  getAddressText,
+  getScheduleText,
+  getStatusColor,
+} from "../../../helpers/general";
+import { ROUTES } from "../../../helpers/routePaths";
 
 const BookedServiceCard = ({ item, colors, fonts }) => {
+  const { dark } = useTheme();
   const statusColor = getStatusColor(item.status);
 
   const navigateToDetails = () => {
     router.push({
-      pathname: "screens/(home)/book-service/listing/BookedServiceDetail",
+      pathname: ROUTES.BOOKED_SERVIICE_DETAIL,
       params: { bookedService: JSON.stringify(item) },
     });
   };
 
-  const scheduleText =
-    item.serviceTime.mode === "oneTime"
-      ? `${item.serviceTime.oneTimeDate} • ${item.serviceTime.oneTimeTime}`
-      : `${
-          item.serviceTime.regular.type === "all"
-            ? "Daily"
-            : item.serviceTime.regular.selectedDays
-                ?.map((d) => d.charAt(0).toUpperCase() + d.slice(1))
-                .join(", ")
-        } • from ${item.serviceTime.regular.startDate} ${
-          item.serviceTime.regular.startTime
-        }`;
-
-  const addressText = `${item.address.towerName}, Block ${item.address.blockNo}, Floor ${item.address.floor}, Flat ${item.address.flatNo}`;
+  const scheduleText = getScheduleText(item);
+  const addressText = getAddressText(item);
 
   return (
     <Pressable
@@ -39,14 +33,14 @@ const BookedServiceCard = ({ item, colors, fonts }) => {
       <Surface
         style={[
           styles.card,
-          { backgroundColor: colors.background, borderColor: statusColor.bg },
+          {
+            backgroundColor: colors.background,
+            borderWidth: dark ? 1 : 0,
+            borderColor: dark ? "#333" : "transparent",
+          },
         ]}
-        elevation={3}
+        elevation={2}
       >
-        <View
-          style={[styles.leftBorder, { backgroundColor: statusColor.bg }]}
-        />
-
         <View style={styles.cardContent}>
           <View style={styles.row}>
             <Text
@@ -131,7 +125,7 @@ const BookedServiceCard = ({ item, colors, fonts }) => {
                 styles.statusBadge,
                 {
                   backgroundColor: statusColor.bg,
-                  borderColor: statusColor.bg,
+                  borderColor: statusColor.text, // border same as text color
                 },
               ]}
             >
@@ -151,18 +145,9 @@ export default BookedServiceCard;
 const styles = StyleSheet.create({
   touchWrapper: { borderRadius: 12, marginBottom: 18 },
   card: {
-    flexDirection: "row",
-    borderRadius: 14,
-    borderWidth: 1,
-  },
-  leftBorder: {
-    position: "absolute",
-    left: 0,
-    top: 0,
-    bottom: 0,
-    width: 5,
-    borderTopLeftRadius: 14,
-    borderBottomLeftRadius: 14,
+    marginVertical: 5,
+    borderRadius: 12,
+    elevation: 3,
   },
   cardContent: { flex: 1, padding: 14 },
   row: {
@@ -198,7 +183,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 4,
+    marginVertical: 5,
   },
   scheduleBox: {
     flexDirection: "row",

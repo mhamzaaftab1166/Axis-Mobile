@@ -7,7 +7,7 @@ import CenteredAppbarHeader from "../../../../components/common/CenteredAppBar";
 import BookedServiceCard from "../../../../components/home/bookings/BookingCard";
 import { bookedServices } from "../../../../helpers/contantData";
 
-export default function ServiceListing() {
+export default function BookingListing() {
   const [mode, setMode] = useState("upcoming");
   const navigation = useNavigation();
   const { colors, fonts, dark } = useTheme();

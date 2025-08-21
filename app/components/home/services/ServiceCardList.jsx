@@ -15,6 +15,7 @@ export default function ServiceCardList({
   service,
   isSelected,
   onToggleSelect,
+  onlyView,
 }) {
   const { colors, dark } = useTheme();
   const [showFullDescription, setShowFullDescription] = useState(false);
@@ -124,25 +125,27 @@ export default function ServiceCardList({
                 </Text>
               </View>
 
-              <Pressable
-                onPress={() => onToggleSelect && onToggleSelect(service)}
-                accessibilityLabel={
-                  isSelected
-                    ? "Remove this service from your booking"
-                    : "Add this service to your booking"
-                }
-                style={({ pressed }) => [
-                  styles.bookButton,
-                  {
-                    opacity: pressed ? 0.8 : 1,
-                    backgroundColor: colors.tertiary,
-                  },
-                ]}
-              >
-                <Text style={styles.bookButtonText}>
-                  {isSelected ? "Remove Item" : "Add Item"}
-                </Text>
-              </Pressable>
+              {!onlyView && (
+                <Pressable
+                  onPress={() => onToggleSelect && onToggleSelect(service)}
+                  accessibilityLabel={
+                    isSelected
+                      ? "Remove this service from your booking"
+                      : "Add this service to your booking"
+                  }
+                  style={({ pressed }) => [
+                    styles.bookButton,
+                    {
+                      opacity: pressed ? 0.8 : 1,
+                      backgroundColor: colors.tertiary,
+                    },
+                  ]}
+                >
+                  <Text style={styles.bookButtonText}>
+                    {isSelected ? "Remove Item" : "Add Item"}
+                  </Text>
+                </Pressable>
+              )}
             </View>
           </View>
         </TouchableOpacity>

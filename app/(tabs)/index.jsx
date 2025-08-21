@@ -1,6 +1,6 @@
 // screens/Home.js
 import { router } from "expo-router";
-import { ScrollView, StyleSheet } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -11,7 +11,9 @@ import InfoCard from "../components/home/InfoCard";
 import { ROUTES } from "../helpers/routePaths";
 
 import DummyImg from "../../assets/dummy.jpg";
+import CustomDataTable from "../components/common/DataTable";
 import SearchWithDropdown from "../components/common/SeaarchBar";
+import { serviceTableColumns, staticServiceData } from "../helpers/contantData";
 
 export default function Home() {
   const { colors } = useTheme();
@@ -64,6 +66,26 @@ export default function Home() {
           homePageServices={services}
           onViewAll={() => router.push(ROUTES.SERVICE_LISTING)}
         />
+        <View style={styles.sectionHeaderRow}>
+          <Text
+            style={[
+              styles.sectionTitle,
+              {
+                color: colors.text,
+                fontSize: 18,
+                fontWeight: "600",
+              },
+            ]}
+          >
+            Upcoming Services
+          </Text>
+        </View>
+
+        <CustomDataTable
+          data={staticServiceData}
+          columns={serviceTableColumns}
+          showPagination={true}
+        />
       </ScrollView>
     </SafeAreaView>
   );
@@ -76,5 +98,11 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     padding: 16,
+  },
+  sectionHeaderRow: {
+    marginBottom: 12,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "baseline",
   },
 });
