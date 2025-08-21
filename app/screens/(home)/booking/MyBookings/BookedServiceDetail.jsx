@@ -52,7 +52,7 @@ export default function BookedServiceDetail() {
     closeMenu();
     if (!service) return;
     router.push({
-      pathname: "screens/(home)/book-service/listing/UpdateBookedService",
+      pathname: "",
       params: { bookedService: JSON.stringify(service) },
     });
   };
