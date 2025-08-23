@@ -1,14 +1,15 @@
-import { ScrollView, StyleSheet } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Chip, useTheme } from "react-native-paper";
 
 const SelectableChips = ({ options = [], selectedOptions = [], onChange }) => {
   const { colors, dark } = useTheme();
 
   const toggleChip = (option) => {
-    if (selectedOptions.includes(option)) {
-      onChange(selectedOptions.filter((item) => item !== option));
+    if (selectedOptions.includes(option.value)) {
+      onChange(selectedOptions.filter((v) => v !== option.value));
     } else {
-      onChange([...selectedOptions, option]);
+      onChange([...selectedOptions, option.value]);
     }
   };
 
@@ -20,11 +21,11 @@ const SelectableChips = ({ options = [], selectedOptions = [], onChange }) => {
       contentContainerStyle={{ paddingHorizontal: 16 }}
     >
       {options.map((option) => {
-        const selected = selectedOptions.includes(option);
+        const selected = selectedOptions.includes(option.value);
 
         return (
           <Chip
-            key={option}
+            key={option.value}
             mode={selected ? "flat" : "outlined"}
             selected={selected}
             onPress={() => toggleChip(option)}
@@ -51,12 +52,26 @@ const SelectableChips = ({ options = [], selectedOptions = [], onChange }) => {
               lineHeight: 24,
             }}
             contentStyle={{
-              height: 32,
-              justifyContent: "center",
+              height: 36,
+              justifyContent: "flex-start",
               paddingHorizontal: 12,
+              flexDirection: "row",
+              alignItems: "center",
             }}
           >
-            {option}
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <MaterialIcons
+                name="build-circle"
+                size={16}
+                color={selected ? colors.onPrimary : colors.text}
+                style={{ marginRight: 6 }}
+              />
+              <Text
+                style={{ color: selected ? colors.onPrimary : colors.text }}
+              >
+                {option.label} ({option.serviceCount})
+              </Text>
+            </View>
           </Chip>
         );
       })}

@@ -10,6 +10,14 @@ export const cities = [
   "Umm Al Quwain",
 ];
 
+export const serviceOptions = [
+  { value: "cleaning", label: "Cleaning", serviceCount: 4 },
+  { value: "repairing", label: "Repairing", serviceCount: 3 },
+  { value: "moving", label: "Moving", serviceCount: 5 },
+  { value: "painting", label: "Painting", serviceCount: 2 },
+  { value: "plumbing", label: "Plumbing", serviceCount: 3 },
+];
+
 //dummy
 export const bookedServices = [
   {

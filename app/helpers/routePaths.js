@@ -23,4 +23,5 @@ export const ROUTES = {
   BOOKED_SERVIICE_DETAIL:
     "screens/(home)/booking/MyBookings/BookedServiceDetail",
   SERVICE_LISTING: "screens/(home)/ServiceListing",
+  SERVICE_LISTING_BY_CATEGORY: "screens/(home)/ServiceListingByCategory",
 };

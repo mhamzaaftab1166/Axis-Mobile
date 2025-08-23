@@ -1,10 +1,8 @@
-import { MaterialIcons } from "@expo/vector-icons";
-import { router, useNavigation } from "expo-router";
+import { useNavigation } from "expo-router";
 import { useCallback, useRef, useState } from "react";
 import { Animated, Easing, StatusBar, StyleSheet, View } from "react-native";
-import { Appbar, Button, ProgressBar, useTheme } from "react-native-paper";
+import { Button, ProgressBar, useTheme } from "react-native-paper";
 import CenteredAppbarHeader from "../../../components/common/CenteredAppBar";
-import EmptyState from "../../../components/common/EmptyState";
 import { ROUTES } from "../../../helpers/routePaths";
 import useBookingStore from "../../../store/useBookingStore";
 import Step1 from "./Step1";
@@ -85,26 +83,26 @@ export default function AddPropertyWizard() {
     }
   };
 
-  if (selectedServices.length === 0) {
-    return (
-      <View style={styles.emptyWrapper}>
-        <CenteredAppbarHeader
-          title="Book Service"
-          onBack={() => navigation.goBack()}
-          cartDisplay={false}
-        />
-        <EmptyState
-          icon={MaterialIcons}
-          iconSize={80}
-          iconColor={colors.placeholder}
-          title="No Services Selected"
-          description="You haven’t selected any services yet. Please select a service to continue."
-          buttonLabel="Browse Services"
-          onButtonPress={() => router.replace(ROUTES.SERVICE_LISTING)}
-        />
-      </View>
-    );
-  }
+  // if (selectedServices.length === 0) {
+  //   return (
+  //     <View style={styles.emptyWrapper}>
+  //       <CenteredAppbarHeader
+  //         title="Book Service"
+  //         onBack={() => navigation.goBack()}
+  //         cartDisplay={false}
+  //       />
+  //       <EmptyState
+  //         icon={MaterialIcons}
+  //         iconSize={80}
+  //         iconColor={colors.placeholder}
+  //         title="No Services Selected"
+  //         description="You haven’t selected any services yet. Please select a service to continue."
+  //         buttonLabel="Browse Services"
+  //         onButtonPress={() => router.replace(ROUTES.SERVICE_LISTING)}
+  //       />
+  //     </View>
+  //   );
+  // }
 
   return (
     <View style={[styles.container, { backgroundColor: bg }]}>
@@ -112,15 +110,11 @@ export default function AddPropertyWizard() {
         barStyle={"light-content"}
         backgroundColor={colors.secondary}
       />
-      <Appbar.Header style={{ backgroundColor: colors.primary }}>
-        {step > 0 ? (
-          <Appbar.BackAction onPress={back} color={colors.onPrimary} />
-        ) : null}
-        <Appbar.Content
-          title={`Step ${step + 1} of ${TOTAL_STEPS}`}
-          titleStyle={{ color: colors.onPrimary }}
-        />
-      </Appbar.Header>
+
+      <CenteredAppbarHeader
+        title={`Step ${step + 1} of ${TOTAL_STEPS}`}
+        onBack={() => navigation.goBack()}
+      />
 
       <ProgressBar
         progress={(step + 1) / TOTAL_STEPS}
@@ -172,8 +166,17 @@ export default function AddPropertyWizard() {
           <Button
             mode="contained"
             onPress={next}
-            style={[styles.nextBtn, { backgroundColor: nextBg }]}
-            labelStyle={{ color: nextText }}
+            disabled={selectedServices.length === 0}
+            style={[
+              styles.nextBtn,
+              {
+                backgroundColor:
+                  selectedServices.length === 0 ? "#ccc" : nextBg,
+              },
+            ]}
+            labelStyle={{
+              color: selectedServices.length === 0 ? "#666" : nextText,
+            }}
           >
             Next
           </Button>
