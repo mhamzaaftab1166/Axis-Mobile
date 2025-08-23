@@ -54,7 +54,7 @@ const services = [
   },
   {
     id: "5",
-    category: "cleaning",
+    category: "repairing",
     name: "Carpet Cleaning",
     image: DUMMY_IMG,
     rating: 4.1,

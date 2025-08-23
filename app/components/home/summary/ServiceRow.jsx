@@ -1,5 +1,5 @@
+import { MaterialIcons } from "@expo/vector-icons";
 import { Image, StyleSheet, Text, View } from "react-native";
-import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
 const getBadgeStyle = (tag) => {
   switch (tag) {
@@ -12,7 +12,7 @@ const getBadgeStyle = (tag) => {
   }
 };
 
-export default function ServiceRow({ service, colors, fonts }) {
+export default function ServiceRow({ service = {}, colors = {}, fonts = {} }) {
   const imgSource =
     typeof service.image === "number"
       ? service.image
@@ -21,6 +21,19 @@ export default function ServiceRow({ service, colors, fonts }) {
       : null;
 
   const badgeStyle = service.badge ? getBadgeStyle(service.badge) : null;
+
+  const subtotal = (Number(service.price) || 0) * (service.quantity || 1);
+  const formattedSubtotal = (() => {
+    try {
+      return new Intl.NumberFormat("en-AE", {
+        style: "currency",
+        currency: "AED",
+        maximumFractionDigits: 2,
+      }).format(subtotal);
+    } catch {
+      return `AED ${subtotal.toFixed(2)}`;
+    }
+  })();
 
   return (
     <View style={styles.serviceRow}>
@@ -45,7 +58,7 @@ export default function ServiceRow({ service, colors, fonts }) {
           <Text
             style={[
               styles.serviceName,
-              { color: colors.text, fontFamily: fonts.medium?.fontFamily },
+              { color: colors.text, fontFamily: fonts?.medium?.fontFamily },
             ]}
           >
             {service.name}
@@ -67,7 +80,7 @@ export default function ServiceRow({ service, colors, fonts }) {
               <Text
                 style={[
                   styles.badgeText,
-                  { color: "#fff", fontFamily: fonts.medium?.fontFamily },
+                  { color: "#fff", fontFamily: fonts?.medium?.fontFamily },
                 ]}
               >
                 {service.badge}
@@ -81,7 +94,7 @@ export default function ServiceRow({ service, colors, fonts }) {
             numberOfLines={2}
             style={[
               styles.serviceDesc,
-              { color: colors.text, fontFamily: fonts.regular?.fontFamily },
+              { color: colors.text, fontFamily: fonts?.regular?.fontFamily },
             ]}
           >
             {service.description}
@@ -92,30 +105,19 @@ export default function ServiceRow({ service, colors, fonts }) {
           <Text
             style={[
               styles.qtyText,
-              { color: colors.text, fontFamily: fonts.medium?.fontFamily },
+              { color: colors.text, fontFamily: fonts?.medium?.fontFamily },
             ]}
           >
             x{service.quantity || 1}
           </Text>
+
           <Text
             style={[
               styles.lineTotal,
-              { color: colors.text, fontFamily: fonts.medium?.fontFamily },
+              { color: colors.text, fontFamily: fonts?.medium?.fontFamily },
             ]}
           >
-            {(() => {
-              const subtotal =
-                (Number(service.price) || 0) * (service.quantity || 1);
-              try {
-                return new Intl.NumberFormat("en-AE", {
-                  style: "currency",
-                  currency: "AED",
-                  maximumFractionDigits: 2,
-                }).format(subtotal);
-              } catch (e) {
-                return `AED ${subtotal.toFixed(2)}`;
-              }
-            })()}
+            {formattedSubtotal}
           </Text>
         </View>
       </View>
