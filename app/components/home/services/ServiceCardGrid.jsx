@@ -26,7 +26,7 @@ export default function ServiceCardGrid({
 
   const badgeDetails = getBadgeDetails(service.badge);
 
-  const TRUNCATE_LIMIT = 37;
+  const TRUNCATE_LIMIT = 32;
   const truncatedDescription =
     service.description && service.description.length > TRUNCATE_LIMIT
       ? service.description.slice(0, TRUNCATE_LIMIT) + "... "
@@ -43,11 +43,11 @@ export default function ServiceCardGrid({
     <Card
       style={[
         styles.card,
-        horizontalMode ? { width: 200 } : {},
+        horizontalMode ? { width: 180 } : {},
         {
           backgroundColor: colors.background,
           shadowColor: "#000",
-          borderWidth: dark ? 1.5 : 0,
+          borderWidth: dark ? 1 : 0,
           borderColor: dark ? "#333" : "transparent",
         },
       ]}
@@ -69,13 +69,11 @@ export default function ServiceCardGrid({
             >
               <MaterialIcons
                 name={badgeDetails.icon}
-                size={12}
+                size={11}
                 color="#fff"
                 style={{ marginRight: 4 }}
               />
-              <Text style={[styles.badge, { color: "#fff" }]}>
-                {service.badge}
-              </Text>
+              <Text style={styles.badge}>{service.badge}</Text>
             </View>
           )}
         </View>
@@ -107,7 +105,7 @@ export default function ServiceCardGrid({
               <StarView
                 score={service.rating}
                 totalScore={5}
-                style={{ width: 70, height: 14 }}
+                style={{ width: 66, height: 13 }}
               />
               <Text style={[styles.ratingText, { color: colors.placeholder }]}>
                 ({service.rating})
@@ -134,12 +132,12 @@ export default function ServiceCardGrid({
             <View style={styles.buttonInner}>
               <MaterialIcons
                 name={isSelected ? "remove-shopping-cart" : "add-shopping-cart"}
-                size={16}
+                size={14}
                 color="#fff"
-                style={{ marginRight: 8 }}
+                style={{ marginRight: 6 }}
               />
               <Text style={styles.bookButtonText}>
-                {isSelected ? "Remove Item" : "Add Item"}
+                {isSelected ? "Remove" : "Add"}
               </Text>
             </View>
           </Pressable>
@@ -151,22 +149,22 @@ export default function ServiceCardGrid({
 
 const styles = StyleSheet.create({
   card: {
-    width: "48%",
-    marginBottom: 12,
-    borderRadius: 12,
-    elevation: 4,
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 6,
+    width: "47%",
+    marginBottom: 10,
+    borderRadius: 10,
+    elevation: 3,
+    shadowOpacity: 0.08,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 4,
   },
   cardContent: {
-    borderRadius: 12,
+    borderRadius: 10,
     overflow: "hidden",
   },
   imageContainer: {
     position: "relative",
     width: "100%",
-    height: 130,
+    height: 110,
   },
   image: {
     width: "100%",
@@ -174,57 +172,58 @@ const styles = StyleSheet.create({
   },
   badgeContainer: {
     position: "absolute",
-    top: 8,
-    right: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 14,
+    top: 6,
+    right: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    borderRadius: 12,
     flexDirection: "row",
     alignItems: "center",
-    elevation: 2,
   },
   badge: {
-    fontSize: 10,
-    fontWeight: "bold",
+    fontSize: 9,
+    fontWeight: "600",
+    color: "#fff",
   },
   info: {
-    padding: 10,
+    padding: 8,
   },
   name: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "600",
-    marginBottom: 4,
+    marginBottom: 3,
   },
   description: {
-    fontSize: 12,
-    marginBottom: 6,
+    fontSize: 11,
+    marginBottom: 5,
   },
   moreLessInline: {
+    fontSize: 11,
     fontWeight: "600",
   },
   detailsRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: 6,
   },
   ratingRow: {
     flexDirection: "row",
     alignItems: "center",
   },
   ratingText: {
-    fontSize: 12,
-    marginLeft: 4,
+    fontSize: 11,
+    marginLeft: 3,
     fontWeight: "500",
   },
   price: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "600",
   },
   bookButton: {
-    borderRadius: 8,
+    borderRadius: 6,
     width: "100%",
-    paddingVertical: 6,
+    paddingVertical: 5,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -241,7 +240,7 @@ const styles = StyleSheet.create({
   },
   bookButtonText: {
     fontWeight: "600",
-    fontSize: 14,
+    fontSize: 12,
     color: "#fff",
     textAlign: "center",
   },

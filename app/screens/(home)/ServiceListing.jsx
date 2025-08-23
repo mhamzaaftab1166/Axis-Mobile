@@ -60,7 +60,7 @@ export default function ServiceListing() {
   const { colors } = useTheme();
 
   const [searchText, setSearchText] = useState("");
-  const [viewMode, setViewMode] = useState("grid");
+  const [viewMode, setViewMode] = useState("list");
   const [selectedCategories, setSelectedCategories] = useState([]);
 
   const toggleService = useBookingStore((state) => state.toggleService);

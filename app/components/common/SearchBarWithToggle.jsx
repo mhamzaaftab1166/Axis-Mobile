@@ -29,18 +29,6 @@ const SearchBarWithToggle = ({
         ]}
         placeholderTextColor={colors.placeholder}
       />
-
-      <IconButton
-        icon="view-grid"
-        size={28}
-        onPress={() => onToggleView("grid")}
-        iconColor={viewMode === "grid" ? colors.primary : colors.disabled}
-        style={[
-          styles.iconButton,
-          viewMode === "grid" && { backgroundColor: colors.primary + "22" },
-        ]}
-        rippleColor={colors.primary + "44"}
-      />
       <IconButton
         icon="view-list"
         size={28}
@@ -49,6 +37,17 @@ const SearchBarWithToggle = ({
         style={[
           styles.iconButton,
           viewMode === "list" && { backgroundColor: colors.primary + "22" },
+        ]}
+        rippleColor={colors.primary + "44"}
+      />
+      <IconButton
+        icon="view-grid"
+        size={28}
+        onPress={() => onToggleView("grid")}
+        iconColor={viewMode === "grid" ? colors.primary : colors.disabled}
+        style={[
+          styles.iconButton,
+          viewMode === "grid" && { backgroundColor: colors.primary + "22" },
         ]}
         rippleColor={colors.primary + "44"}
       />
