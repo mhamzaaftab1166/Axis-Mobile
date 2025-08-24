@@ -1,15 +1,7 @@
-import DateTimePicker, {
-  DateTimePickerAndroid,
-} from "@react-native-community/datetimepicker";
-import { useState } from "react";
-import {
-  Platform,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { useMemo, useState } from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Card, useTheme } from "react-native-paper";
+import { DatePickerModal, TimePickerModal } from "react-native-paper-dates";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import {
   formatDate,
@@ -30,55 +22,29 @@ export default function OneTimeBlock({
   touched,
 }) {
   const { colors, fonts, dark } = useTheme();
-  const [iosPicker, setIosPicker] = useState(null);
+  const [dateVisible, setDateVisible] = useState(false);
+  const [timeVisible, setTimeVisible] = useState(false);
 
-  const onOneTimeDateChange = (event, date) => {
-    if (event?.type === "dismissed") {
-      setIosPicker(null);
-      return;
-    }
-    if (date) onDateChange(formatDate(date));
-    setIosPicker(null);
-  };
-
-  const onOneTimeTimeChange = (event, date) => {
-    if (event?.type === "dismissed") {
-      setIosPicker(null);
-      return;
-    }
-    if (date) onTimeChange(formatTime(date));
-    setIosPicker(null);
-  };
-
-  const showAndroidDatePicker = () =>
-    DateTimePickerAndroid.open({
-      value: parseDateToPicker(oneTimeDate || defaultOneDate),
-      mode: "date",
-      onChange: (e, d) => {
-        if (e?.type === "dismissed") return;
-        if (d) onDateChange(formatDate(d));
-      },
-      minimumDate: parseDateToPicker(defaultOneDate),
-    });
-
-  const showAndroidTimePicker = () =>
-    DateTimePickerAndroid.open({
-      value: parseTimeToPicker(oneTimeTime || defaultOneTime),
-      mode: "time",
-      is24Hour: false,
-      onChange: (e, d) => {
-        if (e?.type === "dismissed") return;
-        if (d) onTimeChange(formatTime(d));
-      },
-    });
+  const minDate = useMemo(() => {
+    const msInDay = 24 * 60 * 60 * 1000;
+    return new Date(Date.now() + 2 * msInDay);
+  }, []);
 
   const openPicker = (type) => {
-    if (Platform.OS === "android") {
-      if (type === "date") showAndroidDatePicker();
-      else showAndroidTimePicker();
-      return;
-    }
-    setIosPicker(type);
+    if (type === "date") setDateVisible(true);
+    else setTimeVisible(true);
+  };
+
+  const onConfirmDate = ({ date }) => {
+    setDateVisible(false);
+    if (date) onDateChange(formatDate(date));
+  };
+
+  const onConfirmTime = ({ hours, minutes }) => {
+    setTimeVisible(false);
+    const d = new Date();
+    d.setHours(hours, minutes, 0, 0);
+    onTimeChange(formatTime(d));
   };
 
   return (
@@ -199,25 +165,26 @@ export default function OneTimeBlock({
           </View>
         </View>
 
-        {iosPicker === "date" && (
-          <DateTimePicker
-            value={parseDateToPicker(oneTimeDate || defaultOneDate)}
-            mode="date"
-            display="spinner"
-            minimumDate={parseDateToPicker(defaultOneDate)}
-            onChange={onOneTimeDateChange}
-          />
-        )}
+        <DatePickerModal
+          locale="en"
+          mode="single"
+          visible={dateVisible}
+          onDismiss={() => setDateVisible(false)}
+          date={parseDateToPicker(oneTimeDate || defaultOneDate)}
+          onConfirm={onConfirmDate}
+          validRange={{ startDate: minDate }}
+        />
 
-        {iosPicker === "time" && (
-          <DateTimePicker
-            value={parseTimeToPicker(oneTimeTime || defaultOneTime)}
-            mode="time"
-            display="spinner"
-            is24Hour={false}
-            onChange={onOneTimeTimeChange}
-          />
-        )}
+        <TimePickerModal
+          visible={timeVisible}
+          onDismiss={() => setTimeVisible(false)}
+          onConfirm={onConfirmTime}
+          hours={parseTimeToPicker(oneTimeTime || defaultOneTime).getHours()}
+          minutes={parseTimeToPicker(
+            oneTimeTime || defaultOneTime
+          ).getMinutes()}
+          use24HourClock={false}
+        />
       </Card.Content>
     </Card>
   );

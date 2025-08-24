@@ -1,8 +1,5 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import DateTimePicker, {
-  DateTimePickerAndroid,
-} from "@react-native-community/datetimepicker";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Platform,
   StyleSheet,
@@ -17,6 +14,7 @@ import {
   Switch,
   useTheme,
 } from "react-native-paper";
+import { DatePickerModal, TimePickerModal } from "react-native-paper-dates";
 import {
   formatDate,
   formatTime,
@@ -57,7 +55,8 @@ export default function RegularBlock({
   touched = {},
 }) {
   const { colors, dark, fonts } = useTheme();
-  const [iosPicker, setIosPicker] = useState(null);
+  const [dateVisible, setDateVisible] = useState(false);
+  const [timeVisible, setTimeVisible] = useState(false);
 
   const regType = regular?.type || "all";
   const selectedDays = Array.isArray(regular?.selectedDays)
@@ -76,50 +75,26 @@ export default function RegularBlock({
     });
   };
 
-  const onRegStartDateChange = (event, date) => {
-    if (event?.type === "dismissed") return;
-    if (date) setRegular({ ...regular, startDate: formatDate(date) });
-  };
-  const onRegStartTimeChange = (event, date) => {
-    if (event?.type === "dismissed") return;
-    if (date) setRegular({ ...regular, startTime: formatTime(date) });
-  };
-
-  const showAndroidDatePickerRegular = () =>
-    DateTimePickerAndroid.open({
-      value: parseDateToPicker(regular?.startDate || defaultRegDate),
-      mode: "date",
-      onChange: onRegStartDateChange,
-      minimumDate: parseDateToPicker(defaultRegDate),
-    });
-
-  const showAndroidTimePickerRegular = () =>
-    DateTimePickerAndroid.open({
-      value: parseTimeToPicker(regular?.startTime || defaultRegTime),
-      mode: "time",
-      is24Hour: false,
-      onChange: onRegStartTimeChange,
-    });
+  const minDate = useMemo(() => {
+    const msInDay = 24 * 60 * 60 * 1000;
+    return new Date(Date.now() + 6 * msInDay);
+  }, []);
 
   const openPicker = (type) => {
-    if (Platform.OS === "android") {
-      if (type === "date") showAndroidDatePickerRegular();
-      else showAndroidTimePickerRegular();
-      return;
-    }
-    setIosPicker(type);
+    if (type === "date") setDateVisible(true);
+    else setTimeVisible(true);
   };
 
-  const onIosPickerChange = (event, date) => {
-    if (event?.type === "dismissed") {
-      setIosPicker(null);
-      return;
-    }
-    if (date) {
-      if (iosPicker === "date") onRegStartDateChange(event, date);
-      else onRegStartTimeChange(event, date);
-    }
-    setIosPicker(null);
+  const onConfirmDate = ({ date }) => {
+    setDateVisible(false);
+    if (date) setRegular({ ...regular, startDate: formatDate(date) });
+  };
+
+  const onConfirmTime = ({ hours, minutes }) => {
+    setTimeVisible(false);
+    const d = new Date();
+    d.setHours(hours, minutes, 0, 0);
+    setRegular({ ...regular, startTime: formatTime(d) });
   };
 
   return (
@@ -384,19 +359,28 @@ export default function RegularBlock({
           </View>
         )}
 
-        {iosPicker && (
-          <DateTimePicker
-            value={
-              iosPicker === "date"
-                ? parseDateToPicker(regular?.startDate || defaultRegDate)
-                : parseTimeToPicker(regular?.startTime || defaultRegTime)
-            }
-            mode={iosPicker}
-            display="spinner"
-            onChange={onIosPickerChange}
-            is24Hour={false}
-          />
-        )}
+        <DatePickerModal
+          locale="en"
+          mode="single"
+          visible={dateVisible}
+          onDismiss={() => setDateVisible(false)}
+          date={parseDateToPicker(regular?.startDate || defaultRegDate)}
+          onConfirm={onConfirmDate}
+          validRange={{ startDate: minDate }}
+        />
+
+        <TimePickerModal
+          visible={timeVisible}
+          onDismiss={() => setTimeVisible(false)}
+          onConfirm={onConfirmTime}
+          hours={parseTimeToPicker(
+            regular?.startTime || defaultRegTime
+          ).getHours()}
+          minutes={parseTimeToPicker(
+            regular?.startTime || defaultRegTime
+          ).getMinutes()}
+          use24HourClock={false}
+        />
       </Card.Content>
     </Card>
   );
