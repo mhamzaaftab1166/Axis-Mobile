@@ -20,16 +20,16 @@ const AddressBottomSheet = ({
   const { dark, colors } = useTheme();
   const sheetRef = useRef(null);
   const [selectedId, setSelectedId] = useState(addresses?.[0]?.id);
+  const snapPoints = useMemo(() => ["40%", "60%"], []);
 
-  const snapPoints = useMemo(() => ["60%", "80%"], []);
+  const ACTIVE_BG_LIGHT = "#FFD6D6";
+  const ACTIVE_BG_DARK = "#4B2C2C";
+  const ADD_BTN_LIGHT = "#FF8A80";
+  const ADD_BTN_DARK = "#6A3B3B";
 
   useEffect(() => {
     if (sheetRef.current) {
-      if (visible) {
-        sheetRef.current.snapToIndex(0);
-      } else {
-        sheetRef.current.close();
-      }
+      visible ? sheetRef.current.snapToIndex(0) : sheetRef.current.close();
     }
   }, [visible]);
 
@@ -41,14 +41,22 @@ const AddressBottomSheet = ({
 
   const renderItem = ({ item }) => {
     const isSelected = item.id === selectedId;
+    const activeBg = dark ? ACTIVE_BG_DARK : ACTIVE_BG_LIGHT;
+    const activeText = dark ? "#FFF2F2" : "#660000";
+
     return (
       <TouchableOpacity activeOpacity={0.8} onPress={() => handleSelect(item)}>
         <Card
           style={[
             styles.card,
             isSelected && {
-              backgroundColor: colors.secondaryContainer,
+              backgroundColor: activeBg,
               borderColor: colors.primary,
+              shadowColor: colors.primary,
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.25,
+              shadowRadius: 3.84,
+              elevation: 5,
             },
           ]}
           mode="elevated"
@@ -59,14 +67,14 @@ const AddressBottomSheet = ({
                 isSelected ? "radio-button-checked" : "radio-button-unchecked"
               }
               size={22}
-              color={isSelected ? colors.primary : "#777"}
+              color={isSelected ? activeText : "#777"}
             />
             <View style={{ marginLeft: 12 }}>
               <Text
                 variant="titleMedium"
                 style={{
                   fontWeight: isSelected ? "700" : "500",
-                  color: isSelected ? colors.primary : colors.onSurface,
+                  color: isSelected ? activeText : colors.onSurface,
                 }}
               >
                 {item.property.name}
@@ -74,7 +82,7 @@ const AddressBottomSheet = ({
               <Text
                 variant="bodyMedium"
                 style={{
-                  color: isSelected ? colors.onSecondaryContainer : "#666",
+                  color: isSelected ? activeText : "#666",
                   marginTop: 2,
                 }}
               >
@@ -120,11 +128,12 @@ const AddressBottomSheet = ({
             showsVerticalScrollIndicator={false}
           />
           <Button
-            mode="contained-tonal"
+            mode="contained"
             icon="plus"
             onPress={onAdd}
-            style={styles.addBtn}
-            contentStyle={{}}
+            style={[styles.addBtn, { backgroundColor: colors.secondary }]}
+            contentStyle={{ paddingVertical: 5 }}
+            textColor="#fff"
           >
             Add More Address
           </Button>
@@ -139,15 +148,8 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     backgroundColor: "rgba(0,0,0,0.25)",
   },
-  container: {
-    flex: 1,
-    paddingTop: 8,
-  },
-  title: {
-    marginBottom: 12,
-    fontWeight: "600",
-    paddingHorizontal: 16,
-  },
+  container: { flex: 1, paddingTop: 8 },
+  title: { marginBottom: 12, fontWeight: "600", paddingHorizontal: 16 },
   card: {
     padding: 14,
     marginBottom: 12,
@@ -156,14 +158,8 @@ const styles = StyleSheet.create({
     borderColor: "transparent",
     borderRadius: 14,
   },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  addBtn: {
-    marginHorizontal: 16,
-    borderRadius: 12,
-  },
+  row: { flexDirection: "row", alignItems: "center" },
+  addBtn: { marginHorizontal: 16, borderRadius: 12 },
 });
 
 export default AddressBottomSheet;
