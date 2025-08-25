@@ -12,17 +12,19 @@ import {
 import { Text, useTheme } from "react-native-paper";
 import * as Yup from "yup";
 
+import AppErrorMessage from "../../components/forms/AppErrorMessage";
 import AppForm from "../../components/forms/AppForm";
 import AppFormField from "../../components/forms/AppFormFeild";
 import AppPhoneFormField from "../../components/forms/AppPhoneFormField";
 import SubmitButton from "../../components/forms/AppSubmitButton";
 import { ROUTES } from "../../helpers/routePaths";
+import { useRegisterQuery } from "../../hooks/useAuthQuery";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string()
     .email("Please enter a valid email address")
     .required("Email is required"),
-  fullName: Yup.string().required("Full name is required").min(2, "Too short"),
+  name: Yup.string().required("Full name is required").min(2, "Too short"),
   phone: Yup.string()
     .required("Mobile number is required")
     .matches(
@@ -44,12 +46,11 @@ const validationSchema = Yup.object().shape({
 export default function SignupScreen() {
   const { colors } = useTheme();
 
-  const handleSubmit = (values) => {
-    console.log("Signup values:", values);
-    router.replace({
-      pathname: ROUTES.OTP,
-      params: { goToHome: true },
-    });
+  const { mutateAsync: registerUser, isError: registerFailed, 
+    error: errorObject, isPending: isSaving } = useRegisterQuery();
+
+  const handleSubmit = async (values) => {
+    registerUser(values);
   };
 
   return (
@@ -90,16 +91,17 @@ export default function SignupScreen() {
           >
             <AppForm
               initialValues={{
-                email: "mhamza@gmail.com",
-                fullName: "M Hamza Aftab",
-                phone: "+971521096472",
-                password: "Hamza1234@@@",
+                email: "",
+                name: "",
+                phone: "",
+                password: ""
               }}
               onSubmit={handleSubmit}
               validationSchema={validationSchema}
             >
+              <AppErrorMessage visible={registerFailed} error={errorObject?.response?.data?.error} />
               <AppFormField
-                name="fullName"
+                name="name"
                 placeholder="Full Name"
                 autoCapitalize="words"
                 icon="account-outline"
@@ -123,7 +125,7 @@ export default function SignupScreen() {
 
               <AppPhoneFormField name="phone" />
 
-              <SubmitButton title="Sign Up" />
+              <SubmitButton isLoading={isSaving}  title="Sign Up" />
 
               <RNText style={[styles.loginText, { color: colors.text }]}>
                 Already have an account?{" "}

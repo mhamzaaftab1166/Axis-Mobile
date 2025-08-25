@@ -2,6 +2,7 @@
 import { _axios } from "../../helpers/axios";
 
 const registerUser = async (data) => {
+  console.log(data);
   return await _axios('post', 'v1/auth/register', data);
 };
 
