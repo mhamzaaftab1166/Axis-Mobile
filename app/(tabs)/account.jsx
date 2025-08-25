@@ -36,6 +36,12 @@ export default function AccountScreen() {
       onPress: () => router.push(ROUTES.NOTIFICATIONS),
     },
     {
+      key: "addresses",
+      label: "My Addresses",
+      icon: "map-marker-outline",
+      onPress: () => router.push(ROUTES.MY_ADDRESSES),
+    },
+    {
       key: "settings",
       label: "Settings",
       icon: "cog-outline",
@@ -64,6 +70,7 @@ export default function AccountScreen() {
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: screenBg }]}>
       <View style={styles.container}>
+        {/* Profile Card */}
         <View style={styles.card}>
           <Avatar.Image size={64} source={AvatarPlaceholder} />
           <View style={styles.profileInfo}>
@@ -86,6 +93,7 @@ export default function AccountScreen() {
           style={{ height: 0.5, backgroundColor: colors.outlineVariant }}
         />
 
+        {/* Options */}
         <View style={styles.options}>
           {options.map((opt, idx) => (
             <React.Fragment key={opt.key}>
@@ -141,6 +149,7 @@ export default function AccountScreen() {
         </View>
       </View>
 
+      {/* Footer */}
       <View style={styles.footer}>
         <Text variant="bodySmall" style={{ color: colors.placeholder }}>
           Axis v1.1

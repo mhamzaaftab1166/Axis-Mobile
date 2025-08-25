@@ -105,3 +105,37 @@ export const bookingValidationSchema = Yup.object().shape({
     }),
   }).required("Service Time is required"),
 });
+
+// -----------------------
+
+// src/validation/addressValidation.js
+
+export const addressValidationSchema = Yup.object().shape({
+  property: Yup.object()
+    .nullable()
+    .test("property-id", "Property is required", (val) => !!val?.id),
+
+  block: Yup.object()
+    .nullable()
+    .test("block-id", "Block is required", function (val) {
+      const propertySelected = this.parent.property?.id;
+      if (!propertySelected) return true;
+      return !!val?.id;
+    }),
+
+  floor: Yup.object()
+    .nullable()
+    .test("floor-id", "Floor is required", function (val) {
+      const blockSelected = this.parent.block?.id;
+      if (!blockSelected) return true;
+      return !!val?.id;
+    }),
+
+  unit: Yup.object()
+    .nullable()
+    .test("unit-id", "Unit is required", function (val) {
+      const floorSelected = this.parent.floor?.id;
+      if (!floorSelected) return true;
+      return !!val?.id;
+    }),
+});

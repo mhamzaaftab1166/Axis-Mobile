@@ -10,6 +10,8 @@ export const ROUTES = {
   NEW_EMAIL: "screens/(account)/NewEmail",
   NEW_PHONE: "screens/(account)/NewMobile",
   OTP_SCREEN: "screens/(account)/OTPVerification",
+  MY_ADDRESSES: "screens/(account)/MyAddressesList",
+  ADD_ADDRESS: "screens/(account)/AddAddress",
   LOGIN: "screens/(auth)/Login",
   REGISTER: "screens/(auth)/Signup",
   FORGOT_PASS_OPTION: "screens/(auth)/ForgotPasswordOption",
