@@ -1,7 +1,12 @@
 import { useMemo, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Card, useTheme } from "react-native-paper";
-import { DatePickerModal, TimePickerModal } from "react-native-paper-dates";
+import {
+  DatePickerModal,
+  en,
+  registerTranslation,
+  TimePickerModal,
+} from "react-native-paper-dates";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import {
   formatDate,
@@ -10,6 +15,7 @@ import {
   parseTimeToPicker,
 } from "../../../../helpers/general";
 import AppErrorMessage from "../../AppErrorMessage";
+registerTranslation("en", en);
 
 export default function OneTimeBlock({
   oneTimeDate,

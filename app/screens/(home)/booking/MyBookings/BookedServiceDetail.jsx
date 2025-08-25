@@ -2,19 +2,10 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { ScrollView, StatusBar, StyleSheet, View } from "react-native";
-import {
-  Appbar,
-  Button,
-  Dialog,
-  Divider,
-  Menu,
-  Portal,
-  Text,
-  useTheme,
-} from "react-native-paper";
+import { Appbar, Divider, Menu, Text, useTheme } from "react-native-paper";
+import ConfirmDialog from "../../../../components/common/ConfirmDialog";
 import CustomDataTable from "../../../../components/common/DataTable";
 import DetailItem from "../../../../components/home/bookings/DetailItem";
-import ServiceCardList from "../../../../components/home/services/ServiceCardList";
 import {
   serviceTableColumns,
   staticServiceData,
@@ -28,7 +19,7 @@ import {
 export default function BookedServiceDetail() {
   const { bookedService } = useLocalSearchParams();
   const service = bookedService ? JSON.parse(bookedService) : null;
-  const { colors, dark, fonts } = useTheme();
+  const { colors, fonts } = useTheme();
   const screenBg = colors.background;
 
   const [menuVisible, setMenuVisible] = useState(false);
@@ -57,10 +48,16 @@ export default function BookedServiceDetail() {
     });
   };
 
-  const statusColor = getStatusColor(service.status);
+  const statusColor = getStatusColor(service?.status);
   const scheduleText = getScheduleTextDetail(service);
   const addressText = getAddressTextDetail(service);
-  const servicesArray = service.services || [];
+  const servicesArray = service?.services || [];
+
+  // optional: calculate total price
+  const totalPrice = servicesArray.reduce(
+    (sum, svc) => sum + (svc.price || 0),
+    0
+  );
 
   return (
     <View style={[styles.container, { backgroundColor: screenBg }]}>
@@ -91,6 +88,7 @@ export default function BookedServiceDetail() {
       </Appbar.Header>
 
       <ScrollView contentContainerStyle={styles.scroll}>
+        {/* Top Section */}
         <View style={styles.topRow}>
           <View style={{ flex: 1 }}>
             <Text
@@ -107,10 +105,10 @@ export default function BookedServiceDetail() {
           </View>
 
           <View
-            style={[styles.statusBadge, { backgroundColor: statusColor.bg }]}
+            style={[styles.statusBadge, { backgroundColor: statusColor?.bg }]}
           >
-            <Text style={[styles.statusText, { color: statusColor.text }]}>
-              {service.status}
+            <Text style={[styles.statusText, { color: statusColor?.text }]}>
+              {service?.status}
             </Text>
           </View>
         </View>
@@ -119,28 +117,76 @@ export default function BookedServiceDetail() {
           style={[styles.divider, { backgroundColor: colors.outlineVariant }]}
         />
 
+        {/* Services List */}
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
           Services
         </Text>
 
-        {servicesArray.map((svc) => (
-          <ServiceCardList key={svc.id} service={svc} onlyView={true} />
-        ))}
+        {servicesArray.length > 0 ? (
+          <View
+            style={[styles.serviceList, { backgroundColor: colors.background }]}
+          >
+            {servicesArray.map((svc, index) => (
+              <View key={svc.id} style={styles.serviceRow}>
+                <Text
+                  style={[
+                    styles.serviceName,
+                    { color: colors.text, fontFamily: fonts.medium },
+                  ]}
+                  numberOfLines={1}
+                >
+                  {svc.name}
+                </Text>
+                <Text
+                  style={[
+                    styles.servicePrice,
+                    { color: colors.primary, fontFamily: fonts.bold },
+                  ]}
+                >
+                  ${svc.price}
+                </Text>
+              </View>
+            ))}
+            <Divider style={{ marginVertical: 8 }} />
+            <View style={styles.serviceRow}>
+              <Text
+                style={[
+                  styles.serviceName,
+                  { color: colors.text, fontFamily: fonts.medium },
+                ]}
+              >
+                Total
+              </Text>
+              <Text
+                style={[
+                  styles.servicePrice,
+                  { color: colors.primary, fontFamily: fonts.bold },
+                ]}
+              >
+                ${totalPrice}
+              </Text>
+            </View>
+          </View>
+        ) : (
+          <Text style={{ color: colors.placeholder }}>No services</Text>
+        )}
 
         <Divider
           style={[styles.divider, { backgroundColor: colors.outlineVariant }]}
         />
 
+        {/* Materials */}
         <DetailItem
           icon="cube-outline"
           iconBg="#FF9800"
           label="Materials"
-          value={service.materialRequired ? "Required" : "Not Required"}
+          value={service?.materialRequired ? "Required" : "Not Required"}
         />
 
+        {/* Schedule */}
         <DetailItem
           icon={
-            service.serviceTime?.mode === "oneTime"
+            service?.serviceTime?.mode === "oneTime"
               ? "calendar"
               : "calendar-range"
           }
@@ -153,6 +199,7 @@ export default function BookedServiceDetail() {
           style={[styles.divider, { backgroundColor: colors.outlineVariant }]}
         />
 
+        {/* Upcoming Services */}
         <View style={styles.sectionHeaderRow}>
           <Text
             style={[
@@ -167,6 +214,7 @@ export default function BookedServiceDetail() {
             Upcoming Services
           </Text>
         </View>
+
         <CustomDataTable
           data={staticServiceData}
           columns={serviceTableColumns}
@@ -174,55 +222,14 @@ export default function BookedServiceDetail() {
         />
       </ScrollView>
 
-      <Portal>
-        <Dialog
-          visible={dialogVisible}
-          onDismiss={closeDialog}
-          style={{
-            backgroundColor: dark ? colors.onPrimary : colors.primary,
-            borderRadius: 12,
-          }}
-        >
-          <Dialog.Title
-            style={{
-              color: dark ? colors.primary : colors.onPrimary,
-              fontFamily: fonts.bold?.fontFamily,
-            }}
-          >
-            Terminate Service?
-          </Dialog.Title>
-          <Dialog.Content>
-            <Text
-              style={{
-                color: dark ? colors.primary : colors.onPrimary,
-                fontFamily: fonts.regular?.fontFamily,
-              }}
-            >
-              Are you sure you want to terminate this service (ID: {service.id}
-              )?
-            </Text>
-          </Dialog.Content>
-          <Dialog.Actions style={{ justifyContent: "flex-end" }}>
-            <Button
-              onPress={closeDialog}
-              labelStyle={{
-                color: dark ? colors.primary : colors.onPrimary,
-              }}
-              style={{ marginRight: 8 }}
-            >
-              Cancel
-            </Button>
-            <Button
-              onPress={confirmTerminate}
-              labelStyle={{
-                color: dark ? colors.primary : colors.onPrimary,
-              }}
-            >
-              Yes
-            </Button>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
+      {/* Terminate Dialog */}
+      <ConfirmDialog
+        visible={dialogVisible}
+        title="Terminate Service"
+        message="Are you sure you want to terminate this service?"
+        onCancel={closeDialog}
+        onConfirm={confirmTerminate}
+      />
     </View>
   );
 }
@@ -230,9 +237,6 @@ export default function BookedServiceDetail() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   scroll: { padding: 16, paddingBottom: 32 },
-  card: {
-    borderRadius: 12,
-  },
   topRow: { flexDirection: "row", alignItems: "flex-start", gap: 12 },
   propertyTitle: { fontSize: 18, fontWeight: "700", marginBottom: 4 },
   smallMuted: { fontSize: 13, marginBottom: 6 },
@@ -248,44 +252,27 @@ const styles = StyleSheet.create({
 
   sectionTitle: { fontSize: 16, fontWeight: "700", marginBottom: 8 },
 
-  svcCard: {
-    marginBottom: 12,
-    padding: 12,
+  // Services list
+  serviceList: {
+    backgroundColor: "#f9f9f9",
     borderRadius: 10,
+    paddingHorizontal: 12,
   },
-  svcRow: { flexDirection: "row", alignItems: "flex-start" },
-  svcImage: {
-    width: 68,
-    height: 68,
-    borderRadius: 8,
-    marginRight: 12,
-    backgroundColor: "#EEE",
-  },
-  svcImagePlaceholder: { justifyContent: "center", alignItems: "center" },
-  svcHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  svcName: { fontSize: 15, fontWeight: "700", marginBottom: 4 },
-  svcBadge: {
-    marginLeft: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    backgroundColor: "transparent",
-  },
-  svcBadgeText: { fontSize: 12, fontWeight: "600" },
-  svcDesc: { fontSize: 13, marginBottom: 8 },
-  svcMeta: {
+  serviceRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    paddingVertical: 5,
   },
-  svcPrice: { fontSize: 15, fontWeight: "700" },
-  ratingWrap: { flexDirection: "row", alignItems: "center" },
-  ratingText: { fontSize: 13 },
-  ratingStars: { fontSize: 14 },
+  serviceName: {
+    fontSize: 15,
+    flex: 1,
+  },
+  servicePrice: {
+    fontSize: 15,
+    fontWeight: "700",
+  },
+
   sectionHeaderRow: {
     marginBottom: 8,
     flexDirection: "row",

@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { useTheme } from "react-native-paper";
 import AppFormServiceTimePicker from "../../../components/forms/BookService/AppFormServiceTimePicker";
+import ResetServiceTimeOnSelectedServicesChange from "../../../components/forms/BookService/AppFormServiceTimePicker/ResetServiceTimeOnSelectedServiceChange";
 import SelectedServiceCard from "../../../components/home/services/SelectedServiceCard";
 import { serviceOptions } from "../../../helpers/contantData";
 import { ROUTES } from "../../../helpers/routePaths";
@@ -52,6 +53,7 @@ export default forwardRef(function Step1({ onSubmit }, ref) {
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
           >
+            <ResetServiceTimeOnSelectedServicesChange />
             <Text style={[styles.heading, { color: colors.text }]}>
               Available Categories
             </Text>
