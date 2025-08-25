@@ -1,4 +1,5 @@
 // RootLayout.tsx
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import React, { useContext } from "react";
 import { useColorScheme } from "react-native";
@@ -7,6 +8,9 @@ import { Provider as PaperProvider } from "react-native-paper";
 
 import { ThemeContext, ThemeProvider } from "./context/themeContext";
 import { darkTheme, lightTheme } from "./theme/theme";
+
+// ✅ Create a query client (do it outside to avoid re-creation on each render)
+const queryClient = new QueryClient();
 
 function MainApp() {
   const systemColorScheme = useColorScheme();
@@ -34,9 +38,11 @@ function MainApp() {
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <ThemeProvider>
-        <MainApp />
-      </ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <MainApp />
+        </ThemeProvider>
+      </QueryClientProvider>
     </GestureHandlerRootView>
   );
 }
