@@ -23,11 +23,14 @@ import HomeServiceSection from "../components/home/HomePageServices";
 import InfoCard from "../components/home/InfoCard";
 import { serviceTableColumns, staticServiceData } from "../helpers/contantData";
 import { ROUTES } from "../helpers/routePaths";
+import { useUserDetailQuery } from "../hooks/useAuthQuery";
 import useAddressStore from "../store/useAddressStore";
 
 export default function Home() {
   const [showSheet, setShowSheet] = useState(false);
   const { colors, dark } = useTheme();
+
+  const { userData } = useUserDetailQuery();
 
   const services = [
     {
@@ -136,7 +139,7 @@ export default function Home() {
           <SearchWithDropdown
             onNotificationPress={() => router.push(ROUTES.NOTIFICATIONS)}
           />
-          <GreetingHeader name="Hamza" />
+          <GreetingHeader name={userData?.data?.name} />
           <InfoCard onBookService={() => router.push(ROUTES.BOOK_SERVICE)} />
           <CategoryListing />
           <HomeServiceSection

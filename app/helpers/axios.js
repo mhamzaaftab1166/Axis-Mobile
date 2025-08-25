@@ -1,6 +1,6 @@
 import axios from 'axios';
 import config from "../../config.json";
-import useAuthStore from './../store/authStore/index';
+import useAuthStore from '../store/useAuthStore';
 
 export const _axios = async (method, url, body, contentType = 'application/json', params) => {
   const endpoint = `${config.apiUrl}/${url}`

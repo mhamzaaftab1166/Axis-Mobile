@@ -1,4 +1,4 @@
-import { router, useNavigation } from "expo-router";
+import { useNavigation } from "expo-router";
 import { ScrollView, StatusBar, StyleSheet, View } from "react-native";
 import { Text, TextInput, useTheme } from "react-native-paper";
 import * as Yup from "yup";
@@ -9,7 +9,7 @@ import AppFormField from "../../components/forms/AppFormFeild";
 import AppImagePickerField from "../../components/forms/AppImagePickerFeild";
 import SubmitButton from "../../components/forms/AppSubmitButton";
 import { getGreeting } from "../../helpers/general";
-import { ROUTES } from "../../helpers/routePaths";
+import { useUserDetailQuery } from "../../hooks/useAuthQuery";
 
 const validationSchema = Yup.object().shape({
   full_name: Yup.string().required("Full name is required"),
@@ -25,6 +25,8 @@ export default function MyProfile() {
   const disabledBg = colors.surfaceDisabled;
   const disabledText = colors.onSurfaceDisabled;
 
+  const { userData } = useUserDetailQuery();
+
   const disabledTheme = {
     colors: {
       text: disabledText,
@@ -34,15 +36,14 @@ export default function MyProfile() {
       primary: disabledText,
     },
   };
-  const user = {
-    full_name: "Jane Doe",
-    email: "jane@example.com",
-    phone: "501234567",
-  };
 
   const handleSubmit = ({ full_name, profile_image }) => {
-    router.dismissTo(ROUTES.ACCOUNT_TAB);
+    console.log(full_name);
+    console.log(profile_image);
+    // router.dismissTo(ROUTES.ACCOUNT_TAB);
   };
+
+  console.log(userData);
 
   return (
     <View style={[styles.container, { backgroundColor: screenBg }]}>
@@ -56,7 +57,7 @@ export default function MyProfile() {
         showsVerticalScrollIndicator={false}
       >
         <AppForm
-          initialValues={{ full_name: user.full_name, profile_image: "" }}
+          initialValues={{ full_name: userData?.data?.name, profile_image: "" }}
           onSubmit={handleSubmit}
           validationSchema={validationSchema}
         >
@@ -67,7 +68,7 @@ export default function MyProfile() {
               { color: textColor, fontFamily: fonts.medium },
             ]}
           >
-            👋 {getGreeting()}, {user.full_name.split(" ")[0]}
+            👋 {getGreeting()}, {userData?.data?.name.split(" ")[0]}
           </Text>
           <AppFormField
             name="full_name"
@@ -80,7 +81,7 @@ export default function MyProfile() {
           <TextInput
             label="Email"
             mode="flat"
-            value={user.email}
+            value={userData?.data?.email}
             disabled
             left={<TextInput.Icon icon="email" color={disabledText} />}
             style={[
@@ -92,7 +93,7 @@ export default function MyProfile() {
           <TextInput
             label="Phone"
             mode="flat"
-            value={user.phone}
+            value={userData?.data?.phone}
             disabled
             left={<TextInput.Icon icon="phone" color={disabledText} />}
             style={[styles.input, { backgroundColor: disabledBg }]}

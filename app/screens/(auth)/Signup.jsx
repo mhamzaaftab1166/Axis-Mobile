@@ -41,6 +41,7 @@ const validationSchema = Yup.object().shape({
       /[@$!%*?&]/,
       "Password must contain at least one special character (@, $, !, %, *, ?, &)"
     ),
+    role: Yup.string(),
 });
 
 export default function SignupScreen() {
@@ -94,7 +95,8 @@ export default function SignupScreen() {
                 email: "",
                 name: "",
                 phone: "",
-                password: ""
+                password: "",
+                role: "tenant"
               }}
               onSubmit={handleSubmit}
               validationSchema={validationSchema}

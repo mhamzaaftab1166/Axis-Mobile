@@ -2,7 +2,6 @@
 import { _axios } from "../../helpers/axios";
 
 const registerUser = async (data) => {
-  console.log(data);
   return await _axios('post', 'v1/auth/register', data);
 };
 
@@ -14,12 +13,13 @@ const fetchUserDetails = async () => {
   return await _axios('get', 'v1/auth/getuser');
 };
 
-const passwordResetRequest = async (data) => {
-  return await _axios('post', 'v1/profile/reset-password-request', data);
+const verifyOtp = async (data) => {
+  return await _axios('post', 'v1/auth/verify-otp', data);
 };
 
-const verifyOtp = async (data) => {
-  return await _axios('post', 'v1/profile/verify-otp', data);
+// profile
+const passwordResetRequest = async (data) => {
+  return await _axios('post', 'v1/profile/reset-password-request', data);
 };
 
 export { fetchUserDetails, loginUser, passwordResetRequest, registerUser, verifyOtp };

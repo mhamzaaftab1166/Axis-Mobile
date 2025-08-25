@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import AvatarPlaceholder from "../../assets/images/account/avatar.avif";
 import { ROUTES } from "../helpers/routePaths";
+import { useUserDetailQuery } from "../hooks/useAuthQuery";
 
 export default function AccountScreen() {
   const { colors, fonts } = useTheme();
@@ -20,6 +21,8 @@ export default function AccountScreen() {
   const screenBg = colors.background;
   const textColor = colors.text;
   const iconColor = colors.text;
+
+  const { userData } = useUserDetailQuery();
 
   const options = [
     {
@@ -85,13 +88,13 @@ export default function AccountScreen() {
               variant="titleMedium"
               style={{ color: textColor, fontFamily: fonts.medium }}
             >
-              Hello, Jane Doe
+              Hello, {userData?.data?.name}
             </Text>
             <Text
               variant="bodySmall"
               style={{ color: colors.placeholder, marginTop: 4 }}
             >
-              jane.doe@example.com
+              {userData?.data?.email}
             </Text>
           </View>
         </View>

@@ -11,10 +11,13 @@ import {
 import { Text, useTheme } from "react-native-paper";
 import * as Yup from "yup";
 
+import { useState } from "react";
+import AppErrorMessage from "../../components/forms/AppErrorMessage";
 import AppForm from "../../components/forms/AppForm";
 import AppFormField from "../../components/forms/AppFormFeild";
 import SubmitButton from "../../components/forms/AppSubmitButton";
 import { ROUTES } from "../../helpers/routePaths";
+import { useLoginMutation } from "../../hooks/useAuthQuery";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string()
@@ -26,9 +29,27 @@ const validationSchema = Yup.object().shape({
 export default function LoginScreen() {
   const { colors } = useTheme();
 
+  const [error, setError] = useState("");
+  const [isError, setIsError] = useState(false);
+
+  const { mutate: loggingIn, isPending } = useLoginMutation({
+    onErrorCallback: (errMsg) => {
+      console.log(errMsg);
+      setError(errMsg);
+      setIsError(true);
+    },
+    onSuccessCallback: () => {
+      setError("");
+      setIsError(false);
+    },
+  });
+  
   const handleSubmit = (values) => {
-    console.log("Login values:", values);
-    router.replace(ROUTES.HOME);
+    loggingIn({
+      email: values.email,
+      password: values.password,
+      rememberMe: values.rememberMe
+    });
   };
 
   return (
@@ -68,10 +89,15 @@ export default function LoginScreen() {
             style={[styles.formCard, { backgroundColor: colors.background }]}
           >
             <AppForm
-              initialValues={{ email: "m@gmail", password: "a" }}
+              initialValues={{ email: "", password: "", rememberMe: false }}
               onSubmit={handleSubmit}
               validationSchema={validationSchema}
             >
+              <View style={{
+                alignSelf: "center",
+              }}>
+                <AppErrorMessage visible={isError} error={error} />
+              </View>
               <AppFormField
                 name="email"
                 placeholder="Email"
@@ -88,7 +114,7 @@ export default function LoginScreen() {
                 icon="lock-outline"
               />
 
-              <SubmitButton title="Login" />
+              <SubmitButton title="Login" isLoading={isPending} />
 
               <Text
                 style={[styles.forgotText, { color: colors.primary }]}
