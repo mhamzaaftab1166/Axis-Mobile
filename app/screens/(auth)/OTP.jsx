@@ -1,5 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { router, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { Formik } from "formik";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -15,7 +15,8 @@ import {
 } from "react-native";
 import { Button, Text, useTheme } from "react-native-paper";
 import * as Yup from "yup";
-import { ROUTES } from "../../helpers/routePaths";
+import AppErrorMessage from "../../components/forms/AppErrorMessage";
+import { useVerifyOTP } from "../../hooks/useAuthQuery";
 
 const validationSchema = Yup.object().shape({
   otp: Yup.string()
@@ -24,12 +25,15 @@ const validationSchema = Yup.object().shape({
 });
 
 export default function OtpVerificationScreen() {
+
+  const { email } = useLocalSearchParams();
   const { colors } = useTheme();
   const [otpError, setOtpError] = useState("");
   const inputs = useRef([]);
   const [focusedIndex, setFocusedIndex] = useState(-1);
 
   const blinkAnim = useRef(new Animated.Value(1)).current;
+
   useEffect(() => {
     const anim = Animated.loop(
       Animated.sequence([
@@ -50,9 +54,6 @@ export default function OtpVerificationScreen() {
     anim.start();
     return () => anim.stop();
   }, [blinkAnim]);
-
-  const params = useLocalSearchParams();
-  const goToHome = params.goToHome === "true";
 
   const focusNext = (index, value) => {
     if (value && index < inputs.current.length - 1) {
@@ -76,6 +77,26 @@ export default function OtpVerificationScreen() {
       }, 0);
     } catch {}
   };
+
+  const { mutate: verifyOtpReq, isPending: isVerifying, isError: verificationFailed, error: errorObject } = useVerifyOTP();
+
+  // handle form submit
+  const handleVerifyOtp = (values, { resetForm }) => {
+    console.log(values,email);
+    setOtpError("");
+    if (values.otp.length !== 6) {
+      setOtpError("OTP must be exactly 6 digits");
+      return;
+    }
+    if(!email){
+      setOtpError("Email not available!");
+      return;
+    }
+    verifyOtpReq({
+      email,
+      otp: values.otp
+    });
+  }
 
   return (
     <LinearGradient
@@ -108,22 +129,11 @@ export default function OtpVerificationScreen() {
           <View
             style={[styles.formCard, { backgroundColor: colors.background }]}
           >
+            <AppErrorMessage visible={verificationFailed} error={errorObject?.data?.error} />
             <Formik
               initialValues={{ otp: "" }}
               validationSchema={validationSchema}
-              onSubmit={(values, { resetForm }) => {
-                setOtpError("");
-                if (values.otp.length !== 6) {
-                  setOtpError("OTP must be exactly 6 digits");
-                  return;
-                }
-                console.log("OTP Verified:", values.otp);
-                resetForm();
-
-                goToHome
-                  ? router.replace(ROUTES.HOME)
-                  : router.replace(ROUTES.RESET_PASS);
-              }}
+              onSubmit={handleVerifyOtp}
             >
               {({ handleSubmit, setFieldValue, values, errors, touched }) => {
                 const otpDigits = values.otp.split("");
@@ -193,10 +203,7 @@ export default function OtpVerificationScreen() {
                               placeholderTextColor={colors.onSurfaceVariant}
                               allowFontScaling={false}
                               importantForAutofill="no"
-                              // Hide native caret on Android only when empty (we render faux caret)
                               caretHidden={Platform.OS === "android" && isEmpty}
-                              // remove possible interfering props:
-                              // don't pass `selection` prop - we use setNativeProps instead
                             />
 
                             {showFauxCaret ? (
@@ -232,6 +239,7 @@ export default function OtpVerificationScreen() {
                         { backgroundColor: colors.primary },
                       ]}
                       labelStyle={{ color: colors.onPrimary }}
+                      loading={isVerifying}
                     >
                       Verify OTP
                     </Button>

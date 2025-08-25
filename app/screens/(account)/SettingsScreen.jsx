@@ -9,7 +9,7 @@ import { ROUTES } from "../../helpers/routePaths";
 export default function SettingsScreen() {
   const router = useRouter();
   const navigation = useNavigation();
-  const { colors, dark, fonts } = useTheme();
+  const { colors, fonts } = useTheme();
 
   const screenBg = colors.background;
   const textColor = colors.text;

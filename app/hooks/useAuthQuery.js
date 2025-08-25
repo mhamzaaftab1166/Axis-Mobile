@@ -1,21 +1,26 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { HttpStatusCode } from 'axios'
-import { router } from 'expo-router'
-import useAuthStore from '../../config.json'
-import { ROUTES } from '../helpers/routePaths'
-import { fetchUserDetails, loginUser, passwordResetRequest, registerUser, verifyOtp } from '../services/auth'
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { HttpStatusCode } from 'axios';
+import { router } from 'expo-router';
+import { ROUTES } from '../helpers/routePaths';
+import { fetchUserDetails, loginUser, passwordResetRequest, registerUser, verifyOtp } from '../services/auth';
+import useAuthStore from '../store/useAuthStore';
 
+// fetch user detail
 export const useUserDetailQuery = () => {
+  const { token, hasHydrated } = useAuthStore();
+
   const query = useQuery({
-    queryKey: ['user-details'],
+    queryKey: ["user-details"],
     queryFn: fetchUserDetails,
-    staleTime: 5 * 60 * 1000,
-  })
+    stale: 5 * 10 * 1000,
+    enabled: !!token && hasHydrated,
+  });
 
   return {
     userData: query.data,
     isLoading: query.isLoading,
-    isError: query.isError
+    isError: query.isError,
+    error: query.error
   }
 }
 
@@ -25,7 +30,10 @@ export const useRegisterQuery = () => {
     mutationFn: (data) => registerUser(data),
     onSuccess: (response) => {
       if (response?.status === HttpStatusCode.Ok) {
-        router.push(ROUTES.OTP);
+        router.push({
+          pathname: ROUTES.OTP,
+          params: { email: response?.data }, 
+        });
       }
     },
     onError: (error) => {
@@ -34,24 +42,35 @@ export const useRegisterQuery = () => {
   });
 };
 
-export const useLoginMutation = () => {
-  const { setToken, setRole } = useAuthStore()
+// login
+export const useLoginMutation = ({ onSuccessCallback, onErrorCallback } = {}) => {
+  const { setToken, setRole } = useAuthStore();
 
   return useMutation({
-    mutationFn: data => loginUser(data),
-    onSuccess: response => {
+    mutationFn: ({ email, password, rememberMe }) =>
+      loginUser({ email, password, rememberMe }),
+    onSuccess: (response) => {
       const resData = response;
       if (resData.status === HttpStatusCode.Ok) {
-        setToken(resData?.data?.authToken)
-        setRole(resData?.data?.role)
+        setToken(resData?.data?.authToken);
+        setRole(resData?.data?.role);
+        router.replace(ROUTES.HOME);
+        onSuccessCallback?.(resData);
+      } else {
+        onErrorCallback?.(resData?.error || "Login failed");
       }
     },
-    onError: error => {
-      
-    }
-  })
-}
+    onError: (error) => {
+      const msg =
+        error?.response?.data?.error ||
+        error?.message ||
+        "Something went wrong";
+      onErrorCallback?.(msg);
+    },
+  });
+};
 
+// reset password
 export const useResetPasswordRequest = onSuccessChangeForm => {
   const { setToken } = useAuthStore()
 
@@ -71,16 +90,15 @@ export const useResetPasswordRequest = onSuccessChangeForm => {
   })
 }
 
+// verify otp
 export const useVerifyOTP = () => {
-  const { setToken } = useAuthStore()
-
   return useMutation({
-    mutationFn: data => verifyOtp(data),
+    mutationFn: ({email, otp}) => verifyOtp({email, otp}),
     onSuccess: response => {
       const resData = response
       if (resData.status === HttpStatusCode.Ok) {
-        setToken(resData?.data?.authToken)
+        router.replace(ROUTES.LOGIN);
       }
     },
   })
-}
+};
