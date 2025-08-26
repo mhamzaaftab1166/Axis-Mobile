@@ -1,5 +1,5 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, useNavigation } from "expo-router";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { FAB, Text, TouchableRipple, useTheme } from "react-native-paper";
@@ -10,6 +10,7 @@ import { ROUTES } from "../../helpers/routePaths";
 
 export default function MyAddresses() {
   const { colors, dark, fonts } = useTheme();
+  const navigation = useNavigation();
 
   const [addresses, setAddresses] = useState([
     {
@@ -119,7 +120,10 @@ export default function MyAddresses() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <CenteredAppbarHeader title="My Addresses" />
+      <CenteredAppbarHeader
+        title="My Addresses"
+        onBack={() => navigation.goBack()}
+      />
 
       <SwipeListView
         data={addresses}

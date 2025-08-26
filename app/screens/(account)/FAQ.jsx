@@ -1,3 +1,4 @@
+import { useNavigation } from "expo-router";
 import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Divider, List, Text, useTheme } from "react-native-paper";
@@ -6,6 +7,7 @@ import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
 
 export default function FAQScreen() {
   const { colors, fonts } = useTheme();
+  const navigation = useNavigation();
   const [selectedCategory, setSelectedCategory] = useState("general");
   const [expandedQuestions, setExpandedQuestions] = useState({});
 
@@ -50,7 +52,7 @@ export default function FAQScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <CenteredAppbarHeader title="FAQ" />
+      <CenteredAppbarHeader title="FAQ" onBack={() => navigation.goBack()} />
 
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         {/* Segmented Buttons for categories */}
