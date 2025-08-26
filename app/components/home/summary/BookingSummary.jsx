@@ -1,29 +1,22 @@
+// components/home/bookings/BookingSummary.js
+import { MaterialIcons } from "@expo/vector-icons";
 import { useMemo } from "react";
-import { StyleSheet, View } from "react-native";
-import { Card, Divider, Text, useTheme } from "react-native-paper";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { Card, Divider, Surface, Text, useTheme } from "react-native-paper";
 import { serviceOptions } from "../../../helpers/contantData";
+import { formatAddressLabel } from "../../../helpers/general";
+import useAddressStore from "../../../store/useAddressStore";
 import BookingSchedule from "./BookingSchedule";
 import ServiceRow from "./ServiceRow";
 
-const TAX_RATE = 0.05;
-
-const formatCurrency = (amount) => {
-  try {
-    return new Intl.NumberFormat("en-AE", {
-      style: "currency",
-      currency: "AED",
-      maximumFractionDigits: 2,
-    }).format(amount);
-  } catch (e) {
-    return `AED ${Number(amount || 0).toFixed(2)}`;
-  }
-};
-
-export default function BookingSummary({ booking = {} }) {
+export default function BookingSummary({ booking = {}, onChangeAddress }) {
   const { colors, fonts, dark } = useTheme();
   const services = Array.isArray(booking.selectedServices)
     ? booking.selectedServices
     : [];
+  const selectedAddress = useAddressStore((s) => s.selectedAddress);
+
+  const addr = formatAddressLabel(selectedAddress);
 
   const grouped = useMemo(() => {
     const map = {};
@@ -41,7 +34,6 @@ export default function BookingSummary({ booking = {} }) {
       }
     });
 
-    // create ordered array
     const ordered = (serviceOptions || []).map((c) => ({
       key: c.value,
       label: c.label,
@@ -54,24 +46,70 @@ export default function BookingSummary({ booking = {} }) {
     return ordered;
   }, [services]);
 
-  const { subtotal, tax, total } = useMemo(() => {
-    const subtotalCalc = services.reduce(
-      (s, it) => s + (Number(it.price) || 0) * (it.quantity || 1),
-      0
-    );
-    const taxCalc = subtotalCalc * TAX_RATE;
-    return {
-      subtotal: subtotalCalc,
-      tax: taxCalc,
-      total: subtotalCalc + taxCalc,
-    };
-  }, [services]);
-
   const svcTime = booking.serviceTime || {};
   const totalServicesCount = services.length;
 
   return (
     <View>
+      <Surface
+        style={[
+          styles.addressSurface,
+          {
+            backgroundColor: colors.background,
+            borderWidth: dark ? 1 : 0,
+            borderColor: colors.outline,
+          },
+        ]}
+      >
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() =>
+            typeof onChangeAddress === "function" && onChangeAddress()
+          }
+          style={styles.addressRowInner}
+        >
+          <View style={styles.addressLeft}>
+            <MaterialIcons
+              name="home"
+              size={20}
+              color={colors.primary}
+              style={{ marginRight: 8 }}
+            />
+            <View style={{ flex: 1 }}>
+              <Text
+                style={[
+                  styles.addressMain,
+                  {
+                    color: colors.onSurface,
+                    fontFamily: fonts?.medium?.fontFamily,
+                  },
+                ]}
+              >
+                {selectedAddress ? addr.main : "No address selected"}
+              </Text>
+              <Text
+                style={[
+                  styles.addressMeta,
+                  {
+                    color: colors.placeholder,
+                    fontFamily: fonts?.regular?.fontFamily,
+                  },
+                ]}
+              >
+                {selectedAddress ? addr.meta : "Please choose an address"}
+              </Text>
+            </View>
+          </View>
+
+          <MaterialIcons
+            name="keyboard-arrow-down"
+            size={24}
+            color={colors.primary}
+          />
+        </TouchableOpacity>
+      </Surface>
+
+      {/* Section heading */}
       <Text
         style={[
           styles.sectionTitle,
@@ -81,6 +119,7 @@ export default function BookingSummary({ booking = {} }) {
         Services
       </Text>
 
+      {/* Services card (existing layout preserved) */}
       <Card
         style={[
           styles.card,
@@ -169,7 +208,7 @@ export default function BookingSummary({ booking = {} }) {
                   { color: colors.text, fontFamily: fonts?.medium?.fontFamily },
                 ]}
               >
-                {formatCurrency(subtotal)}
+                AED 320.00
               </Text>
             </View>
 
@@ -183,7 +222,7 @@ export default function BookingSummary({ booking = {} }) {
                   },
                 ]}
               >
-                Tax ({Math.round(TAX_RATE * 100)}%)
+                Tax 5%
               </Text>
               <Text
                 style={[
@@ -191,7 +230,7 @@ export default function BookingSummary({ booking = {} }) {
                   { color: colors.text, fontFamily: fonts?.medium?.fontFamily },
                 ]}
               >
-                {formatCurrency(tax)}
+                AED 30
               </Text>
             </View>
 
@@ -218,20 +257,37 @@ export default function BookingSummary({ booking = {} }) {
                   },
                 ]}
               >
-                {formatCurrency(total)}
+                AED 350.00
               </Text>
             </View>
           </View>
         </Card.Content>
       </Card>
+
       <BookingSchedule svcTime={svcTime} fonts={fonts} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { borderRadius: 12, marginBottom: 12, borderWidth: 1, elevation: 3 },
+  addressSurface: {
+    marginTop: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  addressRowInner: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  addressLeft: { flexDirection: "row", alignItems: "center", flex: 1 },
+  addressMain: { fontSize: 15, fontWeight: "600" },
+  addressMeta: { fontSize: 13, marginTop: 2 },
   sectionTitle: { fontSize: 14, marginBottom: 8, fontWeight: "600" },
+
+  card: { borderRadius: 12, marginBottom: 12, borderWidth: 1, elevation: 3 },
 
   totRow: {
     flexDirection: "row",
@@ -240,14 +296,4 @@ const styles = StyleSheet.create({
   },
   totLabel: { fontSize: 14 },
   totValue: { fontSize: 14 },
-
-  serviceRow: { flexDirection: "row", alignItems: "flex-start" },
-  serviceLeft: { marginRight: 12 },
-  imageWrap: {
-    width: 64,
-    height: 64,
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
-  },
 });

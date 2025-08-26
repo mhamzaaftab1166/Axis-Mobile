@@ -84,10 +84,7 @@ export default function Home() {
   const ensureDefault = useAddressStore((s) => s.ensureDefault);
 
   useEffect(() => {
-    // If there's no selected address in the store, ensure we set the first address as default
     ensureDefault(addresses[0]);
-    // only run on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

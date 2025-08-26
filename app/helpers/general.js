@@ -197,3 +197,14 @@ export const getAddressTextDetail = (service) => {
   const { towerName, blockNo, floor, flatNo } = a;
   return `${towerName}, Block ${blockNo}, Floor ${floor}, Flat ${flatNo}`;
 };
+
+export const formatAddressLabel = (addr) => {
+  if (!addr) return "No address selected";
+  const prop = addr.property?.name ?? "";
+  const parts = [];
+  if (addr.block?.name) parts.push(addr.block.name);
+  if (addr.floor?.name) parts.push(addr.floor.name);
+  if (addr.unit?.name) parts.push(addr.unit.name);
+  const meta = parts.join(" • ");
+  return { main: prop, meta };
+};
