@@ -2,7 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { HttpStatusCode } from 'axios';
 import { router } from 'expo-router';
 import { ROUTES } from '../helpers/routePaths';
-import { fetchUserDetails, loginUser, passwordResetRequest, registerUser, verifyOtp } from '../services/auth';
+import { fetchUserDetails, loginUser, passwordResetRequest, registerUser, verifyOtp } from '../services/authService';
 import useAuthStore from '../store/useAuthStore';
 
 // fetch user detail

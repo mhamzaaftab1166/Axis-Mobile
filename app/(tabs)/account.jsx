@@ -13,6 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import AvatarPlaceholder from "../../assets/images/account/avatar.avif";
 import { ROUTES } from "../helpers/routePaths";
 import { useUserDetailQuery } from "../hooks/useAuthQuery";
+import useAuthStore from "../store/useAuthStore";
 
 export default function AccountScreen() {
   const { colors, fonts } = useTheme();
@@ -23,6 +24,7 @@ export default function AccountScreen() {
   const iconColor = colors.text;
 
   const { userData } = useUserDetailQuery();
+  const { clearAuth } = useAuthStore();
 
   const options = [
     {
@@ -73,7 +75,10 @@ export default function AccountScreen() {
       key: "logout",
       label: "Logout",
       icon: "logout",
-      onPress: () => console.log("Logout"),
+      onPress: ()=>{
+        clearAuth();
+        router.replace(ROUTES.LOGIN);
+      },
     },
   ];
 
