@@ -12,6 +12,7 @@ import {
 import { Text, useTheme } from "react-native-paper";
 import * as Yup from "yup";
 
+import { useState } from "react";
 import AppErrorMessage from "../../components/forms/AppErrorMessage";
 import AppForm from "../../components/forms/AppForm";
 import AppFormField from "../../components/forms/AppFormFeild";
@@ -47,8 +48,20 @@ const validationSchema = Yup.object().shape({
 export default function SignupScreen() {
   const { colors } = useTheme();
 
-  const { mutateAsync: registerUser, isError: registerFailed, 
-    error: errorObject, isPending: isSaving } = useRegisterQuery();
+  const [error, setError] = useState("");
+  const [isFail, setIsFail] = useState(false);
+
+  const { mutateAsync: registerUser, isPending: isSaving } = useRegisterQuery({
+    onErrorCallback: (errMsg) => {
+      setError(errMsg);
+      setIsFail(true);
+    },
+    onSuccessCallback: () => {
+      setError("");
+      setIsFail(false);
+    },
+  });
+    
 
   const handleSubmit = async (values) => {
     registerUser(values);
@@ -101,7 +114,11 @@ export default function SignupScreen() {
               onSubmit={handleSubmit}
               validationSchema={validationSchema}
             >
-              <AppErrorMessage visible={registerFailed} error={errorObject?.response?.data?.error} />
+              <View style={{
+                alignSelf: "center"
+              }}>
+                <AppErrorMessage visible={isFail} error={error} />
+              </View>
               <AppFormField
                 name="name"
                 placeholder="Full Name"
