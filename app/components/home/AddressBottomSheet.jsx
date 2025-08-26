@@ -11,27 +11,45 @@ import {
 import { Button, Card, Text, useTheme } from "react-native-paper";
 
 const AddressBottomSheet = ({
-  addresses,
+  addresses = [],
   visible,
   onClose,
   onSelect,
   onAdd,
+  selectedId: selectedIdProp = null,
 }) => {
   const { dark, colors } = useTheme();
   const sheetRef = useRef(null);
-  const [selectedId, setSelectedId] = useState(addresses?.[0]?.id);
   const snapPoints = useMemo(() => ["40%", "60%"], []);
+
+  const [selectedId, setSelectedId] = useState(
+    selectedIdProp ?? addresses?.[0]?.id ?? null
+  );
 
   const ACTIVE_BG_LIGHT = "#FFD6D6";
   const ACTIVE_BG_DARK = "#4B2C2C";
-  const ADD_BTN_LIGHT = "#FF8A80";
-  const ADD_BTN_DARK = "#6A3B3B";
 
   useEffect(() => {
-    if (sheetRef.current) {
-      visible ? sheetRef.current.snapToIndex(0) : sheetRef.current.close();
-    }
+    if (!sheetRef.current) return;
+    if (visible) sheetRef.current.snapToIndex(0);
+    else sheetRef.current.close();
   }, [visible]);
+
+  useEffect(() => {
+    if (selectedIdProp != null) {
+      setSelectedId(selectedIdProp);
+      return;
+    }
+    if (!selectedId && addresses?.length) {
+      setSelectedId(addresses[0].id);
+    }
+  }, [selectedIdProp, addresses]);
+
+  useEffect(() => {
+    if (!selectedId && addresses?.length) {
+      setSelectedId(addresses[0].id);
+    }
+  }, [addresses]);
 
   const handleSelect = (item) => {
     setSelectedId(item.id);
@@ -77,7 +95,7 @@ const AddressBottomSheet = ({
                   color: isSelected ? activeText : colors.onSurface,
                 }}
               >
-                {item.property.name}
+                {item.property?.name ?? "—"}
               </Text>
               <Text
                 variant="bodyMedium"
@@ -86,7 +104,8 @@ const AddressBottomSheet = ({
                   marginTop: 2,
                 }}
               >
-                {item.block.name}, {item.floor.name}, {item.unit.name}
+                {item.block?.name ?? "—"}, {item.floor?.name ?? "—"},{" "}
+                {item.unit?.name ?? "—"}
               </Text>
             </View>
           </View>
@@ -120,13 +139,22 @@ const AddressBottomSheet = ({
           <Text variant="titleLarge" style={styles.title}>
             Select Address
           </Text>
+
           <FlatList
             data={addresses}
             keyExtractor={(item) => item.id}
             renderItem={renderItem}
             contentContainerStyle={{ paddingBottom: 20, paddingHorizontal: 8 }}
             showsVerticalScrollIndicator={false}
+            ListEmptyComponent={
+              <View style={{ padding: 16 }}>
+                <Text style={{ color: colors.placeholder }}>
+                  No addresses available
+                </Text>
+              </View>
+            }
           />
+
           <Button
             mode="contained"
             icon="plus"

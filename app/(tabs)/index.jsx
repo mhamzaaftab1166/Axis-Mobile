@@ -1,6 +1,6 @@
 // screens/Home.js
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -23,10 +23,10 @@ import HomeServiceSection from "../components/home/HomePageServices";
 import InfoCard from "../components/home/InfoCard";
 import { serviceTableColumns, staticServiceData } from "../helpers/contantData";
 import { ROUTES } from "../helpers/routePaths";
+import useAddressStore from "../store/useAddressStore";
 
 export default function Home() {
   const [showSheet, setShowSheet] = useState(false);
-  const [selectedAddress, setSelectedAddress] = useState(null);
   const { colors, dark } = useTheme();
 
   const services = [
@@ -79,6 +79,17 @@ export default function Home() {
     },
   ];
 
+  const selectedAddress = useAddressStore((s) => s.selectedAddress);
+  const setAddress = useAddressStore((s) => s.setAddress);
+  const ensureDefault = useAddressStore((s) => s.ensureDefault);
+
+  useEffect(() => {
+    // If there's no selected address in the store, ensure we set the first address as default
+    ensureDefault(addresses[0]);
+    // only run on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView
@@ -124,6 +135,7 @@ export default function Home() {
               </View>
             </Surface>
           </TouchableOpacity>
+
           <SearchWithDropdown
             onNotificationPress={() => router.push(ROUTES.NOTIFICATIONS)}
           />
@@ -155,12 +167,13 @@ export default function Home() {
         <AddressBottomSheet
           addresses={addresses}
           visible={showSheet}
+          selectedId={selectedAddress?.id}
           onClose={() => setShowSheet(false)}
           onSelect={(addr) => {
-            setSelectedAddress(addr);
+            setAddress(addr);
             setShowSheet(false);
           }}
-          onAdd={() => console.log("Add More")}
+          onAdd={() => router.push(ROUTES.ADD_ADDRESS)}
         />
       </SafeAreaView>
     </GestureHandlerRootView>
