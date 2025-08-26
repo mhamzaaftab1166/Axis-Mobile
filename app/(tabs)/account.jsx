@@ -53,6 +53,13 @@ export default function AccountScreen() {
       icon: "credit-card-plus-outline",
       onPress: () => router.push(ROUTES.PAYMENT_METHODS),
     },
+
+    {
+      key: "faq",
+      label: "Frequently Asked Questions",
+      icon: "help-circle-outline",
+      onPress: () => router.push(ROUTES.FAQ),
+    },
     {
       key: "theme",
       label: "Theme",
