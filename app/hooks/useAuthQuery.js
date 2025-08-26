@@ -25,7 +25,7 @@ export const useUserDetailQuery = () => {
 }
 
 // register
-export const useRegisterQuery = () => {
+export const useRegisterQuery = ({ onSuccessCallback, onErrorCallback } = {}) => {
   return useMutation({
     mutationFn: (data) => registerUser(data),
     onSuccess: (response) => {
@@ -34,10 +34,17 @@ export const useRegisterQuery = () => {
           pathname: ROUTES.OTP,
           params: { email: response?.data }, 
         });
+        onSuccessCallback?.();
+      }else{
+        onErrorCallback?.(response?.error || "Registeration Failed!");
       }
     },
     onError: (error) => {
-      console.error("Registration failed:", error);
+      const msg =
+        error?.response?.data?.error ||
+        error?.message ||
+        "Something went wrong";
+      onErrorCallback?.(msg);
     },
   });
 };
