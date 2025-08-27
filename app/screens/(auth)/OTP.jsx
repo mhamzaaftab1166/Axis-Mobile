@@ -32,6 +32,10 @@ export default function OtpVerificationScreen() {
   const inputs = useRef([]);
   const [focusedIndex, setFocusedIndex] = useState(-1);
 
+  // error
+  const [error, setError] = useState("");
+  const [isError, setIsError] = useState(false);
+
   const blinkAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -78,11 +82,19 @@ export default function OtpVerificationScreen() {
     } catch {}
   };
 
-  const { mutate: verifyOtpReq, isPending: isVerifying, isError: verificationFailed, error: errorObject } = useVerifyOTP();
+  const { mutate: verifyOtpReq, isPending: isVerifying } = useVerifyOTP({
+    onErrorCallback: (errMsg) => {
+      setError(errMsg);
+      setIsError(true);
+    },
+    onSuccessCallback: () => {
+      setError("");
+      setIsError(false);
+    },
+  });
 
   // handle form submit
-  const handleVerifyOtp = (values, { resetForm }) => {
-    console.log(values,email);
+  const handleVerifyOtp = (values) => {
     setOtpError("");
     if (values.otp.length !== 6) {
       setOtpError("OTP must be exactly 6 digits");
@@ -129,7 +141,13 @@ export default function OtpVerificationScreen() {
           <View
             style={[styles.formCard, { backgroundColor: colors.background }]}
           >
-            <AppErrorMessage visible={verificationFailed} error={errorObject?.data?.error} />
+            <View
+              style={{
+                alignSelf: "center"
+              }}
+            >
+              <AppErrorMessage visible={isError} error={error} />
+            </View>
             <Formik
               initialValues={{ otp: "" }}
               validationSchema={validationSchema}
