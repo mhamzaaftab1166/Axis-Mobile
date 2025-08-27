@@ -34,7 +34,6 @@ export default function LoginScreen() {
 
   const { mutate: loggingIn, isPending } = useLoginMutation({
     onErrorCallback: (errMsg) => {
-      console.log(errMsg);
       setError(errMsg);
       setIsError(true);
     },

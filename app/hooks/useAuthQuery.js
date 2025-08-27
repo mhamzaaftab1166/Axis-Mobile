@@ -56,15 +56,23 @@ export const useLoginMutation = ({ onSuccessCallback, onErrorCallback } = {}) =>
   return useMutation({
     mutationFn: ({ email, password, rememberMe }) =>
       loginUser({ email, password, rememberMe }),
-    onSuccess: (response) => {
+    onSuccess: (response,variables) => {
       const resData = response;
       if (resData.status === HttpStatusCode.Ok) {
         setToken(resData?.data?.authToken);
         setRole(resData?.data?.role);
         router.replace(ROUTES.HOME);
-        onSuccessCallback?.(resData);
+        onSuccessCallback?.();
       } else {
-        onErrorCallback?.(resData?.error || "Login failed");
+        if(resData?.status === HttpStatusCode.Forbidden){
+          router.push({
+            pathname: ROUTES.OTP,
+            params: { email: variables?.email }, 
+          });
+          onSuccessCallback?.();
+        }else{
+          onErrorCallback?.(resData?.error || "Login failed");
+        }
       }
     },
     onError: (error) => {
@@ -98,14 +106,24 @@ export const useResetPasswordRequest = onSuccessChangeForm => {
 }
 
 // verify otp
-export const useVerifyOTP = () => {
+export const useVerifyOTP = ({ onSuccessCallback, onErrorCallback } = {}) => {
   return useMutation({
     mutationFn: ({email, otp}) => verifyOtp({email, otp}),
     onSuccess: response => {
-      const resData = response
+      const resData = response;
       if (resData.status === HttpStatusCode.Ok) {
         router.replace(ROUTES.LOGIN);
+        onSuccessCallback?.();
+      }else{
+        onErrorCallback?.(resData?.error || "Login failed");
       }
     },
-  })
-};
+    onError: (error) => {
+      const msg =
+        error?.response?.data?.error ||
+        error?.message ||
+        "Something went wrong";
+      onErrorCallback?.(msg);
+    }}
+  )
+}
