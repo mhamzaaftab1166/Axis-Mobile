@@ -6,10 +6,15 @@ import { FAB, Text, TouchableRipple, useTheme } from "react-native-paper";
 import { SwipeListView } from "react-native-swipe-list-view";
 import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
+import LoadingOverlay from "../../components/LoadingOverlay";
 import { ROUTES } from "../../helpers/routePaths";
+import { useGetAllAddress } from "../../hooks/useAddressQuery";
 
 export default function MyAddresses() {
   const { colors, dark, fonts } = useTheme();
+
+  const { allAddresses, isLoading: isFetching } = useGetAllAddress();
+
 
   const [addresses, setAddresses] = useState([
     {
@@ -117,12 +122,14 @@ export default function MyAddresses() {
     </View>
   );
 
+  console.log(allAddresses);
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <CenteredAppbarHeader title="My Addresses" />
-
+      <LoadingOverlay visible={isFetching} />
       <SwipeListView
-        data={addresses}
+        data={allAddresses}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         renderHiddenItem={renderHiddenItem}

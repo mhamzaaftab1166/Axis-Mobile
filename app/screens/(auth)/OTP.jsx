@@ -1,5 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { Formik } from "formik";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -16,6 +16,7 @@ import {
 import { Button, Text, useTheme } from "react-native-paper";
 import * as Yup from "yup";
 import AppErrorMessage from "../../components/forms/AppErrorMessage";
+import { ROUTES } from "../../helpers/routePaths";
 import { useVerifyOTP } from "../../hooks/useAuthQuery";
 
 const validationSchema = Yup.object().shape({
@@ -26,7 +27,8 @@ const validationSchema = Yup.object().shape({
 
 export default function OtpVerificationScreen() {
 
-  const { email } = useLocalSearchParams();
+  const { email, resetPassword } = useLocalSearchParams();
+  console.log(email, resetPassword);
   const { colors } = useTheme();
   const [otpError, setOtpError] = useState("");
   const inputs = useRef([]);
@@ -90,6 +92,17 @@ export default function OtpVerificationScreen() {
     onSuccessCallback: () => {
       setError("");
       setIsError(false);
+
+      if(resetPassword){
+        // if resetting go to reset pass page with email
+        router.push({
+          pathname: ROUTES.RESET_PASS,
+          params: { email }, 
+        })
+      }else{
+        // go to login
+        router.replace(ROUTES.LOGIN);
+      }
     },
   });
 

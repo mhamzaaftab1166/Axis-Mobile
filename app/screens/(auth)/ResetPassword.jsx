@@ -1,5 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import {
   Image,
   KeyboardAvoidingView,
@@ -11,10 +11,13 @@ import {
 import { Text, useTheme } from "react-native-paper";
 import * as Yup from "yup";
 
+import { useState } from "react";
+import AppErrorMessage from "../../components/forms/AppErrorMessage";
 import AppForm from "../../components/forms/AppForm";
 import AppFormField from "../../components/forms/AppFormFeild";
 import SubmitButton from "../../components/forms/AppSubmitButton";
 import { ROUTES } from "../../helpers/routePaths";
+import { useUpdatePassword } from "../../hooks/useAuthQuery";
 
 const validationSchema = Yup.object().shape({
   password: Yup.string()
@@ -35,9 +38,29 @@ const validationSchema = Yup.object().shape({
 export default function ResetPasswordScreen() {
   const { colors } = useTheme();
 
+  const [error, setError] = useState("");
+  const [isError, setIsError] = useState(false);
+
+  const { email } = useLocalSearchParams();
+
+  const { mutate: updatePasswordReq, isPending: isUpdating } = useUpdatePassword({
+    onErrorCallback: (errMsg) => {
+      setError(errMsg);
+      setIsError(true);
+    },
+    onSuccessCallback: () => {
+      setError("");
+      setIsError(false);
+      router.dismissAll(ROUTES.LOGIN);
+    }}
+  );
+
   const handleSubmit = (values) => {
-    console.log("Reset Password values:", values);
-    router.dismissAll(ROUTES.LOGIN);
+    console.log(email,values);
+    updatePasswordReq({
+      email: email,
+      password: values.password
+    });
   };
 
   return (
@@ -81,6 +104,11 @@ export default function ResetPasswordScreen() {
               onSubmit={handleSubmit}
               validationSchema={validationSchema}
             >
+              <View style={{
+                alignSelf: "center"
+              }}>
+                <AppErrorMessage visible={isError} error={error}/>
+              </View>
               <AppFormField
                 name="password"
                 placeholder="New Password"
@@ -97,7 +125,7 @@ export default function ResetPasswordScreen() {
                 icon="lock-check-outline"
               />
 
-              <SubmitButton title="Reset Password" />
+              <SubmitButton isLoading={isUpdating} title="Reset Password" />
             </AppForm>
           </View>
         </ScrollView>

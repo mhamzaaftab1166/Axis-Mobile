@@ -2,7 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { HttpStatusCode } from 'axios';
 import { router } from 'expo-router';
 import { ROUTES } from '../helpers/routePaths';
-import { fetchUserDetails, loginUser, passwordResetRequest, registerUser, verifyOtp } from '../services/authService';
+import { fetchUserDetails, loginUser, passwordResetRequest, registerUser, updatePassword, verifyOtp } from '../services/authService';
 import useAuthStore from '../store/useAuthStore';
 
 // fetch user detail
@@ -86,21 +86,27 @@ export const useLoginMutation = ({ onSuccessCallback, onErrorCallback } = {}) =>
 };
 
 // reset password
-export const useResetPasswordRequest = onSuccessChangeForm => {
-  const { setToken } = useAuthStore()
-
+export const useResetPasswordRequest = ({ onSuccessCallback, onErrorCallback } = {}) => {
   return useMutation({
     mutationFn: data => passwordResetRequest(data),
-    onSuccess: response => {
+    onSuccess: (response,variables) => {
       const resData = response
-
-      if (resData.status === HttpStatusCode.Ok) {
-        setToken(resData?.data?.authToken)
-        onSuccessChangeForm?.()
+      if (resData?.status === HttpStatusCode.Ok) {
+        router.push({
+          pathname: ROUTES.OTP,
+          params: { email: variables?.email, resetPassword: true }, 
+        });
+        onSuccessCallback?.();
+      }else{
+        onErrorCallback?.(response?.error || "Registeration Failed!");
       }
     },
-    onError: error => {
-      console.log(error)
+    onError: (error) => {
+      const msg =
+        error?.response?.data?.error ||
+        error?.message ||
+        "Something went wrong";
+      onErrorCallback?.(msg);
     }
   })
 }
@@ -109,10 +115,9 @@ export const useResetPasswordRequest = onSuccessChangeForm => {
 export const useVerifyOTP = ({ onSuccessCallback, onErrorCallback } = {}) => {
   return useMutation({
     mutationFn: ({email, otp}) => verifyOtp({email, otp}),
-    onSuccess: response => {
+    onSuccess: (response) => {
       const resData = response;
       if (resData.status === HttpStatusCode.Ok) {
-        router.replace(ROUTES.LOGIN);
         onSuccessCallback?.();
       }else{
         onErrorCallback?.(resData?.error || "Login failed");
@@ -126,4 +131,27 @@ export const useVerifyOTP = ({ onSuccessCallback, onErrorCallback } = {}) => {
       onErrorCallback?.(msg);
     }}
   )
+}
+
+// update password
+export const useUpdatePassword = ({ onSuccessCallback, onErrorCallback } = {}) => {
+  return useMutation({
+    mutationFn: data => updatePassword(data),
+    onSuccess: response => {
+      const resData = response
+      if (resData?.status === HttpStatusCode.Ok) {
+        router.replace(ROUTES.LOGIN);
+        onSuccessCallback?.();
+      }else{
+        onErrorCallback?.(response?.error || "Reset password Failed!");
+      }
+    },
+    onError: (error) => {
+      const msg =
+        error?.response?.data?.error ||
+        error?.message ||
+        "Something went wrong";
+      onErrorCallback?.(msg);
+    }
+  })
 }

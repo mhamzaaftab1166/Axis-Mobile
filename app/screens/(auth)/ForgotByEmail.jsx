@@ -1,5 +1,4 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { router } from "expo-router";
 import {
   Image,
   KeyboardAvoidingView,
@@ -11,10 +10,12 @@ import {
 import { Text, useTheme } from "react-native-paper";
 import * as Yup from "yup";
 
+import { useState } from "react";
+import AppErrorMessage from "../../components/forms/AppErrorMessage";
 import AppForm from "../../components/forms/AppForm";
 import AppFormField from "../../components/forms/AppFormFeild";
 import SubmitButton from "../../components/forms/AppSubmitButton";
-import { ROUTES } from "../../helpers/routePaths";
+import { useResetPasswordRequest } from "../../hooks/useAuthQuery";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string()
@@ -25,11 +26,23 @@ const validationSchema = Yup.object().shape({
 export default function ForgotByEmailScreen() {
   const { colors } = useTheme();
 
+  const [error, setError] = useState("");
+  const [isError, setIsError] = useState(false);
+
+  const { mutate: resetPasswordRequest, isPending: isResetting } = useResetPasswordRequest({
+    onErrorCallback: (errMsg) => {
+      setError(errMsg);
+      setIsError(true);
+    },
+    onSuccessCallback: () => {
+      setError("");
+      setIsError(false);
+    }}
+  );
+
   const handleSubmit = (values) => {
-    console.log("Login values:", values);
-    router.push({
-      pathname: ROUTES.OTP,
-      params: { goToHome: false },
+    resetPasswordRequest({
+      email: values.email
     });
   };
 
@@ -74,6 +87,11 @@ export default function ForgotByEmailScreen() {
               onSubmit={handleSubmit}
               validationSchema={validationSchema}
             >
+              <View style={{
+                alignSelf: "center"
+              }}>
+                <AppErrorMessage visible={isError} error={error}/>
+              </View>     
               <AppFormField
                 name="email"
                 placeholder="Email Your Email"
@@ -82,7 +100,7 @@ export default function ForgotByEmailScreen() {
                 icon={"email-outline"}
               />
 
-              <SubmitButton title="Next" />
+              <SubmitButton isLoading={isResetting} title="Next" />
             </AppForm>
           </View>
         </ScrollView>

@@ -1,15 +1,19 @@
-import { useNavigation } from "expo-router";
+import { router, useNavigation } from "expo-router";
 import { ScrollView, StatusBar, StyleSheet, View } from "react-native";
 import { Text, TextInput, useTheme } from "react-native-paper";
 import * as Yup from "yup";
 
+import { useState } from "react";
 import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
+import AppErrorMessage from "../../components/forms/AppErrorMessage";
 import AppForm from "../../components/forms/AppForm";
 import AppFormField from "../../components/forms/AppFormFeild";
 import AppImagePickerField from "../../components/forms/AppImagePickerFeild";
 import SubmitButton from "../../components/forms/AppSubmitButton";
 import { getGreeting } from "../../helpers/general";
+import { ROUTES } from "../../helpers/routePaths";
 import { useUserDetailQuery } from "../../hooks/useAuthQuery";
+import { useUpdateProfilePicture } from "../../hooks/useProfileQuery";
 
 const validationSchema = Yup.object().shape({
   full_name: Yup.string().required("Full name is required"),
@@ -27,6 +31,9 @@ export default function MyProfile() {
 
   const { userData } = useUserDetailQuery();
 
+  const [error, setError] = useState("");
+  const [isError, setIsError] = useState(false);
+
   const disabledTheme = {
     colors: {
       text: disabledText,
@@ -37,13 +44,30 @@ export default function MyProfile() {
     },
   };
 
-  const handleSubmit = ({ full_name, profile_image }) => {
-    console.log(full_name);
-    console.log(profile_image);
-    // router.dismissTo(ROUTES.ACCOUNT_TAB);
-  };
+  const { mutate: updateProfileInformation, isPending: isUpdating } = useUpdateProfilePicture({
+    onErrorCallback: (errMsg) => {
+      setError(errMsg);
+      setIsError(true);
+    },
+    onSuccessCallback: () => {
+      setError("");
+      setIsError(false);
+      router.dismissTo(ROUTES.ACCOUNT_TAB);
+    },
+  });
 
-  console.log(userData);
+  const handleSubmit = ({ full_name, profile_image }) => {
+    const formData = new FormData();
+    formData.append("full_name", full_name);
+    if (profile_image) {
+      formData.append("profile_picture", {
+        uri: profile_image, 
+        type: "image/jpeg", 
+        name: "profile.jpg"
+      });
+    }
+    updateProfileInformation(formData);
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: screenBg }]}>
@@ -62,6 +86,13 @@ export default function MyProfile() {
           validationSchema={validationSchema}
         >
           <AppImagePickerField name="profile_image" />
+          <View 
+            style={{
+              alignSelf: "center"
+            }}
+          >
+            <AppErrorMessage error={error} visible={isError}  />
+          </View>
           <Text
             style={[
               styles.greeting,
@@ -99,7 +130,7 @@ export default function MyProfile() {
             style={[styles.input, { backgroundColor: disabledBg }]}
             theme={disabledTheme}
           />
-          <SubmitButton title="Save Changes" style={styles.input} />
+          <SubmitButton title="Save Changes" isLoading={isUpdating} style={styles.input} />
         </AppForm>
       </ScrollView>
     </View>
