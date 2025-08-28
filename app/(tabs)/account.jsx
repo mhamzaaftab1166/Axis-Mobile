@@ -10,7 +10,7 @@ import {
   useTheme,
 } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-import AvatarPlaceholder from "../../assets/images/account/avatar.avif";
+import config from "../../config.json";
 import { ROUTES } from "../helpers/routePaths";
 import { useUserDetailQuery } from "../hooks/useAuthQuery";
 import useAuthStore from "../store/useAuthStore";
@@ -87,7 +87,9 @@ export default function AccountScreen() {
       <View style={styles.container}>
         {/* Profile Card */}
         <View style={styles.card}>
-          <Avatar.Image size={64} source={AvatarPlaceholder} />
+          <Avatar.Image size={64} source={{
+            uri: `${config.pictureUrl}/${userData?.profileImage}`
+          }} />
           <View style={styles.profileInfo}>
             <Text
               variant="titleMedium"

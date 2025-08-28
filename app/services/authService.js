@@ -22,5 +22,9 @@ const passwordResetRequest = async (data) => {
   return await _axios('post', 'v1/profile/reset-password-request', data);
 };
 
-export { fetchUserDetails, loginUser, passwordResetRequest, registerUser, verifyOtp };
+const updatePassword = async (data) => {
+  return await _axios('post', 'v1/profile/update-password', data);
+};
+
+export { fetchUserDetails, loginUser, passwordResetRequest, registerUser, updatePassword, verifyOtp };
 

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { Card, useTheme } from "react-native-paper";
 import StarView from "react-native-star-view";
+import config from "../../../../config.json";
 
 export default function ServiceCardGrid({
   service,
@@ -56,7 +57,9 @@ export default function ServiceCardGrid({
       <View style={styles.cardContent}>
         <View style={styles.imageContainer}>
           <Image
-            source={service.image}
+            source={{
+              uri: `${config.pictureUrl}/${service.image}`
+            }}
             style={styles.image}
             resizeMode="cover"
           />
