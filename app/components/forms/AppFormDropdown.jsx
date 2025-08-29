@@ -109,6 +109,12 @@ export default function AppFormDropdown({
             right={rightIcon}
             placeholderTextColor={colors.onSurfaceVariant}
             editable={false}
+            onChange={(val)=>{
+              console.log(val)
+            }}
+            onChangeText={(val)=>{
+              console.log(val)
+            }}
           />
         </View>
       );

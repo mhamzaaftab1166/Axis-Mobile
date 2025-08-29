@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { HttpStatusCode } from "axios";
 import { addAddress, fetchAddress, fetchBuildingsInformation, removeAddress, updateAddress } from "../services/addressService";
 import useAuthStore from "../store/useAuthStore";
@@ -22,38 +22,29 @@ export const useGetAllAddress = () => {
   };
 };
 
-// ✅ Add new address
-export const useAddNewAddress = ({ onSuccessCallback, onErrorCallback } = {}) => {
+// save (add/update) address
+export const useSaveAddress = ({ onSuccessCallback, onErrorCallback } = {}) => {
+  const qc = useQueryClient();
+
   return useMutation({
-    mutationFn: (data) => addAddress(data),
-    onSuccess: (response) => {
-      const resData = response?.data;
-      if (resData?.status === HttpStatusCode.Ok) {
-        onSuccessCallback?.(resData?.data);
+    // 🔑 single mutationFn handles both add & update
+    mutationFn: (data) => {
+      if (data?.id) {
+        return updateAddress(data?.id, data);
       } else {
-        onErrorCallback?.(resData?.error || "Failed to add address");
+        return addAddress(data);
       }
     },
-    onError: (error) => {
-      const msg =
-        error?.response?.data?.error || error?.message || "Something went wrong";
-      onErrorCallback?.(msg);
-    },
-  });
-};
-
-// ✅ Update address
-export const useUpdateAddress = ({ onSuccessCallback, onErrorCallback } = {}) => {
-  return useMutation({
-    mutationFn: ({ id, data }) => updateAddress(id, data),
     onSuccess: (response) => {
-      const resData = response?.data;
-      if (resData?.status === HttpStatusCode.Ok) {
-        onSuccessCallback?.(resData?.data);
-      } else if (resData?.status === HttpStatusCode.Forbidden) {
-        onSuccessCallback?.(null);
+      const resData = response?.data || response; 
+      // Handle add
+      if (response?.status === HttpStatusCode.Ok || resData?.status === HttpStatusCode.Created) {
+        onSuccessCallback?.(resData?.data || response?.data);
+        qc.invalidateQueries(["addresses"]);
       } else {
-        onErrorCallback?.(resData?.error || "Update failed");
+        onErrorCallback?.(
+          resData?.error || response?.error || "Save address failed"
+        );
       }
     },
     onError: (error) => {
@@ -66,16 +57,15 @@ export const useUpdateAddress = ({ onSuccessCallback, onErrorCallback } = {}) =>
 
 // ✅ Remove address
 export const useRemoveAddress = ({ onSuccessCallback, onErrorCallback } = {}) => {
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: (id) => removeAddress(id),
     onSuccess: (response) => {
-      const resData = response?.data;
-      if (resData?.status === HttpStatusCode.Ok) {
-        onSuccessCallback?.(resData?.data);
-      } else if (resData?.status === HttpStatusCode.Forbidden) {
-        onSuccessCallback?.(null);
+      if (response?.status === HttpStatusCode.Ok) {
+        onSuccessCallback?.();
+        qc.invalidateQueries(["addresses"]);
       } else {
-        onErrorCallback?.(resData?.error || "Remove failed");
+        onErrorCallback?.(response?.error || "Remove failed");
       }
     },
     onError: (error) => {
@@ -98,7 +88,7 @@ export const useGetAllBuildingInfo = () => {
   });
 
   return {
-    allAddresses: query?.data?.data,
+    buildingsData: query?.data?.data,
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,

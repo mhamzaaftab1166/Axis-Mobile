@@ -8,6 +8,7 @@ export default function ConfirmDialog({
   message = "Are you sure?",
   onCancel,
   onConfirm,
+  isLoading
 }) {
   const { colors, fonts } = useTheme();
 
@@ -76,6 +77,7 @@ export default function ConfirmDialog({
                 labelStyle={{ fontWeight: "bold", fontSize: 16 }}
                 style={styles.fullButton}
                 onPress={onConfirm}
+                loading={isLoading}
               >
                 Confirm
               </Button>

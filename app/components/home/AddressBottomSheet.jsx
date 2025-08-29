@@ -11,7 +11,7 @@ import {
 import { Button, Card, Text, useTheme } from "react-native-paper";
 
 const AddressBottomSheet = ({
-  addresses,
+  addresses = [],
   visible,
   onClose,
   onSelect,
@@ -69,7 +69,7 @@ const AddressBottomSheet = ({
                   color: isSelected ? colors.primary : colors.onSurface,
                 }}
               >
-                {item.property.name}
+                {item?.towerId?.towerName}
               </Text>
               <Text
                 variant="bodyMedium"
@@ -78,7 +78,7 @@ const AddressBottomSheet = ({
                   marginTop: 2,
                 }}
               >
-                {item.block.name}, {item.floor.name}, {item.unit.name}
+                {item?.blockId?.blockName}, {item?.floorId?.floorName}, {item?.unitId?.unitName}
               </Text>
             </View>
           </View>
@@ -114,7 +114,7 @@ const AddressBottomSheet = ({
           </Text>
           <FlatList
             data={addresses}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => item._id}
             renderItem={renderItem}
             contentContainerStyle={{ paddingBottom: 20, paddingHorizontal: 8 }}
             showsVerticalScrollIndicator={false}
