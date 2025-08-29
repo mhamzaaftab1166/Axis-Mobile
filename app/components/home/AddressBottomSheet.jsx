@@ -95,7 +95,7 @@ const AddressBottomSheet = ({
                   color: isSelected ? activeText : colors.onSurface,
                 }}
               >
-                {item.property?.name ?? "—"}
+                {item?.towerId?.towerName}
               </Text>
               <Text
                 variant="bodyMedium"
@@ -104,8 +104,7 @@ const AddressBottomSheet = ({
                   marginTop: 2,
                 }}
               >
-                {item.block?.name ?? "—"}, {item.floor?.name ?? "—"},{" "}
-                {item.unit?.name ?? "—"}
+                {item?.blockId?.blockName}, {item?.floorId?.floorName}, {item?.unitId?.unitName}
               </Text>
             </View>
           </View>
@@ -142,7 +141,7 @@ const AddressBottomSheet = ({
 
           <FlatList
             data={addresses}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => item._id}
             renderItem={renderItem}
             contentContainerStyle={{ paddingBottom: 20, paddingHorizontal: 8 }}
             showsVerticalScrollIndicator={false}

@@ -6,9 +6,11 @@ import { FAB, Text, TouchableRipple, useTheme } from "react-native-paper";
 import { SwipeListView } from "react-native-swipe-list-view";
 import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
+import EmptyState from "../../components/common/EmptyState";
+import AppErrorMessage from "../../components/forms/AppErrorMessage";
 import LoadingOverlay from "../../components/LoadingOverlay";
 import { ROUTES } from "../../helpers/routePaths";
-import { useGetAllAddress } from "../../hooks/useAddressQuery";
+import { useGetAllAddress, useRemoveAddress } from "../../hooks/useAddressQuery";
 
 export default function MyAddresses() {
   const { colors, dark, fonts } = useTheme();
@@ -16,33 +18,25 @@ export default function MyAddresses() {
 
   const { allAddresses, isLoading: isFetching } = useGetAllAddress();
 
-
-  const [addresses, setAddresses] = useState([
-    {
-      id: "1",
-      property: { id: "1", name: "Tower A" },
-      block: { id: "2", name: "Block 2" },
-      floor: { id: "5", name: "5th" },
-      unit: { id: "102", name: "102" },
-    },
-    {
-      id: "2",
-      property: { id: "2", name: "Tower B" },
-      block: { id: "1", name: "Block 1" },
-      floor: { id: "2", name: "2nd" },
-      unit: { id: "201", name: "201" },
-    },
-    {
-      id: "3",
-      property: { id: "3", name: "Tower C" },
-      block: { id: "3", name: "Block 3" },
-      floor: { id: "1", name: "1st" },
-      unit: { id: "101", name: "101" },
-    },
-  ]);
-
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState(null);
+
+  const [error, setError] = useState("");
+  const [isError, setIsError] = useState(false);
+
+  const { mutate: removeAddress, isPending: isRemoving } = useRemoveAddress({
+    onErrorCallback: (errMsg) => {
+      setError(errMsg);
+      setIsError(true);
+      setConfirmVisible(false);
+    },
+    onSuccessCallback: () => {
+      setError("");
+      setIsError(false);
+      setConfirmVisible(false);
+      setSelectedAddress(null);
+    },
+  });
 
   const showConfirm = (item) => {
     setSelectedAddress(item);
@@ -50,8 +44,8 @@ export default function MyAddresses() {
   };
 
   const handleConfirm = () => {
-    console.log("Deleted Address ID:", selectedAddress?.id);
-    setConfirmVisible(false);
+    console.log("Deleted Address ID:", selectedAddress?._id);
+    removeAddress(selectedAddress?._id);
   };
 
   const handleEdit = (item) => {
@@ -85,11 +79,11 @@ export default function MyAddresses() {
               { color: colors.text, fontFamily: fonts.medium },
             ]}
           >
-            {item.property.name}
+            {item?.towerId?.towerName}
           </Text>
           <Text style={[styles.cardSub, { color: colors.text }]}>
-            Block: {item.block.name} • Floor: {item.floor.name} • Unit:{" "}
-            {item.unit.name}
+            Block: {item?.blockId?.blockName} • Floor: {item?.floorId?.floorName} • Unit:{" "}
+            {item?.unitId?.unitName}
           </Text>
         </View>
       </View>
@@ -98,7 +92,6 @@ export default function MyAddresses() {
 
   const renderHiddenItem = ({ item }) => (
     <View style={styles.rowBack}>
-      {/* Delete Button */}
       <TouchableRipple
         onPress={() => showConfirm(item)}
         style={[
@@ -113,7 +106,6 @@ export default function MyAddresses() {
         />
       </TouchableRipple>
 
-      {/* Edit Button */}
       <TouchableRipple
         onPress={() => handleEdit(item)}
         style={[styles.hiddenButton, { backgroundColor: "#2196F3" }]}
@@ -123,7 +115,9 @@ export default function MyAddresses() {
     </View>
   );
 
-  console.log(allAddresses);
+  if(allAddresses?.length === 0){
+    return <EmptyState/>
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -132,9 +126,12 @@ export default function MyAddresses() {
         onBack={() => navigation.goBack()}
       />
       <LoadingOverlay visible={isFetching} />
+      <View style={{alignSelf: "center"}}>
+        <AppErrorMessage error={error} visible={isError} />
+      </View>
       <SwipeListView
         data={allAddresses}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item._id}
         renderItem={renderItem}
         renderHiddenItem={renderHiddenItem}
         rightOpenValue={-150}
@@ -157,6 +154,7 @@ export default function MyAddresses() {
         message={`Remove ${selectedAddress?.property?.name}?`}
         onCancel={() => setConfirmVisible(false)}
         onConfirm={handleConfirm}
+        isLoading={isRemoving}
       />
     </View>
   );

@@ -7,7 +7,11 @@ function AppForm({ initialValues, onSubmit, validationSchema, children }) {
       onSubmit={onSubmit}
       validationSchema={validationSchema}
     >
-      {() => <>{children}</>}
+      {(formikProps) =>
+        typeof children === "function"
+          ? children(formikProps) // 🔑 Call function-as-children
+          : children              // Or render JSX normally
+      }
     </Formik>
   );
 }

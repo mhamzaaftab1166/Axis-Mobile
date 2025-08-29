@@ -3,42 +3,16 @@ import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { StatusBar, StyleSheet, View } from "react-native";
 import { useTheme } from "react-native-paper";
 
+import { useState } from "react";
 import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
+import AppErrorMessage from "../../components/forms/AppErrorMessage";
 import AppForm from "../../components/forms/AppForm";
 import AppFormDropdown from "../../components/forms/AppFormDropdown";
 import SubmitButton from "../../components/forms/AppSubmitButton";
 import ResetAddressFields from "../../components/forms/ResetAddressForm";
+import LoadingOveralay from "../../components/LoadingOverlay";
 import { addressValidationSchema } from "../../helpers/validations";
-
-// Static dropdown data
-const properties = [
-  { id: "1", name: "Tower A" },
-  { id: "2", name: "Tower B" },
-  { id: "3", name: "Tower C" },
-];
-
-const blocks = [
-  { id: "1", name: "Block 1" },
-  { id: "2", name: "Block 2" },
-  { id: "3", name: "Block 3" },
-];
-
-const floors = [
-  { id: "1", name: "1st" },
-  { id: "2", name: "2nd" },
-  { id: "3", name: "3rd" },
-  { id: "4", name: "4th" },
-  { id: "5", name: "5th" },
-];
-
-const units = [
-  { id: "101", name: "101" },
-  { id: "102", name: "102" },
-  { id: "103", name: "103" },
-  { id: "201", name: "201" },
-  { id: "202", name: "202" },
-  { id: "203", name: "203" },
-];
+import { useGetAllBuildingInfo, useSaveAddress } from "../../hooks/useAddressQuery";
 
 export default function AddAddress() {
   const params = useLocalSearchParams();
@@ -48,14 +22,37 @@ export default function AddAddress() {
 
   const screenBg = colors.background;
 
+  const [error, setError] = useState("");
+  const [isError, setIsError] = useState(false);
+
+  const { buildingsData, isLoading } = useGetAllBuildingInfo();
+  const { mutate: saveAddress, isPending: isSaving } = useSaveAddress({
+    onErrorCallback: (errMsg) => {
+      setError(errMsg);
+      setIsError(true);
+    },
+    onSuccessCallback: () => {
+      setError("");
+      setIsError(false);
+      router.back();
+    },
+  });
+
   const handleSubmit = (values) => {
-    console.log("New Address:", values);
-    router.back();
+    saveAddress({
+      id: addressParam?._id || undefined,
+      towerId: values?.property?._id,
+      blockId: values?.block?._id,
+      floorId: values?.floor?._id,
+      unitId: values?.unit?._id,
+      unitName: values?.unit?.unitName
+    });
   };
 
   return (
     <View style={[styles.container, { backgroundColor: screenBg }]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
+      <LoadingOveralay visible={isLoading} />
       <CenteredAppbarHeader
         title="Add New Address"
         onBack={() => navigation.goBack()}
@@ -64,53 +61,64 @@ export default function AddAddress() {
       <View style={styles.content}>
         <AppForm
           initialValues={{
-            property: addressParam?.property || null,
-            block: addressParam?.block || null,
-            floor: addressParam?.floor || null,
-            unit: addressParam?.unit || null,
+            property: addressParam?.towerId || null,
+            block: addressParam?.blockId || null,
+            floor: addressParam?.floorId || null,
+            unit: addressParam?.unitId || null,
           }}
           onSubmit={handleSubmit}
           validationSchema={addressValidationSchema}
         >
-          <ResetAddressFields />
+          {({ values }) => (
+            <>
+              <ResetAddressFields />
 
-          <AppFormDropdown
-            name="property"
-            placeholder="Select Property"
-            items={properties}
-            labelKey="name"
-            valueKey="id"
-            onValueChange={(val) => console.log("property selected:", val)}
-          />
+              <View style={{alignSelf: "center"}}>
+                <AppErrorMessage error={error} visible={isError} />
+              </View>
+              <AppFormDropdown
+                name="property"
+                placeholder="Select Property"
+                items={buildingsData?.towers}
+                labelKey="towerName"
+                valueKey="_id"
+              />
 
-          <AppFormDropdown
-            name="block"
-            placeholder="Select Block"
-            items={blocks}
-            labelKey="name"
-            valueKey="id"
-            onValueChange={(val) => console.log("block selected:", val)}
-          />
+              <AppFormDropdown
+                name="block"
+                placeholder="Select Block"
+                items={buildingsData?.blocks?.filter(
+                  (b) => b.towerId === values?.property?._id
+                )}
+                labelKey="blockName"
+                valueKey="_id"
+              />
 
-          <AppFormDropdown
-            name="floor"
-            placeholder="Select Floor"
-            items={floors}
-            labelKey="name"
-            valueKey="id"
-            onValueChange={(val) => console.log("floor selected:", val)}
-          />
+              <AppFormDropdown
+                name="floor"
+                placeholder="Select Floor"
+                items={buildingsData?.floors?.filter(
+                  (f) => f.blockId === values?.block?._id
+                )}
+                labelKey="floorName"
+                valueKey="_id"
+              />
 
-          <AppFormDropdown
-            name="unit"
-            placeholder="Select Unit"
-            items={units}
-            labelKey="name"
-            valueKey="id"
-            onValueChange={(val) => console.log("unit selected:", val)}
-          />
+              <AppFormDropdown
+                name="unit"
+                placeholder="Select Unit"
+                items={buildingsData?.units?.filter(
+                  (u) => u.floorId === values?.floor?._id
+                )}
+                labelKey="unitName"
+                valueKey="_id"
+              />
 
-          <SubmitButton title="Save Address" />
+              <SubmitButton isLoading={isSaving} title={
+                addressParam ? "Update Address" : "Save Address"
+              } />
+            </>
+          )}
         </AppForm>
       </View>
     </View>

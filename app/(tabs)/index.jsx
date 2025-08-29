@@ -23,6 +23,7 @@ import InfoCard from "../components/home/InfoCard";
 import LoadingOverlay from "../components/LoadingOverlay";
 import { serviceTableColumns, staticServiceData } from "../helpers/contantData";
 import { ROUTES } from "../helpers/routePaths";
+import { useGetAllAddress } from "../hooks/useAddressQuery";
 import { useUserDetailQuery } from "../hooks/useAuthQuery";
 import { useGetTopServices } from "../hooks/useServiceQuery";
 import useAddressStore from "../store/useAddressStore";
@@ -31,32 +32,16 @@ export default function Home() {
   const [showSheet, setShowSheet] = useState(false);
   const { colors, dark } = useTheme();
 
-  const { userData, isLoading: fetchingUserData } = useUserDetailQuery();
+  const { userData, isLoading: fetchingUserData, error } = useUserDetailQuery();
   const { topServices, isLoading: fetchingTopServices } = useGetTopServices();
-
-  const addresses = [
-    {
-      id: "1",
-      property: { id: "1", name: "Tower A" },
-      block: { id: "2", name: "Block 2" },
-      floor: { id: "5", name: "5th" },
-      unit: { id: "102", name: "102" },
-    },
-    {
-      id: "2",
-      property: { id: "2", name: "Tower B" },
-      block: { id: "1", name: "Block 1" },
-      floor: { id: "2", name: "2nd" },
-      unit: { id: "201", name: "201" },
-    },
-  ];
+  const { allAddresses, isLoading: loadingAddress } = useGetAllAddress();
 
   const selectedAddress = useAddressStore((s) => s.selectedAddress);
   const setAddress = useAddressStore((s) => s.setAddress);
   const ensureDefault = useAddressStore((s) => s.ensureDefault);
 
   useEffect(() => {
-    ensureDefault(addresses[0]);
+    ensureDefault(allAddresses ? allAddresses[0] : "");
   }, []);
 
   if(fetchingUserData || fetchingTopServices){
@@ -68,6 +53,7 @@ export default function Home() {
       <SafeAreaView
         style={[styles.safe, { backgroundColor: colors.background }]}
       >
+        <LoadingOverlay visible={fetchingUserData || fetchingTopServices || loadingAddress}/>
         <ScrollView contentContainerStyle={styles.container}>
           <TouchableOpacity
             onPress={() => setShowSheet(true)}
@@ -92,12 +78,12 @@ export default function Home() {
                     color={colors.primary}
                     style={{ marginRight: 6 }}
                   />
-                  <Text
-                    style={[styles.addressText, { color: colors.onSurface }]}
-                  >
+                  <Text style={[styles.addressText, { color: colors.onSurface }]}>
                     {selectedAddress
-                      ? `${selectedAddress.property.name}, ${selectedAddress.block.name}, ${selectedAddress.floor.name}, ${selectedAddress.unit.name}`
-                      : `${addresses[0].property.name}, ${addresses[0].block.name}, ${addresses[0].floor.name}, ${addresses[0].unit.name}`}
+                      ? `${selectedAddress?.towerId?.towerName || ""}, ${selectedAddress?.blockId?.blockName || ""}, ${selectedAddress?.floorId?.floorName || ""}, ${selectedAddress?.unitId?.unitName || ""}`
+                      : allAddresses?.length > 0
+                        ? `${allAddresses[0]?.towerId?.towerName || ""}, ${allAddresses[0]?.blockId?.blockName || ""}, ${allAddresses[0]?.floorId?.floorName || ""}, ${allAddresses[0]?.unitId?.unitName || ""}`
+                        : "No address available"}
                   </Text>
                 </View>
                 <MaterialIcons
@@ -117,7 +103,7 @@ export default function Home() {
           <CategoryListing />
           <HomeServiceSection
             title="Popular Services"
-            homePageServices={topServices.data}
+            homePageServices={topServices?.data}
             onViewAll={() => router.push(ROUTES.SERVICE_LISTING)}
           />
           <View style={styles.sectionHeaderRow}>
@@ -138,7 +124,7 @@ export default function Home() {
         </ScrollView>
 
         <AddressBottomSheet
-          addresses={addresses}
+          addresses={allAddresses}
           visible={showSheet}
           selectedId={selectedAddress?.id}
           onClose={() => setShowSheet(false)}

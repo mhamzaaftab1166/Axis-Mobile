@@ -113,7 +113,7 @@ export const bookingValidationSchema = Yup.object().shape({
 export const addressValidationSchema = Yup.object().shape({
   property: Yup.object()
     .nullable()
-    .test("property-id", "Property is required", (val) => !!val?.id),
+    .test("property-id", "Property is required", (val) => !!val?._id),
 
   block: Yup.object()
     .nullable()
