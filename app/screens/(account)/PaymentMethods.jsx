@@ -13,8 +13,11 @@ import { FAB, useTheme } from "react-native-paper";
 import { SwipeListView } from "react-native-swipe-list-view";
 import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
+import AppErrorMessage from "../../components/forms/AppErrorMessage";
+import LoadingOverlay from "../../components/LoadingOverlay";
 import { getCardIcon } from "../../helpers/general";
 import { ROUTES } from "../../helpers/routePaths";
+import { useGetPaymentMethods, useRemovePaymentMethod } from "../../hooks/usePaymetMethodQuery";
 
 export default function PaymentMethods() {
   const { colors, dark, fonts } = useTheme();
@@ -27,11 +30,23 @@ export default function PaymentMethods() {
   const fabBg = colors.primary;
   const fabColor = colors.onPrimary;
 
-  const [cards, setCards] = useState([
-    { id: "1", type: "visa", last4: "1234", cardHolder: "John Doe" },
-    { id: "2", type: "mastercard", last4: "5678", cardHolder: "Samantha Ray" },
-    { id: "3", type: "amex", last4: "9012", cardHolder: "Aarav Kumar" },
-  ]);
+  const [error, setError] = useState("");
+  const [isError, setIsError] = useState(false);
+
+
+  const { data: cardsData, isLoading: isFetching } = useGetPaymentMethods();
+  const { mutate: removePaymentMethod, isPending: isRemoving } = useRemovePaymentMethod({
+    onErrorCallback: (errMsg) => {
+      setError(errMsg);
+      setIsError(true);
+    },
+    onSuccessCallback: () => {
+      setError("");
+      setIsError(false);
+      setToDeleteId(null);
+      setConfirmVisible(false);
+    },
+  });
 
   // Dialog state
   const [confirmVisible, setConfirmVisible] = useState(false);
@@ -48,8 +63,7 @@ export default function PaymentMethods() {
   };
 
   const handleDelete = () => {
-    setCards((prev) => prev.filter((card) => card.id !== toDeleteId));
-    hideConfirm();
+    removePaymentMethod(toDeleteId);
   };
 
   const renderItem = ({ item }) => (
@@ -62,7 +76,7 @@ export default function PaymentMethods() {
         },
       ]}
     >
-      {getCardIcon(item.type)}
+      {getCardIcon(item?.card_type)}
       <View style={styles.cardInfo}>
         <Text
           style={[
@@ -70,7 +84,7 @@ export default function PaymentMethods() {
             { fontFamily: fonts.medium, color: textColor },
           ]}
         >
-          {item.cardHolder}
+          {item.name_on_card}
         </Text>
         <Text
           style={[
@@ -78,7 +92,7 @@ export default function PaymentMethods() {
             { fontFamily: fonts.medium, color: textColor },
           ]}
         >
-          {item.type.toUpperCase()} **** {item.last4}
+          {item.card_type.toUpperCase()} {item.card_number}
         </Text>
         <Text
           style={[
@@ -86,7 +100,7 @@ export default function PaymentMethods() {
             { fontFamily: fonts.regular, color: textColor },
           ]}
         >
-          Exp: 12/26
+          Exp: {item.expiry}
         </Text>
       </View>
     </View>
@@ -114,9 +128,14 @@ export default function PaymentMethods() {
         title={"Saved Cards"}
         onBack={() => navigation.goBack()}
       />
-
+      <LoadingOverlay visible={isFetching} />
+      <View style={{
+        alignSelf: "center",
+      }}>
+        <AppErrorMessage visible={isError} error={error} />
+      </View>
       <SwipeListView
-        data={cards}
+        data={cardsData}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         renderHiddenItem={renderHiddenItem}
@@ -139,6 +158,7 @@ export default function PaymentMethods() {
         message="Are you sure you want to delete this card?"
         onCancel={hideConfirm}
         onConfirm={handleDelete}
+        isLoading={isRemoving}
       />
     </View>
   );

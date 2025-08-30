@@ -28,7 +28,6 @@ const validationSchema = Yup.object().shape({
 export default function OtpVerificationScreen() {
 
   const { email, resetPassword } = useLocalSearchParams();
-  console.log(email, resetPassword);
   const { colors } = useTheme();
   const [otpError, setOtpError] = useState("");
   const inputs = useRef([]);
