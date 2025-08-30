@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { Formik } from "formik";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import {
   Platform,
   TextInput as RNTextInput,
@@ -13,17 +13,34 @@ import {
 import { useTheme } from "react-native-paper";
 import * as Yup from "yup";
 import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
+import AppErrorMessage from "../../components/forms/AppErrorMessage";
 import SubmitButton from "../../components/forms/AppSubmitButton";
 import { ROUTES } from "../../helpers/routePaths";
+import { useCofirmEmailChange } from "../../hooks/useProfileQuery";
 
 const INPUT_HEIGHT = 56;
 
 export default function SetEmailScreen() {
   const navigation = useNavigation();
   const { colors } = useTheme();
-  const { isMobile } = useLocalSearchParams();
+  const { isMobile, email } = useLocalSearchParams();
   const screenBg = colors.background;
   const textColor = colors.text;
+
+  const [error, setError] = useState("");
+  const [isError, setIsError] = useState(false);
+
+  const { mutate: confirmEmailChange, isPending: isChangingEmail } = useCofirmEmailChange({
+    onErrorCallback: (errMsg) => {
+      setError(errMsg);
+      setIsError(true);
+    },
+    onSuccessCallback: () => {
+      setError("");
+      setIsError(false);
+      router.dismissTo(ROUTES.SETTINGS);
+    },
+  });
 
   const inputRefs = [useRef(null), useRef(null), useRef(null), useRef(null)];
 
@@ -51,6 +68,7 @@ export default function SetEmailScreen() {
           (k) => typeof vals[k] === "string" && /^\d$/.test(vals[k])
         )
     );
+
 
   const focusNext = (index) => {
     if (index < 3) {
@@ -93,8 +111,10 @@ export default function SetEmailScreen() {
 
   const handleSubmit = (values) => {
     const code = values.digit1 + values.digit2 + values.digit3 + values.digit4;
-    console.log("OTP Code:", code);
-    router.dismissTo(ROUTES.SETTINGS);
+    confirmEmailChange({
+      newEmail: email, 
+      otp: code
+    });
   };
 
   return (
@@ -124,6 +144,11 @@ export default function SetEmailScreen() {
             errors,
           }) => (
             <>
+              <View style={{
+                alignSelf: "center",
+              }}>
+                <AppErrorMessage visible={isError} error={error} />
+              </View>
               <View style={styles.otpContainer}>
                 {["digit1", "digit2", "digit3", "digit4"].map(
                   (field, index) => {
@@ -201,6 +226,7 @@ export default function SetEmailScreen() {
 
               <SubmitButton
                 title="Verify OTP"
+                isLoading={isChangingEmail}
                 onPress={formikSubmit}
                 disabled={isSubmitting}
               />

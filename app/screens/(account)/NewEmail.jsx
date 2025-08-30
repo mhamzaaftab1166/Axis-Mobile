@@ -3,11 +3,14 @@ import { StatusBar, StyleSheet, View } from "react-native";
 import { useTheme } from "react-native-paper";
 import * as Yup from "yup";
 
+import { useState } from "react";
 import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
+import AppErrorMessage from "../../components/forms/AppErrorMessage";
 import AppForm from "../../components/forms/AppForm";
 import AppFormField from "../../components/forms/AppFormFeild";
 import SubmitButton from "../../components/forms/AppSubmitButton";
 import { ROUTES } from "../../helpers/routePaths";
+import { useUpdateEmail } from "../../hooks/useProfileQuery";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string()
@@ -21,9 +24,28 @@ export default function SetEmailScreen() {
 
   const screenBg = colors.background;
 
+  const [error, setError] = useState("");
+  const [isError, setIsError] = useState(false);
+
+  const { mutate: updateEmail, isPending: requestingUpdate } = useUpdateEmail({
+    onErrorCallback: (errMsg) => {
+      setError(errMsg);
+      setIsError(true);
+    },
+    onSuccessCallback: (email) => {
+      setError("");
+      setIsError(false);
+      router.push({
+        pathname: ROUTES.OTP_SCREEN,
+        params: { email: email }, 
+      });
+    },
+  });
+
   const handleSubmit = (values) => {
-    console.log("Email values:", values);
-    router.replace(ROUTES.OTP_SCREEN);
+    updateEmail({
+      newEmail: values.email
+    });
   };
 
   return (
@@ -42,6 +64,11 @@ export default function SetEmailScreen() {
           onSubmit={handleSubmit}
           validationSchema={validationSchema}
         >
+         <View style={{
+            alignSelf: "center",
+          }}>
+            <AppErrorMessage visible={isError} error={error} />
+          </View>
           <AppFormField
             name="email"
             placeholder="Enter New Email"
@@ -50,7 +77,7 @@ export default function SetEmailScreen() {
             autoCapitalize="none"
           />
 
-          <SubmitButton title="Change Email" />
+          <SubmitButton isLoading={requestingUpdate} title="Change Email" />
         </AppForm>
       </View>
     </View>
