@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { Card, useTheme } from "react-native-paper";
 import StarView from "react-native-star-view";
+import config from "../../../../config.json";
 
 export default function ServiceCardList({
   service,
@@ -58,7 +59,9 @@ export default function ServiceCardList({
         <TouchableOpacity activeOpacity={0.85} style={styles.row}>
           <View style={styles.left}>
             <Image
-              source={service.image}
+              source={{
+                uri: `${config.pictureUrl}/${service.image}`
+              }}
               style={styles.image}
               resizeMode="cover"
             />

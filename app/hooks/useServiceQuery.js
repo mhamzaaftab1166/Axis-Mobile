@@ -27,12 +27,12 @@ export const useGetAllServices = () => {
   const query = useQuery({
     queryKey: ["all-services"],
     queryFn: () => fetchAllServices(),
-    staleTime: 10 * 60 * 1000,
+    staleTime: ()=>{},
     enabled: !!token && hasHydrated,
   });
 
   return {
-    allServices: query.data,
+    allServices: query?.data?.data,
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,

@@ -40,7 +40,7 @@ export const useSaveAddress = ({ onSuccessCallback, onErrorCallback } = {}) => {
       // Handle add
       if (response?.status === HttpStatusCode.Ok || resData?.status === HttpStatusCode.Created) {
         onSuccessCallback?.(resData?.data || response?.data);
-        qc.invalidateQueries(["addresses"]);
+        qc.invalidateQueries(["addresses","buildings-info"]);
       } else {
         onErrorCallback?.(
           resData?.error || response?.error || "Save address failed"
@@ -83,7 +83,7 @@ export const useGetAllBuildingInfo = () => {
   const query = useQuery({
     queryKey: ["buildings-info"],
     queryFn: () => fetchBuildingsInformation(),
-    staleTime: 10 * 60 * 1000,
+    staleTime: ()=>{},
     enabled: !!token && hasHydrated
   });
 

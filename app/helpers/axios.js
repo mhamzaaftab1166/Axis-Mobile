@@ -6,7 +6,7 @@ export const _axios = async (method, url, body, contentType = 'application/json'
   const endpoint = `${config.apiUrl}/${url}`
 
   const token = useAuthStore.getState().token;
-  
+
   try {
     const res = await axios({
       headers: {

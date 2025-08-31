@@ -8,6 +8,7 @@ import {
   View,
 } from "react-native";
 import { IconButton, useTheme } from "react-native-paper";
+import config from "../../config.json";
 import PermissionDialog from "./common/PermissionsDialog";
 
 const AppImagePicker = ({ imageUri, onChangeImage, onError }) => {
@@ -53,7 +54,7 @@ const AppImagePicker = ({ imageUri, onChangeImage, onError }) => {
           <Image
             source={
               imageUri
-                ? { uri: imageUri }
+                ? { uri: `${config.pictureUrl}/${imageUri}` }
                 : require("../../assets/images/account/avatar.avif")
             }
             style={styles.image}
