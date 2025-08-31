@@ -197,3 +197,35 @@ export const getAddressTextDetail = (service) => {
   const { towerName, blockNo, floor, flatNo } = a;
   return `${towerName}, Block ${blockNo}, Floor ${floor}, Flat ${flatNo}`;
 };
+
+export const buildServiceOptions = (services)=> {
+  return Object.values(
+    services.reduce((acc, service) => {
+      const cat = service.category?.toLowerCase() || "unknown";
+
+      if (!acc[cat]) {
+        acc[cat] = {
+          value: cat,
+          label: cat.charAt(0).toUpperCase() + cat.slice(1),
+          serviceCount: 0,
+        };
+      }
+
+      acc[cat].serviceCount += 1;
+      return acc;
+    }, {})
+  );
+}
+
+
+export const filterServicesByCategories = (categories, services = [])=> {
+  if (!Array.isArray(categories) || categories.length === 0) {
+    return services;
+  }
+
+  const lowerCats = categories.map(c => c.toLowerCase());
+
+  return services.filter(service =>
+    lowerCats.includes(service.category?.toLowerCase())
+  );
+}

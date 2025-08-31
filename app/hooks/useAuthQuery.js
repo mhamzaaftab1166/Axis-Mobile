@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { HttpStatusCode } from 'axios';
 import { router } from 'expo-router';
 import { ROUTES } from '../helpers/routePaths';
@@ -52,13 +52,14 @@ export const useRegisterQuery = ({ onSuccessCallback, onErrorCallback } = {}) =>
 // login
 export const useLoginMutation = ({ onSuccessCallback, onErrorCallback } = {}) => {
   const { setToken, setRole } = useAuthStore();
-
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ email, password, rememberMe }) =>
       loginUser({ email, password, rememberMe }),
     onSuccess: (response,variables) => {
       const resData = response;
       if (resData.status === HttpStatusCode.Ok) {
+        queryClient.clear();
         setToken(resData?.data?.authToken);
         setRole(resData?.data?.role);
         router.replace(ROUTES.HOME);

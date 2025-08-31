@@ -81,7 +81,7 @@ export default function AccountScreen() {
         {/* Profile Card */}
         <View style={styles.card}>
           <Avatar.Image size={64} source={{
-            uri: `${config.pictureUrl}/${userData?.profileImage}`
+            uri: `${config.pictureUrl}/${userData?.data?.profileImage}`
           }} />
           <View style={styles.profileInfo}>
             <Text

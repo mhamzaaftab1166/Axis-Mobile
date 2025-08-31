@@ -81,7 +81,7 @@ export default function MyProfile() {
         showsVerticalScrollIndicator={false}
       >
         <AppForm
-          initialValues={{ full_name: userData?.data?.name, profile_image: "" }}
+          initialValues={{ full_name: userData?.data?.name, profile_image: userData?.data?.profileImage }}
           onSubmit={handleSubmit}
           validationSchema={validationSchema}
         >
