@@ -16,7 +16,7 @@ import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
 import LoadingOverlay from "../../components/LoadingOverlay";
 import { useUserDetailQuery } from "../../hooks/useAuthQuery";
-import { useFetchNotifications } from "../../hooks/useNotificationQuery";
+import { useDeleteNotification, useFetchNotifications } from "../../hooks/useNotificationQuery";
 
 export default function Notifications() {
   const { colors, dark, fonts } = useTheme();
@@ -30,11 +30,17 @@ export default function Notifications() {
 
   const { userData, isLoading: fetchingUser } = useUserDetailQuery();
   const { data: userNotifications, isLoading: gettingNotifications } = useFetchNotifications(userData?.data?._id);
+  const { mutate: deleteNotification, isPending: isDeleting } = useDeleteNotification({
+    onSuccessCallback: () => {
+      setConfirmVisible(false);
+      setSelectedId(null);
+    },
+    onErrorCallback: (error)=>{}
+  });
 
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = useCallback(() => {
-    console.log("Refreshing notifications...");
     setRefreshing(true);
     setTimeout(() => setRefreshing(false), 1000);
   }, []);
@@ -45,9 +51,10 @@ export default function Notifications() {
   };
 
   const onConfirmDelete = () => {
-    console.log("Deleted item id:", selectedId);
-    setConfirmVisible(false);
-    setSelectedId(null);
+    deleteNotification({
+      indieId: userData?.data?._id,
+      notificationId: selectedId,
+    });
   };
 
   const onCancelDelete = () => {
@@ -67,7 +74,7 @@ export default function Notifications() {
           },
         ]}
       >
-        <Image source={item.image} style={styles.image} />
+        <Image source={require("../../../assets/images/account/avatar.avif")} style={styles.image} />
         <View style={styles.textContainer}>
           <Text
             style={[
@@ -83,7 +90,7 @@ export default function Notifications() {
               { color: textColor, fontFamily: fonts.regular },
             ]}
           >
-            {item.description}
+            {item.message}
           </Text>
         </View>
       </View>
@@ -94,7 +101,7 @@ export default function Notifications() {
     return (
       <View style={styles.rowBack}>
         <TouchableOpacity
-          onPress={() => handleDelete(dataItem.item.id)}
+          onPress={() => handleDelete(dataItem.item.notification_id)}
           style={[styles.deleteButton, { backgroundColor: colors.error }]}
         >
           <MaterialCommunityIcons name="delete" size={24} color="#fff" />
@@ -115,7 +122,7 @@ export default function Notifications() {
       {/* List */}
       <SwipeListView
         data={userNotifications}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => String(item.notification_id)}
         renderItem={renderItem}
         renderHiddenItem={renderHiddenItem}
         rightOpenValue={-75}
@@ -133,6 +140,7 @@ export default function Notifications() {
         message="Are you sure you want to delete this notification?"
         onCancel={onCancelDelete}
         onConfirm={onConfirmDelete}
+        isLoading={isDeleting}
       />
     </View>
   );

@@ -56,7 +56,6 @@ export default function ResetPasswordScreen() {
   );
 
   const handleSubmit = (values) => {
-    console.log(email,values);
     updatePasswordReq({
       email: email,
       password: values.password

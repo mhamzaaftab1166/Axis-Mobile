@@ -2,6 +2,7 @@
 const {
   getIndieNotificationInbox,
   deleteIndieNotificationInbox,
+  getUnreadIndieNotificationInboxCount
 } = require("native-notify");
 
 const notificationData = require("../utils/notificationData");
@@ -20,16 +21,33 @@ export const fetchInboxNotifications = async (indieId) => {
 
 // Delete a specific notification by its ID
 export const removeInboxNotification = async (indieId, notificationId) => {
+  console.log(indieId, notificationId);
   try {
     const result = await deleteIndieNotificationInbox(
       indieId,
-      notificationData.appId, 
-      notificationData.appToken,
-      notificationId
+      notificationId,
+      notificationData.default.appId, 
+      notificationData.default.appToken
     );
     return result; // success/failure response
   } catch (error) {
     console.error("Error deleting notification:", error);
+    throw error;
+  }
+};
+
+// fetch unread
+// services/notifications.js
+export const fetchUnreadNotificationCount = async (indieId) => {
+  try {
+    const unreadCount = await getUnreadIndieNotificationInboxCount(
+      String(indieId),
+      notificationData.default.appId,
+      notificationData.default.appToken
+    );
+    return unreadCount; // number
+  } catch (error) {
+    console.error("Error fetching unread count:", error);
     throw error;
   }
 };

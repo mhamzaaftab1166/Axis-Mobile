@@ -44,7 +44,6 @@ export default function MyAddresses() {
   };
 
   const handleConfirm = () => {
-    console.log("Deleted Address ID:", selectedAddress?._id);
     removeAddress(selectedAddress?._id);
   };
 
