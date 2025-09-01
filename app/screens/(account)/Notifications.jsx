@@ -12,9 +12,11 @@ import {
 } from "react-native";
 import { useTheme } from "react-native-paper";
 import { SwipeListView } from "react-native-swipe-list-view";
-import AvatarPlaceholder from "../../../assets/images/account/avatar.avif";
 import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
+import LoadingOverlay from "../../components/LoadingOverlay";
+import { useUserDetailQuery } from "../../hooks/useAuthQuery";
+import { useFetchNotifications } from "../../hooks/useNotificationQuery";
 
 export default function Notifications() {
   const { colors, dark, fonts } = useTheme();
@@ -26,28 +28,10 @@ export default function Notifications() {
   const textColor = colors.text;
   const cardBg = dark ? colors.secondary : colors.surface;
 
-  const [refreshing, setRefreshing] = useState(false);
+  const { userData, isLoading: fetchingUser } = useUserDetailQuery();
+  const { data: userNotifications, isLoading: gettingNotifications } = useFetchNotifications(userData?.data?._id);
 
-  const [data] = useState([
-    {
-      id: "1",
-      title: "Booking Confirmed",
-      description: "Your appointment is confirmed for tomorrow.",
-      image: AvatarPlaceholder,
-    },
-    {
-      id: "2",
-      title: "Service Completed",
-      description: "Your cleaning service is now complete.",
-      image: AvatarPlaceholder,
-    },
-    {
-      id: "3",
-      title: "Discount Available",
-      description: "Get 20% off on your next service!",
-      image: AvatarPlaceholder,
-    },
-  ]);
+  const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = useCallback(() => {
     console.log("Refreshing notifications...");
@@ -122,7 +106,7 @@ export default function Notifications() {
   return (
     <View style={[styles.container, { backgroundColor: screenBg }]}>
       <StatusBar barStyle={"light-content"} backgroundColor={colors.primary} />
-
+      <LoadingOverlay  visible={fetchingUser || gettingNotifications }/>
       <CenteredAppbarHeader
         title={"Notifications"}
         onBack={() => navigation.goBack()}
@@ -130,7 +114,7 @@ export default function Notifications() {
 
       {/* List */}
       <SwipeListView
-        data={data}
+        data={userNotifications}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         renderHiddenItem={renderHiddenItem}

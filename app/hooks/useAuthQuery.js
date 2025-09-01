@@ -1,9 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { HttpStatusCode } from 'axios';
 import { router } from 'expo-router';
+import { registerIndieID } from 'native-notify';
 import { ROUTES } from '../helpers/routePaths';
 import { fetchUserDetails, loginUser, passwordResetRequest, registerUser, updatePassword, verifyOtp } from '../services/authService';
 import useAuthStore from '../store/useAuthStore';
+import notificationData from "../utils/notificationData";
 
 // fetch user detail
 export const useUserDetailQuery = () => {
@@ -12,7 +14,7 @@ export const useUserDetailQuery = () => {
   const query = useQuery({
     queryKey: ["user-details"],
     queryFn: fetchUserDetails,
-    stale: 5 * 10 * 1000,
+    stale: 10 * 10 * 1000,
     enabled: !!token && hasHydrated,
   });
 
@@ -62,6 +64,8 @@ export const useLoginMutation = ({ onSuccessCallback, onErrorCallback } = {}) =>
         queryClient.clear();
         setToken(resData?.data?.authToken);
         setRole(resData?.data?.role);
+        // register user
+        registerIndieID(String(resData?.data?.id),notificationData.appId,notificationData.appToken);
         router.replace(ROUTES.HOME);
         onSuccessCallback?.();
       } else {

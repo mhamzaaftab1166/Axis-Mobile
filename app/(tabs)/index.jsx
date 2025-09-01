@@ -25,6 +25,7 @@ import { serviceTableColumns, staticServiceData } from "../helpers/contantData";
 import { ROUTES } from "../helpers/routePaths";
 import { useGetAllAddress } from "../hooks/useAddressQuery";
 import { useUserDetailQuery } from "../hooks/useAuthQuery";
+import { useFetchNotifications } from "../hooks/useNotificationQuery";
 import { useGetTopServices } from "../hooks/useServiceQuery";
 import useAddressStore from "../store/useAddressStore";
 
@@ -32,7 +33,7 @@ export default function Home() {
   const [showSheet, setShowSheet] = useState(false);
   const { colors, dark } = useTheme();
 
-  const { userData, isLoading: fetchingUserData, error } = useUserDetailQuery();
+  const { userData, isLoading: fetchingUserData } = useUserDetailQuery();
   const { topServices, isLoading: fetchingTopServices } = useGetTopServices();
   const { allAddresses, isLoading: loadingAddress } = useGetAllAddress();
 
@@ -48,12 +49,14 @@ export default function Home() {
     return <LoadingOverlay />
   }
   
-  return (
+  const { data: userNotifications, isLoading: gettingNotifications } = useFetchNotifications(userData?.data?._id);
+
+  return (  
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView
         style={[styles.safe, { backgroundColor: colors.background }]}
       >
-        <LoadingOverlay visible={fetchingUserData || fetchingTopServices || loadingAddress}/>
+        <LoadingOverlay visible={gettingNotifications || fetchingUserData || fetchingTopServices || loadingAddress}/>
         <ScrollView contentContainerStyle={styles.container}>
           <TouchableOpacity
             onPress={() => setShowSheet(true)}
@@ -96,6 +99,7 @@ export default function Home() {
           </TouchableOpacity>
 
           <SearchWithDropdown
+            notificationCount={userNotifications?.length}
             onNotificationPress={() => router.push(ROUTES.NOTIFICATIONS)}
           />
           <GreetingHeader name={userData?.data?.name} />
