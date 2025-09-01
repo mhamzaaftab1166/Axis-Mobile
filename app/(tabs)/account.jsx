@@ -11,8 +11,10 @@ import {
 } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import config from "../../config.json";
+import LoadingOverlay from "../components/LoadingOverlay";
 import { ROUTES } from "../helpers/routePaths";
 import { useUserDetailQuery } from "../hooks/useAuthQuery";
+import { useFetchNotifications } from "../hooks/useNotificationQuery";
 import useAuthStore from "../store/useAuthStore";
 
 export default function AccountScreen() {
@@ -23,8 +25,10 @@ export default function AccountScreen() {
   const textColor = colors.text;
   const iconColor = colors.text;
 
-  const { userData } = useUserDetailQuery();
+  const { userData, isLoading: fetchingUserData } = useUserDetailQuery();
   const { clearAuth } = useAuthStore();
+
+  const { data: userNotifications, isLoading: gettingNotifications } = useFetchNotifications(userData?.data?._id);
 
   const options = [
     {
@@ -37,7 +41,7 @@ export default function AccountScreen() {
       key: "notifications",
       label: "Notifications",
       icon: "bell-outline",
-      count: 3,
+      count: userNotifications?.length,
       onPress: () => router.push(ROUTES.NOTIFICATIONS),
     },
     {
@@ -78,6 +82,7 @@ export default function AccountScreen() {
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: screenBg }]}>
       <View style={styles.container}>
+        <LoadingOverlay visible={gettingNotifications || fetchingUserData} />
         {/* Profile Card */}
         <View style={styles.card}>
           <Avatar.Image size={64} source={{
