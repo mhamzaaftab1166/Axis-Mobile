@@ -145,7 +145,6 @@ export const useUpdatePassword = ({ onSuccessCallback, onErrorCallback } = {}) =
     onSuccess: response => {
       const resData = response
       if (resData?.status === HttpStatusCode.Ok) {
-        router.replace(ROUTES.LOGIN);
         onSuccessCallback?.();
       }else{
         onErrorCallback?.(response?.error || "Reset password Failed!");

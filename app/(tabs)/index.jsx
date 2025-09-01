@@ -25,7 +25,7 @@ import { serviceTableColumns, staticServiceData } from "../helpers/contantData";
 import { ROUTES } from "../helpers/routePaths";
 import { useGetAllAddress } from "../hooks/useAddressQuery";
 import { useUserDetailQuery } from "../hooks/useAuthQuery";
-import { useFetchNotifications } from "../hooks/useNotificationQuery";
+import { useFetchUnreadCount } from "../hooks/useNotificationQuery";
 import { useGetTopServices } from "../hooks/useServiceQuery";
 
 export default function Home() {
@@ -37,14 +37,14 @@ export default function Home() {
   const { topServices, isLoading: fetchingTopServices } = useGetTopServices();
   const { allAddresses, isLoading: loadingAddress } = useGetAllAddress();
 
-  const { data: userNotifications, isLoading: gettingNotifications } = useFetchNotifications(userData?.data?._id);
+  const { count, isLoading: gettingCount } = useFetchUnreadCount(userData?.data?._id);
 
   return (  
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView
         style={[styles.safe, { backgroundColor: colors.background }]}
       >
-        <LoadingOverlay visible={gettingNotifications || fetchingUserData || fetchingTopServices || loadingAddress}/>
+        <LoadingOverlay visible={gettingCount || fetchingUserData || fetchingTopServices || loadingAddress}/>
         <ScrollView contentContainerStyle={styles.container}>
           <TouchableOpacity
             onPress={() => setShowSheet(true)}
@@ -86,7 +86,7 @@ export default function Home() {
             </Surface>
           </TouchableOpacity>
           <SearchWithDropdown
-            notificationCount={userNotifications?.length}
+            notificationCount={count ? count : ""}
             onNotificationPress={() => router.push(ROUTES.NOTIFICATIONS)}
           />
           <GreetingHeader name={userData?.data?.name} />
