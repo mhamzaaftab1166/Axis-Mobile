@@ -51,7 +51,7 @@ export default function ResetPasswordScreen() {
     onSuccessCallback: () => {
       setError("");
       setIsError(false);
-      router.dismissAll(ROUTES.LOGIN);
+      router.replace(ROUTES.LOGIN);
     }}
   );
 
