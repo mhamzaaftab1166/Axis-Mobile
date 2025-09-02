@@ -53,6 +53,7 @@ export const useUpdateEmail = ({ onSuccessCallback, onErrorCallback } = {}) => {
 
 // confirm change email
 export const useCofirmEmailChange = ({ onSuccessCallback, onErrorCallback } = {}) => {
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: data => confirmEmailChange(data),
     onSuccess: (response) => {
