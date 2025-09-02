@@ -33,7 +33,7 @@ export default function ServiceListing() {
   const booking = useBookingStore((state) => state.booking);
   const selectedServices = booking.selectedServices;
 
-  const filteredServices = filterServicesByCategories(selectedCategories, services);
+  const filteredServices = filterServicesByCategories(selectedCategories, services, searchText);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>

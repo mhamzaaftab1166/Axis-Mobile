@@ -218,14 +218,19 @@ export const buildServiceOptions = (services)=> {
 }
 
 
-export const filterServicesByCategories = (categories, services = [])=> {
-  if (!Array.isArray(categories) || categories.length === 0) {
-    return services;
-  }
+export const filterServices = (categories = [], services = [], searchText = "") => {
+  if (!Array.isArray(services)) return [];
 
   const lowerCats = categories.map(c => c.toLowerCase());
+  const lowerSearch = searchText.trim().toLowerCase();
 
-  return services.filter(service =>
-    lowerCats.includes(service.category?.toLowerCase())
-  );
-}
+  return services.filter(service => {
+    const matchesCategory =
+      lowerCats.length === 0 || lowerCats.includes(service.category?.toLowerCase());
+
+    const matchesSearch =
+      lowerSearch === "" || service.name?.toLowerCase().includes(lowerSearch);
+
+    return matchesCategory && matchesSearch;
+  });
+};

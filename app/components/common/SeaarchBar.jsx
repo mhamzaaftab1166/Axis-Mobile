@@ -1,7 +1,7 @@
 // components/SearchWithDropdown.js
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Animated,
   Easing,
@@ -18,25 +18,14 @@ import { ROUTES } from "../../helpers/routePaths";
 
 export default function SearchWithDropdown({
   onNotificationPress,
-  notificationCount = 3,
+  notificationCount = 0,
   suggestions: suggestionsProp,
 }) {
   const { colors } = useTheme();
 
-  const recommendedDefault = useMemo(
-    () => [
-      "Deep Cleaning",
-      "Carpet Cleaning",
-      "Sofa Cleaning",
-      "Window Cleaning",
-      "Bathroom Cleaning",
-      "Kitchen Cleaning",
-    ],
-    []
-  );
   const recommended = Array.isArray(suggestionsProp)
     ? suggestionsProp
-    : recommendedDefault;
+    : [];
 
   const [query, setQuery] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
@@ -83,7 +72,7 @@ export default function SearchWithDropdown({
   }, [showDropdown, animated]);
 
   const filtered = recommended.filter((item) =>
-    item.toLowerCase().includes(query.toLowerCase())
+    item?.name?.toLowerCase().includes(query.toLowerCase())
   );
 
   const measureInput = (cb) => {
@@ -104,7 +93,7 @@ export default function SearchWithDropdown({
   const handleChangeText = (text) => {
     setQuery(text);
     const match = recommended.filter((item) =>
-      item.toLowerCase().includes(text.toLowerCase())
+      item?.name?.toLowerCase().includes(text.toLowerCase())
     );
     if (text.length > 0 && match.length > 0) {
       measureInput((layout) => {
@@ -127,9 +116,9 @@ export default function SearchWithDropdown({
   const selectItem = (item) => {
     router.push({
       pathname: ROUTES.SERVICE_LISTING,
-      params: { selectedItem: item },
+      params: { selectedItem: item?.name },
     });
-    setQuery(item);
+    setQuery(item?.name);
     setShowDropdown(false);
     inputRef.current?.blur && inputRef.current.blur();
   };
@@ -239,7 +228,7 @@ export default function SearchWithDropdown({
               const isLast = idx === filtered.length - 1;
               return (
                 <TouchableOpacity
-                  key={item}
+                  key={item?.id}
                   activeOpacity={0.8}
                   onPress={() => selectItem(item)}
                   style={[
@@ -254,7 +243,7 @@ export default function SearchWithDropdown({
                     style={[styles.dropdownText, { color: colors.onSurface }]}
                     numberOfLines={1}
                   >
-                    {item}
+                    {item?.name}
                   </Text>
                   <MaterialIcons
                     name="arrow-outward"
