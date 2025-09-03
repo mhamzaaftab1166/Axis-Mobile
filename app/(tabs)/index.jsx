@@ -38,6 +38,11 @@ export default function Home() {
   const { allServices, isLoading: fetchingAllServices } = useGetAllServices();
   const { allAddresses, isLoading: loadingAddress } = useGetAllAddress();
 
+  const { count, isLoading: gettingCount } = useFetchUnreadCount(
+    userData?.data?._id,
+    { enabled: !!userData?.data?._id } // ✅ prevents fetching until ID exists
+  );
+
   const selectedAddress = useAddressStore((s) => s.selectedAddress);
   const setAddress = useAddressStore((s) => s.setAddress);
   const ensureDefault = useAddressStore((s) => s.ensureDefault);
@@ -49,8 +54,6 @@ export default function Home() {
   if(fetchingUserData || fetchingTopServices){
     return <LoadingOverlay />
   }
-  
-  const { count, isLoading: gettingCount } = useFetchUnreadCount(userData?.data?._id);
 
   return (  
     <GestureHandlerRootView style={{ flex: 1 }}>

@@ -12,7 +12,7 @@ export const useGetPaymentMethods = () => {
   const query = useQuery({
     queryKey: ["payment-methods"],
     queryFn: getPaymentMethods,
-    staleTime: 10 * 60 * 1000, 
+    staleTime: ()=>{}, 
     enabled: !!token && hasHydrated,
   });
 
