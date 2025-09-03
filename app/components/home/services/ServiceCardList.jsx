@@ -21,7 +21,12 @@ export default function ServiceCardList({
 }) {
 
   const bhkKey = `${capacity} BHK`;
-  const price = service.price?.[bhkKey] || 0;
+  const price = service.price?.[bhkKey];
+
+  if (price === undefined && service.price) {
+    const firstKey = Object.keys(service.price)[0];
+    price = service.price[firstKey];
+  }
 
   const { colors, dark } = useTheme();
   const [showFullDescription, setShowFullDescription] = useState(false);
