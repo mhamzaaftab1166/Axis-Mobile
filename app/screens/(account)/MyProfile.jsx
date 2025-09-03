@@ -81,7 +81,7 @@ export default function MyProfile() {
         showsVerticalScrollIndicator={false}
       >
         <AppForm
-          initialValues={{ full_name: userData?.data?.name, profile_image: userData?.data?.profileImage }}
+          initialValues={{ full_name: userData?.data?.user?.name, profile_image: userData?.data?.user?.profileImage }}
           onSubmit={handleSubmit}
           validationSchema={validationSchema}
         >
@@ -99,7 +99,7 @@ export default function MyProfile() {
               { color: textColor, fontFamily: fonts.medium },
             ]}
           >
-            👋 {getGreeting()}, {userData?.data?.name.split(" ")[0]}
+            👋 {getGreeting()}, {userData?.data?.user?.name.split(" ")[0]}
           </Text>
           <AppFormField
             name="full_name"
@@ -112,7 +112,7 @@ export default function MyProfile() {
           <TextInput
             label="Email"
             mode="flat"
-            value={userData?.data?.email}
+            value={userData?.data?.user?.email}
             disabled
             left={<TextInput.Icon icon="email" color={disabledText} />}
             style={[
@@ -124,7 +124,7 @@ export default function MyProfile() {
           <TextInput
             label="Phone"
             mode="flat"
-            value={userData?.data?.phone}
+            value={userData?.data?.user?.phone}
             disabled
             left={<TextInput.Icon icon="phone" color={disabledText} />}
             style={[styles.input, { backgroundColor: disabledBg }]}

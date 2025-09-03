@@ -39,8 +39,7 @@ export default function Home() {
   const { allAddresses, isLoading: loadingAddress } = useGetAllAddress();
 
   const { count, isLoading: gettingCount } = useFetchUnreadCount(
-    userData?.data?._id,
-    { enabled: !!userData?.data?._id } // ✅ prevents fetching until ID exists
+    userData?.data?.user?._id
   );
 
   const selectedAddress = useAddressStore((s) => s.selectedAddress);
@@ -48,12 +47,8 @@ export default function Home() {
   const ensureDefault = useAddressStore((s) => s.ensureDefault);
 
   useEffect(() => {
-    ensureDefault(allAddresses ? allAddresses[0] : "");
+    ensureDefault(allAddresses ? allAddresses[0] : undefined);
   }, []);
-
-  if(fetchingUserData || fetchingTopServices){
-    return <LoadingOverlay />
-  }
 
   return (  
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -107,11 +102,12 @@ export default function Home() {
             notificationCount={count ? count : ""}
             onNotificationPress={() => router.push(ROUTES.NOTIFICATIONS)}
           />
-          <GreetingHeader name={userData?.data?.name} />
+          <GreetingHeader name={userData?.data?.user?.name} />
           <InfoCard onBookService={() => router.push(ROUTES.BOOK_SERVICE)} />
           <CategoryListing />
           <HomeServiceSection
             title="Popular Services"
+            addressCapacity={selectedAddress?.unitId?.unitCapacity}
             homePageServices={topServices?.data}
             onViewAll={() => router.push(ROUTES.SERVICE_LISTING)}
           />

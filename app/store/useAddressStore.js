@@ -24,7 +24,7 @@ const useAddressStore = create(
 
       ensureDefault: (defaultAddress) => {
         const current = get().selectedAddress;
-        if (!current && defaultAddress) {
+        if (!current && defaultAddress !== undefined) {
           set({ selectedAddress: defaultAddress });
         }
       },

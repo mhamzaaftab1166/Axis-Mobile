@@ -17,7 +17,12 @@ export default function ServiceCardList({
   isSelected,
   onToggleSelect,
   onlyView,
+  capacity
 }) {
+
+  const bhkKey = `${capacity} BHK`;
+  const price = service.price?.[bhkKey] || 0;
+
   const { colors, dark } = useTheme();
   const [showFullDescription, setShowFullDescription] = useState(false);
 
@@ -92,7 +97,7 @@ export default function ServiceCardList({
                 {service.name}
               </Text>
               <Text style={[styles.price, { color: "#28a745" }]}>
-                AED {service.price}
+                AED {price}
               </Text>
             </View>
 

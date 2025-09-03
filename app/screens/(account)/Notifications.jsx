@@ -29,7 +29,7 @@ export default function Notifications() {
   const cardBg = dark ? colors.secondary : colors.surface;
 
   const { userData, isLoading: fetchingUser } = useUserDetailQuery();
-  const { data: userNotifications, isLoading: gettingNotifications } = useFetchNotifications(userData?.data?._id);
+  const { data: userNotifications, isLoading: gettingNotifications } = useFetchNotifications(userData?.data?.user?._id);
   const { mutate: deleteNotification, isPending: isDeleting } = useDeleteNotification({
     onSuccessCallback: () => {
       setConfirmVisible(false);
@@ -52,7 +52,7 @@ export default function Notifications() {
 
   const onConfirmDelete = () => {
     deleteNotification({
-      indieId: userData?.data?._id,
+      indieId: userData?.data?.user?._id,
       notificationId: selectedId,
     });
   };

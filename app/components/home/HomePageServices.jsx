@@ -7,6 +7,7 @@ export default function HomeServiceSection({
   title,
   homePageServices = [],
   onViewAll,
+  addressCapacity = 0
 }) {
   const { colors } = useTheme();
 
@@ -42,6 +43,7 @@ export default function HomeServiceSection({
         renderItem={({ item }) => (
           <ServiceCardGrid
             service={item}
+            capacity={addressCapacity}
             horizontalMode
             isSelected={isSelected(item)}
             onToggleSelect={toggleService}

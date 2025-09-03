@@ -28,7 +28,7 @@ export default function AccountScreen() {
   const { userData, isLoading: fetchingUserData } = useUserDetailQuery();
   const { clearAuth } = useAuthStore();
 
-  const { count, isLoading: gettingCount } = useFetchUnreadCount(userData?.data?._id);
+  const { count, isLoading: gettingCount } = useFetchUnreadCount(userData?.data?.user?._id);
 
   const options = [
     {
@@ -93,20 +93,20 @@ export default function AccountScreen() {
         {/* Profile Card */}
         <View style={styles.card}>
           <Avatar.Image size={64} source={{
-            uri: `${config.pictureUrl}/${userData?.data?.profileImage}`
+            uri: `${config.pictureUrl}/${userData?.data?.user?.profileImage}`
           }} />
           <View style={styles.profileInfo}>
             <Text
               variant="titleMedium"
               style={{ color: textColor, fontFamily: fonts.medium }}
             >
-              Hello, {userData?.data?.name}
+              Hello, {userData?.data?.user?.name}
             </Text>
             <Text
               variant="bodySmall"
               style={{ color: colors.placeholder, marginTop: 4 }}
             >
-              {userData?.data?.email}
+              {userData?.data?.user?.email}
             </Text>
           </View>
         </View>

@@ -10,8 +10,9 @@ import SelectableChips from "../../components/common/SelectableChips";
 import ServiceCardGrid from "../../components/home/services/ServiceCardGrid";
 import ServiceCardList from "../../components/home/services/ServiceCardList";
 import LoadingOverlay from "../../components/LoadingOverlay";
-import { buildServiceOptions, filterServicesByCategories } from "../../helpers/general";
+import { buildServiceOptions, filterServices } from "../../helpers/general";
 import { useGetAllServices } from "../../hooks/useServiceQuery";
+import useAddressStore from "../../store/useAddressStore";
 import useBookingStore from "../../store/useBookingStore";
 
 export default function ServiceListing() {
@@ -33,7 +34,9 @@ export default function ServiceListing() {
   const booking = useBookingStore((state) => state.booking);
   const selectedServices = booking.selectedServices;
 
-  const filteredServices = filterServicesByCategories(selectedCategories, services, searchText);
+  const selectedAddress = useAddressStore((s) => s.selectedAddress);
+
+  const filteredServices = filterServices(selectedCategories, services, searchText);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -78,6 +81,7 @@ export default function ServiceListing() {
                 service={service}
                 isSelected={isSelected(service)}
                 onToggleSelect={toggleService}
+                capacity={selectedAddress?.unitId?.unitCapacity}
               />
             ))}
           </View>
@@ -88,6 +92,7 @@ export default function ServiceListing() {
               service={service} 
               isSelected={isSelected(service)}
               onToggleSelect={toggleService}
+              capacity={selectedAddress?.unitId?.unitCapacity}
             />
           ))
         )}
