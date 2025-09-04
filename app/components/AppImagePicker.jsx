@@ -27,7 +27,7 @@ const AppImagePicker = ({ imageUri, onChangeImage, onError }) => {
 
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ["images"],
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
         quality: 0.5,
         allowsEditing: true,
         aspect: [1, 1],
@@ -47,18 +47,21 @@ const AppImagePicker = ({ imageUri, onChangeImage, onError }) => {
     Linking.openSettings();
   };
 
+  const getImageSource = () => {
+    if (!imageUri) {
+      return require("../../assets/images/account/avatar.avif");
+    }
+    if (imageUri.startsWith("file:")) {
+      return { uri: imageUri };
+    }
+    return { uri: `${config.pictureUrl}/${imageUri}` };
+  };
+
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={handlePress} activeOpacity={0.8}>
         <View>
-          <Image
-            source={
-              imageUri
-                ? { uri: `${config.pictureUrl}/${imageUri}` }
-                : require("../../assets/images/account/avatar.avif")
-            }
-            style={styles.image}
-          />
+          <Image source={getImageSource()} style={styles.image} />
           <IconButton
             icon="pencil"
             size={18}
