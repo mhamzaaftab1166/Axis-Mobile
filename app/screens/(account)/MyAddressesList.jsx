@@ -14,6 +14,7 @@ import {
   useRemoveAddress,
 } from "../../hooks/useAddressQuery";
 import MyAddressesSkeleton from "../../skeltons/MyAddressSkelton";
+import useAddressStore from "../../store/useAddressStore";
 
 export default function MyAddresses() {
   const { colors, dark, fonts } = useTheme();
@@ -45,7 +46,27 @@ export default function MyAddresses() {
   };
 
   const handleConfirm = () => {
-    removeAddress(selectedAddress?._id);
+    if (!selectedAddress) return;
+    const isSelected =
+      selectedAddress._id === useAddressStore.getState().selectedAddress?._id;
+
+    removeAddress(selectedAddress._id, {
+      onSuccess: () => {
+        if (isSelected) {
+          useAddressStore.getState().clearAddress();
+        }
+
+        setSelectedAddress(null);
+        setConfirmVisible(false);
+        setError("");
+        setIsError(false);
+      },
+      onError: (errMsg) => {
+        setError(errMsg);
+        setIsError(true);
+        setConfirmVisible(false);
+      },
+    });
   };
 
   const handleEdit = (item) => {

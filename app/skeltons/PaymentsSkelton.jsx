@@ -1,10 +1,10 @@
-// components/common/MyAddressesSkeleton.js
+// components/common/PaymentMethodsSkeleton.js
 import { ScrollView, StyleSheet, View } from "react-native";
 import { useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AppSkeleton from "../components/common/LoadingSkelton";
 
-export default function MyAddressesSkeleton() {
+export default function PaymentMethodsSkeleton() {
   const { colors } = useTheme();
 
   return (
@@ -13,19 +13,22 @@ export default function MyAddressesSkeleton() {
     >
       <ScrollView contentContainerStyle={styles.container}>
         {[...Array(8)].map((_, index) => (
-          <View
-            key={index}
-            style={[styles.card, { borderColor: colors.disabled || "#ddd" }]}
-          >
-            {/* Icon Skeleton */}
-            <AppSkeleton width={28} height={28} borderRadius={14} />
+          <View key={index} style={styles.card}>
+            {/* Card Icon Skeleton */}
+            <AppSkeleton width={40} height={28} borderRadius={4} />
 
-            {/* Text Skeleton */}
+            {/* Card Info Skeleton */}
             <View style={styles.textContainer}>
-              <AppSkeleton width="50%" height={16} borderRadius={4} />
+              <AppSkeleton width="60%" height={16} borderRadius={4} />
               <AppSkeleton
                 width="80%"
                 height={14}
+                borderRadius={4}
+                style={{ marginTop: 6 }}
+              />
+              <AppSkeleton
+                width="40%"
+                height={12}
                 borderRadius={4}
                 style={{ marginTop: 6 }}
               />

@@ -1,6 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useFocusEffect } from "expo-router";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   FlatList,
   Pressable,
@@ -9,6 +10,8 @@ import {
   View,
 } from "react-native";
 import { Button, Card, Text, useTheme } from "react-native-paper";
+
+const getId = (item) => item?.id ?? item?._id ?? null;
 
 const AddressBottomSheet = ({
   addresses = [],
@@ -22,9 +25,7 @@ const AddressBottomSheet = ({
   const sheetRef = useRef(null);
   const snapPoints = useMemo(() => ["40%", "60%"], []);
 
-  const [selectedId, setSelectedId] = useState(
-    selectedIdProp ?? addresses?.[0]?.id ?? null
-  );
+  const [selectedId, setSelectedId] = useState(null);
 
   const ACTIVE_BG_LIGHT = "#FFD6D6";
   const ACTIVE_BG_DARK = "#4B2C2C";
@@ -35,30 +36,35 @@ const AddressBottomSheet = ({
     else sheetRef.current.close();
   }, [visible]);
 
-  useEffect(() => {
-    if (selectedIdProp != null) {
-      setSelectedId(selectedIdProp);
-      return;
-    }
-    if (!selectedId && addresses?.length) {
-      setSelectedId(addresses[0].id);
-    }
-  }, [selectedIdProp, addresses]);
+  useFocusEffect(
+    useCallback(() => {
+      if (selectedIdProp != null) {
+        setSelectedId(selectedIdProp);
+        return;
+      }
+
+      if (addresses?.length) {
+        setSelectedId(getId(addresses[0]));
+      }
+    }, [selectedIdProp, addresses])
+  );
 
   useEffect(() => {
     if (!selectedId && addresses?.length) {
-      setSelectedId(addresses[0].id);
+      setSelectedId(getId(addresses[0]));
     }
   }, [addresses]);
 
   const handleSelect = (item) => {
-    setSelectedId(item.id);
+    const id = getId(item);
+    setSelectedId(id);
     onSelect?.(item);
     sheetRef.current?.close();
   };
 
   const renderItem = ({ item }) => {
-    const isSelected = item.id === selectedId;
+    const id = getId(item);
+    const isSelected = id === selectedId;
     const activeBg = dark ? ACTIVE_BG_DARK : ACTIVE_BG_LIGHT;
     const activeText = dark ? "#FFF2F2" : "#660000";
 
@@ -95,7 +101,7 @@ const AddressBottomSheet = ({
                   color: isSelected ? activeText : colors.onSurface,
                 }}
               >
-                {item?.towerId?.towerName}
+                {item?.towerId?.towerName ?? item?.label ?? "Address"}
               </Text>
               <Text
                 variant="bodyMedium"
@@ -104,7 +110,11 @@ const AddressBottomSheet = ({
                   marginTop: 2,
                 }}
               >
-                {item?.blockId?.blockName}, {item?.floorId?.floorName}, {item?.unitId?.unitName}
+                {`${item?.blockId?.blockName ?? ""}${
+                  item?.blockId?.blockName ? " • " : ""
+                }${item?.floorId?.floorName ?? ""}${
+                  item?.floorId?.floorName ? " • " : ""
+                }${item?.unitId?.unitName ?? ""}`}
               </Text>
             </View>
           </View>
@@ -141,7 +151,7 @@ const AddressBottomSheet = ({
 
           <FlatList
             data={addresses}
-            keyExtractor={(item) => item._id}
+            keyExtractor={(item) => String(getId(item))}
             renderItem={renderItem}
             contentContainerStyle={{ paddingBottom: 20, paddingHorizontal: 8 }}
             showsVerticalScrollIndicator={false}

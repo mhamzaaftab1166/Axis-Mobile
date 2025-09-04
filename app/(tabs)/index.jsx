@@ -1,6 +1,6 @@
 // screens/Home.js
-import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -46,9 +46,11 @@ export default function Home() {
   const setAddress = useAddressStore((s) => s.setAddress);
   const ensureDefault = useAddressStore((s) => s.ensureDefault);
 
-  useEffect(() => {
-    ensureDefault(allAddresses ? allAddresses[0] : undefined);
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      ensureDefault(allAddresses ? allAddresses[0] : undefined);
+    }, [allAddresses])
+  );
 
   if (
     fetchingAllServices ||
@@ -96,12 +98,6 @@ export default function Home() {
                           selectedAddress?.blockId?.blockName || ""
                         }, ${selectedAddress?.floorId?.floorName || ""}, ${
                           selectedAddress?.unitId?.unitName || ""
-                        }`
-                      : allAddresses?.length > 0
-                      ? `${allAddresses[0]?.towerId?.towerName || ""}, ${
-                          allAddresses[0]?.blockId?.blockName || ""
-                        }, ${allAddresses[0]?.floorId?.floorName || ""}, ${
-                          allAddresses[0]?.unitId?.unitName || ""
                         }`
                       : "Address not available"}
                   </Text>

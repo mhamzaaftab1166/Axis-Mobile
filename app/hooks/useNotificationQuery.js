@@ -1,5 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchInboxNotifications, fetchUnreadNotificationCount, removeInboxNotification } from "../services/notificationService";
+import {
+  fetchInboxNotifications,
+  fetchUnreadNotificationCount,
+  removeInboxNotification,
+} from "../services/notificationService";
 import useNotificationStore from "../store/useNotificationStore";
 
 // Fetch notifications
@@ -14,17 +18,23 @@ export const useFetchNotifications = (indieId) => {
     data: query.data,
     isError: query.isError,
     error: query.error,
-    isLoading: query.isPending
-  }
+    isLoading: query.isPending,
+  };
 };
 
 // Delete notification
-export const useDeleteNotification = ({ onSuccessCallback, onErrorCallback } = {}) => {
+export const useDeleteNotification = ({
+  onSuccessCallback,
+  onErrorCallback,
+} = {}) => {
   const queryClient = useQueryClient();
-  const deleteFromStore = useNotificationStore((state) => state.deleteNotification);
+  const deleteFromStore = useNotificationStore(
+    (state) => state.deleteNotification
+  );
 
   return useMutation({
-    mutationFn: ({indieId, notificationId}) => removeInboxNotification(indieId, notificationId),
+    mutationFn: ({ indieId, notificationId }) =>
+      removeInboxNotification(indieId, notificationId),
     onSuccess: (_, variables) => {
       // update zustand store
       deleteFromStore(variables.notificationId);
@@ -40,7 +50,7 @@ export const useDeleteNotification = ({ onSuccessCallback, onErrorCallback } = {
         error?.message ||
         "Something went wrong";
       onErrorCallback?.(msg);
-    }
+    },
   });
 };
 
@@ -50,7 +60,7 @@ export const useFetchUnreadCount = (indieId) => {
     queryKey: ["unreadCount", indieId],
     queryFn: () => fetchUnreadNotificationCount(indieId),
     enabled: !!indieId,
-    refetchInterval: 10000, 
+    refetchInterval: 10000,
   });
 
   return {

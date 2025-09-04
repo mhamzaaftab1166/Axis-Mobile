@@ -1,5 +1,6 @@
-import { SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { useTheme } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 import AppSkeleton from "../components/common/LoadingSkelton";
 
 const HomeSkeleton = () => {

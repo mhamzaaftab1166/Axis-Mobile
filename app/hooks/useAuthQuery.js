@@ -1,10 +1,17 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { HttpStatusCode } from 'axios';
-import { router } from 'expo-router';
-import { registerIndieID } from 'native-notify';
-import { ROUTES } from '../helpers/routePaths';
-import { fetchUserDetails, loginUser, passwordResetRequest, registerUser, updatePassword, verifyOtp } from '../services/authService';
-import useAuthStore from '../store/useAuthStore';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { HttpStatusCode } from "axios";
+import { router } from "expo-router";
+import { registerIndieID } from "native-notify";
+import { ROUTES } from "../helpers/routePaths";
+import {
+  fetchUserDetails,
+  loginUser,
+  passwordResetRequest,
+  registerUser,
+  updatePassword,
+  verifyOtp,
+} from "../services/authService";
+import useAuthStore from "../store/useAuthStore";
 import notificationData from "../utils/notificationData";
 
 // fetch user detail
@@ -22,22 +29,25 @@ export const useUserDetailQuery = () => {
     userData: query.data,
     isLoading: query.isLoading,
     isError: query.isError,
-    error: query.error
-  }
-}
+    error: query.error,
+  };
+};
 
 // register
-export const useRegisterQuery = ({ onSuccessCallback, onErrorCallback } = {}) => {
+export const useRegisterQuery = ({
+  onSuccessCallback,
+  onErrorCallback,
+} = {}) => {
   return useMutation({
     mutationFn: (data) => registerUser(data),
     onSuccess: (response) => {
       if (response?.status === HttpStatusCode.Ok) {
         router.push({
           pathname: ROUTES.OTP,
-          params: { email: response?.data }, 
+          params: { email: response?.data },
         });
         onSuccessCallback?.();
-      }else{
+      } else {
         onErrorCallback?.(response?.error || "Registeration Failed!");
       }
     },
@@ -52,30 +62,37 @@ export const useRegisterQuery = ({ onSuccessCallback, onErrorCallback } = {}) =>
 };
 
 // login
-export const useLoginMutation = ({ onSuccessCallback, onErrorCallback } = {}) => {
+export const useLoginMutation = ({
+  onSuccessCallback,
+  onErrorCallback,
+} = {}) => {
   const { setToken, setRole } = useAuthStore();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ email, password, rememberMe }) =>
       loginUser({ email, password, rememberMe }),
-    onSuccess: (response,variables) => {
+    onSuccess: (response, variables) => {
       const resData = response;
       if (resData.status === HttpStatusCode.Ok) {
         queryClient.clear();
         setToken(resData?.data?.authToken);
         setRole(resData?.data?.role);
         // register user
-        registerIndieID(String(resData?.data?.id),notificationData.appId,notificationData.appToken);
+        registerIndieID(
+          String(resData?.data?.id),
+          notificationData.appId,
+          notificationData.appToken
+        );
         router.replace(ROUTES.HOME);
         onSuccessCallback?.();
       } else {
-        if(resData?.status === HttpStatusCode.Forbidden){
+        if (resData?.status === HttpStatusCode.Forbidden) {
           router.push({
             pathname: ROUTES.OTP,
-            params: { email: variables?.email }, 
+            params: { email: variables?.email },
           });
           onSuccessCallback?.();
-        }else{
+        } else {
           onErrorCallback?.(resData?.error || "Login failed");
         }
       }
@@ -91,18 +108,21 @@ export const useLoginMutation = ({ onSuccessCallback, onErrorCallback } = {}) =>
 };
 
 // reset password
-export const useResetPasswordRequest = ({ onSuccessCallback, onErrorCallback } = {}) => {
+export const useResetPasswordRequest = ({
+  onSuccessCallback,
+  onErrorCallback,
+} = {}) => {
   return useMutation({
-    mutationFn: data => passwordResetRequest(data),
-    onSuccess: (response,variables) => {
-      const resData = response
+    mutationFn: (data) => passwordResetRequest(data),
+    onSuccess: (response, variables) => {
+      const resData = response;
       if (resData?.status === HttpStatusCode.Ok) {
         router.push({
           pathname: ROUTES.OTP,
-          params: { email: variables?.email, resetPassword: true }, 
+          params: { email: variables?.email, resetPassword: true },
         });
         onSuccessCallback?.();
-      }else{
+      } else {
         onErrorCallback?.(response?.error || "Registeration Failed!");
       }
     },
@@ -112,19 +132,19 @@ export const useResetPasswordRequest = ({ onSuccessCallback, onErrorCallback } =
         error?.message ||
         "Something went wrong";
       onErrorCallback?.(msg);
-    }
-  })
-}
+    },
+  });
+};
 
 // verify otp
 export const useVerifyOTP = ({ onSuccessCallback, onErrorCallback } = {}) => {
   return useMutation({
-    mutationFn: ({email, otp}) => verifyOtp({email, otp}),
+    mutationFn: ({ email, otp }) => verifyOtp({ email, otp }),
     onSuccess: (response) => {
       const resData = response;
       if (resData.status === HttpStatusCode.Ok) {
         onSuccessCallback?.();
-      }else{
+      } else {
         onErrorCallback?.(resData?.error || "Login failed");
       }
     },
@@ -134,19 +154,22 @@ export const useVerifyOTP = ({ onSuccessCallback, onErrorCallback } = {}) => {
         error?.message ||
         "Something went wrong";
       onErrorCallback?.(msg);
-    }}
-  )
-}
+    },
+  });
+};
 
 // update password
-export const useUpdatePassword = ({ onSuccessCallback, onErrorCallback } = {}) => {
+export const useUpdatePassword = ({
+  onSuccessCallback,
+  onErrorCallback,
+} = {}) => {
   return useMutation({
-    mutationFn: data => updatePassword(data),
-    onSuccess: response => {
-      const resData = response
+    mutationFn: (data) => updatePassword(data),
+    onSuccess: (response) => {
+      const resData = response;
       if (resData?.status === HttpStatusCode.Ok) {
         onSuccessCallback?.();
-      }else{
+      } else {
         onErrorCallback?.(response?.error || "Reset password Failed!");
       }
     },
@@ -156,6 +179,6 @@ export const useUpdatePassword = ({ onSuccessCallback, onErrorCallback } = {}) =
         error?.message ||
         "Something went wrong";
       onErrorCallback?.(msg);
-    }
-  })
-}
+    },
+  });
+};

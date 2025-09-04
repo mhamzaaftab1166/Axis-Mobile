@@ -16,7 +16,9 @@ const getPropertyValidationSchema = (selectedProperty) => {
         : schema.notRequired();
     }),
 
-    property_category: Yup.string().required("Please select a Property Category"),
+    property_category: Yup.string().required(
+      "Please select a Property Category"
+    ),
 
     full_address: Yup.string().min(5, "Address must be at least 5 characters"),
 

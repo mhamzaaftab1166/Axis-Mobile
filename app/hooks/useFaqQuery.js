@@ -6,7 +6,7 @@ export const useGetAllFaq = () => {
   const query = useQuery({
     queryKey: ["faqs"],
     queryFn: () => fetchFaq(),
-    staleTime: 30 * 60 * 1000
+    staleTime: 30 * 60 * 1000,
   });
 
   return {
