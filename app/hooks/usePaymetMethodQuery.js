@@ -1,6 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { HttpStatusCode } from "axios";
-import { addPaymentMethod, getPaymentMethods, removePaymentMethod, } from "../services/paymentMethodService";
+import {
+  addPaymentMethod,
+  getPaymentMethods,
+  removePaymentMethod,
+} from "../services/paymentMethodService";
 import useAuthStore from "../store/useAuthStore";
 
 // =====================
@@ -12,7 +16,7 @@ export const useGetPaymentMethods = () => {
   const query = useQuery({
     queryKey: ["payment-methods"],
     queryFn: getPaymentMethods,
-    staleTime: ()=>{}, 
+    staleTime: () => {},
     enabled: !!token && hasHydrated,
   });
 
@@ -20,14 +24,17 @@ export const useGetPaymentMethods = () => {
     data: query?.data?.data,
     isLoading: query.isLoading,
     isError: query.isError,
-    error: query.error
-  }
+    error: query.error,
+  };
 };
 
 // =====================
 // Add Payment Method
 // =====================
-export const useSavePaymentMethod = ({ onSuccessCallback, onErrorCallback } = {}) => {
+export const useSavePaymentMethod = ({
+  onSuccessCallback,
+  onErrorCallback,
+} = {}) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -53,7 +60,10 @@ export const useSavePaymentMethod = ({ onSuccessCallback, onErrorCallback } = {}
 // =====================
 // Remove Payment Method
 // =====================
-export const useRemovePaymentMethod = ({ onSuccessCallback, onErrorCallback } = {}) => {
+export const useRemovePaymentMethod = ({
+  onSuccessCallback,
+  onErrorCallback,
+} = {}) => {
   const queryClient = useQueryClient();
 
   return useMutation({

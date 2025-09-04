@@ -44,28 +44,30 @@ export default function MyProfile() {
     },
   };
 
-  const { mutate: updateProfileInformation, isPending: isUpdating } = useUpdateProfilePicture({
-    onErrorCallback: (errMsg) => {
-      setError(errMsg);
-      setIsError(true);
-    },
-    onSuccessCallback: () => {
-      setError("");
-      setIsError(false);
-      router.dismissTo(ROUTES.ACCOUNT_TAB);
-    },
-  });
+  const { mutate: updateProfileInformation, isPending: isUpdating } =
+    useUpdateProfilePicture({
+      onErrorCallback: (errMsg) => {
+        setError(errMsg);
+        setIsError(true);
+      },
+      onSuccessCallback: () => {
+        setError("");
+        setIsError(false);
+        router.dismissTo(ROUTES.ACCOUNT_TAB);
+      },
+    });
 
   const handleSubmit = ({ full_name, profile_image }) => {
     const formData = new FormData();
     formData.append("full_name", full_name);
-    if (profile_image) {
+    if (profile_image && profile_image.startsWith("file://")) {
       formData.append("profile_picture", {
-        uri: profile_image, 
-        type: "image/jpeg", 
-        name: "profile.jpg"
+        uri: profile_image,
+        type: "image/jpeg",
+        name: "profile.jpg",
       });
     }
+
     updateProfileInformation(formData);
   };
 
@@ -81,17 +83,20 @@ export default function MyProfile() {
         showsVerticalScrollIndicator={false}
       >
         <AppForm
-          initialValues={{ full_name: userData?.data?.user?.name, profile_image: userData?.data?.user?.profileImage }}
+          initialValues={{
+            full_name: userData?.data?.user?.name,
+            profile_image: userData?.data?.user?.profileImage,
+          }}
           onSubmit={handleSubmit}
           validationSchema={validationSchema}
         >
           <AppImagePickerField name="profile_image" />
-          <View 
+          <View
             style={{
-              alignSelf: "center"
+              alignSelf: "center",
             }}
           >
-            <AppErrorMessage error={error} visible={isError}  />
+            <AppErrorMessage error={error} visible={isError} />
           </View>
           <Text
             style={[
@@ -130,7 +135,11 @@ export default function MyProfile() {
             style={[styles.input, { backgroundColor: disabledBg }]}
             theme={disabledTheme}
           />
-          <SubmitButton title="Save Changes" isLoading={isUpdating} style={styles.input} />
+          <SubmitButton
+            title="Save Changes"
+            isLoading={isUpdating}
+            style={styles.input}
+          />
         </AppForm>
       </ScrollView>
     </View>

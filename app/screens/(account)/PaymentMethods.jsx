@@ -13,11 +13,15 @@ import { FAB, useTheme } from "react-native-paper";
 import { SwipeListView } from "react-native-swipe-list-view";
 import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
+import EmptyState from "../../components/common/EmptyState";
 import AppErrorMessage from "../../components/forms/AppErrorMessage";
-import LoadingOverlay from "../../components/LoadingOverlay";
 import { getCardIcon } from "../../helpers/general";
 import { ROUTES } from "../../helpers/routePaths";
-import { useGetPaymentMethods, useRemovePaymentMethod } from "../../hooks/usePaymetMethodQuery";
+import {
+  useGetPaymentMethods,
+  useRemovePaymentMethod,
+} from "../../hooks/usePaymetMethodQuery";
+import PaymentMethodsSkeleton from "../../skeltons/PaymentsSkelton";
 
 export default function PaymentMethods() {
   const { colors, dark, fonts } = useTheme();
@@ -33,20 +37,20 @@ export default function PaymentMethods() {
   const [error, setError] = useState("");
   const [isError, setIsError] = useState(false);
 
-
   const { data: cardsData, isLoading: isFetching } = useGetPaymentMethods();
-  const { mutate: removePaymentMethod, isPending: isRemoving } = useRemovePaymentMethod({
-    onErrorCallback: (errMsg) => {
-      setError(errMsg);
-      setIsError(true);
-    },
-    onSuccessCallback: () => {
-      setError("");
-      setIsError(false);
-      setToDeleteId(null);
-      setConfirmVisible(false);
-    },
-  });
+  const { mutate: removePaymentMethod, isPending: isRemoving } =
+    useRemovePaymentMethod({
+      onErrorCallback: (errMsg) => {
+        setError(errMsg);
+        setIsError(true);
+      },
+      onSuccessCallback: () => {
+        setError("");
+        setIsError(false);
+        setToDeleteId(null);
+        setConfirmVisible(false);
+      },
+    });
 
   // Dialog state
   const [confirmVisible, setConfirmVisible] = useState(false);
@@ -121,6 +125,7 @@ export default function PaymentMethods() {
     </View>
   );
 
+  if (isFetching) return <PaymentMethodsSkeleton />;
   return (
     <View style={[styles.container, { backgroundColor: screenBg }]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
@@ -128,22 +133,30 @@ export default function PaymentMethods() {
         title={"Saved Cards"}
         onBack={() => navigation.goBack()}
       />
-      <LoadingOverlay visible={isFetching} />
-      <View style={{
-        alignSelf: "center",
-      }}>
+      <View style={{ alignSelf: "center" }}>
         <AppErrorMessage visible={isError} error={error} />
       </View>
-      <SwipeListView
-        data={cardsData}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        renderHiddenItem={renderHiddenItem}
-        rightOpenValue={-75}
-        disableRightSwipe
-        contentContainerStyle={{ padding: 16 }}
-        ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-      />
+
+      {cardsData?.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <EmptyState
+            iconName="credit-card"
+            title="No Cards Added"
+            description="You currently have no saved payment methods."
+          />
+        </View>
+      ) : (
+        <SwipeListView
+          data={cardsData}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          renderHiddenItem={renderHiddenItem}
+          rightOpenValue={-75}
+          disableRightSwipe
+          contentContainerStyle={{ padding: 16 }}
+          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+        />
+      )}
 
       <FAB
         icon="credit-card-plus-outline"
@@ -152,6 +165,7 @@ export default function PaymentMethods() {
         style={[styles.fab, { backgroundColor: fabBg }]}
         color={fabColor}
       />
+
       <ConfirmDialog
         visible={confirmVisible}
         title="Delete Card"
@@ -208,5 +222,9 @@ const styles = StyleSheet.create({
     bottom: 30,
     alignSelf: "center",
     borderRadius: 28,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
   },
 });

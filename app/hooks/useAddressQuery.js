@@ -1,6 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { HttpStatusCode } from "axios";
-import { addAddress, fetchAddress, fetchBuildingsInformation, removeAddress, updateAddress } from "../services/addressService";
+import {
+  addAddress,
+  fetchAddress,
+  fetchBuildingsInformation,
+  removeAddress,
+  updateAddress,
+} from "../services/addressService";
 import useAuthStore from "../store/useAuthStore";
 
 // ✅ Get all addresses
@@ -11,7 +17,7 @@ export const useGetAllAddress = () => {
     queryKey: ["addresses"],
     queryFn: () => fetchAddress(),
     staleTime: 10 * 60 * 1000,
-    enabled: !!token && hasHydrated
+    enabled: !!token && hasHydrated,
   });
 
   return {
@@ -36,11 +42,14 @@ export const useSaveAddress = ({ onSuccessCallback, onErrorCallback } = {}) => {
       }
     },
     onSuccess: (response) => {
-      const resData = response?.data || response; 
+      const resData = response?.data || response;
       // Handle add
-      if (response?.status === HttpStatusCode.Ok || resData?.status === HttpStatusCode.Created) {
+      if (
+        response?.status === HttpStatusCode.Ok ||
+        resData?.status === HttpStatusCode.Created
+      ) {
         onSuccessCallback?.(resData?.data || response?.data);
-        qc.invalidateQueries(["addresses","buildings-info"]);
+        qc.invalidateQueries(["addresses", "buildings-info"]);
       } else {
         onErrorCallback?.(
           resData?.error || response?.error || "Save address failed"
@@ -49,14 +58,19 @@ export const useSaveAddress = ({ onSuccessCallback, onErrorCallback } = {}) => {
     },
     onError: (error) => {
       const msg =
-        error?.response?.data?.error || error?.message || "Something went wrong";
+        error?.response?.data?.error ||
+        error?.message ||
+        "Something went wrong";
       onErrorCallback?.(msg);
     },
   });
 };
 
 // ✅ Remove address
-export const useRemoveAddress = ({ onSuccessCallback, onErrorCallback } = {}) => {
+export const useRemoveAddress = ({
+  onSuccessCallback,
+  onErrorCallback,
+} = {}) => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id) => removeAddress(id),
@@ -70,7 +84,9 @@ export const useRemoveAddress = ({ onSuccessCallback, onErrorCallback } = {}) =>
     },
     onError: (error) => {
       const msg =
-        error?.response?.data?.error || error?.message || "Something went wrong";
+        error?.response?.data?.error ||
+        error?.message ||
+        "Something went wrong";
       onErrorCallback?.(msg);
     },
   });
@@ -83,8 +99,8 @@ export const useGetAllBuildingInfo = () => {
   const query = useQuery({
     queryKey: ["buildings-info"],
     queryFn: () => fetchBuildingsInformation(),
-    staleTime: ()=>{},
-    enabled: !!token && hasHydrated
+    staleTime: () => {},
+    enabled: !!token && hasHydrated,
   });
 
   return {

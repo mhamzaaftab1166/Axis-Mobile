@@ -14,9 +14,13 @@ import { useTheme } from "react-native-paper";
 import { SwipeListView } from "react-native-swipe-list-view";
 import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
-import LoadingOverlay from "../../components/LoadingOverlay";
+import EmptyState from "../../components/common/EmptyState";
 import { useUserDetailQuery } from "../../hooks/useAuthQuery";
-import { useDeleteNotification, useFetchNotifications } from "../../hooks/useNotificationQuery";
+import {
+  useDeleteNotification,
+  useFetchNotifications,
+} from "../../hooks/useNotificationQuery";
+import NotificationsSkeleton from "../../skeltons/NotificationsSkelton";
 
 export default function Notifications() {
   const { colors, dark, fonts } = useTheme();
@@ -29,14 +33,16 @@ export default function Notifications() {
   const cardBg = dark ? colors.secondary : colors.surface;
 
   const { userData, isLoading: fetchingUser } = useUserDetailQuery();
-  const { data: userNotifications, isLoading: gettingNotifications } = useFetchNotifications(userData?.data?.user?._id);
-  const { mutate: deleteNotification, isPending: isDeleting } = useDeleteNotification({
-    onSuccessCallback: () => {
-      setConfirmVisible(false);
-      setSelectedId(null);
-    },
-    onErrorCallback: (error)=>{}
-  });
+  const { data: userNotifications, isLoading: gettingNotifications } =
+    useFetchNotifications(userData?.data?.user?._id);
+  const { mutate: deleteNotification, isPending: isDeleting } =
+    useDeleteNotification({
+      onSuccessCallback: () => {
+        setConfirmVisible(false);
+        setSelectedId(null);
+      },
+      onErrorCallback: (error) => {},
+    });
 
   const [refreshing, setRefreshing] = useState(false);
 
@@ -74,7 +80,10 @@ export default function Notifications() {
           },
         ]}
       >
-        <Image source={require("../../../assets/images/account/avatar.avif")} style={styles.image} />
+        <Image
+          source={require("../../../assets/images/account/avatar.avif")}
+          style={styles.image}
+        />
         <View style={styles.textContainer}>
           <Text
             style={[
@@ -110,16 +119,15 @@ export default function Notifications() {
     );
   };
 
+  if (fetchingUser || gettingNotifications) return <NotificationsSkeleton />;
   return (
     <View style={[styles.container, { backgroundColor: screenBg }]}>
       <StatusBar barStyle={"light-content"} backgroundColor={colors.primary} />
-      <LoadingOverlay  visible={fetchingUser || gettingNotifications }/>
       <CenteredAppbarHeader
         title={"Notifications"}
         onBack={() => navigation.goBack()}
       />
 
-      {/* List */}
       <SwipeListView
         data={userNotifications}
         keyExtractor={(item) => String(item.notification_id)}
@@ -130,8 +138,20 @@ export default function Notifications() {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
-        contentContainerStyle={{ padding: 16 }}
+        contentContainerStyle={{
+          flexGrow: 1,
+          padding: 16,
+          justifyContent:
+            userNotifications?.length === 0 ? "center" : "flex-start",
+        }}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+        ListEmptyComponent={() => (
+          <EmptyState
+            iconName="notifications-off"
+            title="No Notifications"
+            description="You currently have no notifications."
+          />
+        )}
       />
 
       <ConfirmDialog

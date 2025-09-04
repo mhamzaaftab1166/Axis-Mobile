@@ -1,14 +1,22 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { HttpStatusCode } from 'axios';
-import { confirmEmailChange, updateEmail, updateMyPassword, updateProfilePicAndName } from '../services/profileService';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { HttpStatusCode } from "axios";
+import {
+  confirmEmailChange,
+  updateEmail,
+  updateMyPassword,
+  updateProfilePicAndName,
+} from "../services/profileService";
 
 // update profile picture / name
-export const useUpdateProfilePicture = ({ onSuccessCallback, onErrorCallback } = {}) => {
+export const useUpdateProfilePicture = ({
+  onSuccessCallback,
+  onErrorCallback,
+} = {}) => {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: data => updateProfilePicAndName(data),
-    onSuccess: response => {
+    mutationFn: (data) => updateProfilePicAndName(data),
+    onSuccess: (response) => {
       const resData = response;
       if (resData.status === HttpStatusCode.Ok) {
         qc.invalidateQueries(["user-details"]);
@@ -31,8 +39,8 @@ export const useUpdateProfilePicture = ({ onSuccessCallback, onErrorCallback } =
 export const useUpdateEmail = ({ onSuccessCallback, onErrorCallback } = {}) => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: data => updateEmail(data),
-    onSuccess: (response,variables) => {
+    mutationFn: (data) => updateEmail(data),
+    onSuccess: (response, variables) => {
       const resData = response;
       if (resData.status === HttpStatusCode.Ok) {
         onSuccessCallback?.(variables?.newEmail);
@@ -52,16 +60,21 @@ export const useUpdateEmail = ({ onSuccessCallback, onErrorCallback } = {}) => {
 };
 
 // confirm change email
-export const useCofirmEmailChange = ({ onSuccessCallback, onErrorCallback } = {}) => {
+export const useCofirmEmailChange = ({
+  onSuccessCallback,
+  onErrorCallback,
+} = {}) => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: data => confirmEmailChange(data),
+    mutationFn: (data) => confirmEmailChange(data),
     onSuccess: (response) => {
       if (response.status === HttpStatusCode.Ok) {
         qc.invalidateQueries(["user-details"]);
         onSuccessCallback?.();
       } else {
-        onErrorCallback?.(response?.error || "Email Change Confirmation Failed");
+        onErrorCallback?.(
+          response?.error || "Email Change Confirmation Failed"
+        );
       }
     },
     onError: (error) => {
@@ -75,10 +88,13 @@ export const useCofirmEmailChange = ({ onSuccessCallback, onErrorCallback } = {}
 };
 
 // update email address
-export const useUpdateMyPassword = ({ onSuccessCallback, onErrorCallback } = {}) => {
+export const useUpdateMyPassword = ({
+  onSuccessCallback,
+  onErrorCallback,
+} = {}) => {
   return useMutation({
-    mutationFn: data => updateMyPassword(data),
-    onSuccess: response => {
+    mutationFn: (data) => updateMyPassword(data),
+    onSuccess: (response) => {
       if (response.status === HttpStatusCode.Ok) {
         onSuccessCallback?.();
       } else {
