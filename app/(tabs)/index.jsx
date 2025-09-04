@@ -20,13 +20,13 @@ import CategoryListing from "../components/home/CategoriesListing";
 import GreetingHeader from "../components/home/GreetingsHeader";
 import HomeServiceSection from "../components/home/HomePageServices";
 import InfoCard from "../components/home/InfoCard";
-import LoadingOverlay from "../components/LoadingOverlay";
 import { serviceTableColumns, staticServiceData } from "../helpers/contantData";
 import { ROUTES } from "../helpers/routePaths";
 import { useGetAllAddress } from "../hooks/useAddressQuery";
 import { useUserDetailQuery } from "../hooks/useAuthQuery";
 import { useFetchUnreadCount } from "../hooks/useNotificationQuery";
 import { useGetAllServices, useGetTopServices } from "../hooks/useServiceQuery";
+import HomeSkeleton from "../skeltons/HomeLoadingSkelton";
 import useAddressStore from "../store/useAddressStore";
 
 export default function Home() {
@@ -50,12 +50,20 @@ export default function Home() {
     ensureDefault(allAddresses ? allAddresses[0] : undefined);
   }, []);
 
-  return (  
+  if (
+    fetchingAllServices ||
+    gettingCount ||
+    fetchingUserData ||
+    fetchingTopServices ||
+    loadingAddress
+  )
+    return <HomeSkeleton />;
+
+  return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView
         style={[styles.safe, { backgroundColor: colors.background }]}
       >
-        <LoadingOverlay visible={fetchingAllServices || gettingCount || fetchingUserData || fetchingTopServices || loadingAddress}/>
         <ScrollView contentContainerStyle={styles.container}>
           <TouchableOpacity
             onPress={() => setShowSheet(true)}
@@ -80,12 +88,22 @@ export default function Home() {
                     color={colors.primary}
                     style={{ marginRight: 6 }}
                   />
-                  <Text style={[styles.addressText, { color: colors.onSurface }]}>
+                  <Text
+                    style={[styles.addressText, { color: colors.onSurface }]}
+                  >
                     {selectedAddress
-                      ? `${selectedAddress?.towerId?.towerName || ""}, ${selectedAddress?.blockId?.blockName || ""}, ${selectedAddress?.floorId?.floorName || ""}, ${selectedAddress?.unitId?.unitName || ""}`
+                      ? `${selectedAddress?.towerId?.towerName || ""}, ${
+                          selectedAddress?.blockId?.blockName || ""
+                        }, ${selectedAddress?.floorId?.floorName || ""}, ${
+                          selectedAddress?.unitId?.unitName || ""
+                        }`
                       : allAddresses?.length > 0
-                        ? `${allAddresses[0]?.towerId?.towerName || ""}, ${allAddresses[0]?.blockId?.blockName || ""}, ${allAddresses[0]?.floorId?.floorName || ""}, ${allAddresses[0]?.unitId?.unitName || ""}`
-                        : "No address available"}
+                      ? `${allAddresses[0]?.towerId?.towerName || ""}, ${
+                          allAddresses[0]?.blockId?.blockName || ""
+                        }, ${allAddresses[0]?.floorId?.floorName || ""}, ${
+                          allAddresses[0]?.unitId?.unitName || ""
+                        }`
+                      : "Address not available"}
                   </Text>
                 </View>
                 <MaterialIcons

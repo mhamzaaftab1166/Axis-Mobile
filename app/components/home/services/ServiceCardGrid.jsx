@@ -10,11 +10,10 @@ export default function ServiceCardGrid({
   horizontalMode,
   isSelected = false,
   onToggleSelect,
-  capacity
+  capacity,
 }) {
-
   const bhkKey = `${capacity} BHK`;
-  const price = service.price?.[bhkKey];
+  let price = service.price?.[bhkKey];
 
   if (price === undefined && service.price) {
     const firstKey = Object.keys(service.price)[0];
@@ -68,7 +67,7 @@ export default function ServiceCardGrid({
         <View style={styles.imageContainer}>
           <Image
             source={{
-              uri: `${config.pictureUrl}/${service.image}`
+              uri: `${config.pictureUrl}/${service.image}`,
             }}
             style={styles.image}
             resizeMode="cover"

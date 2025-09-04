@@ -17,11 +17,10 @@ export default function ServiceCardList({
   isSelected,
   onToggleSelect,
   onlyView,
-  capacity
+  capacity,
 }) {
-
   const bhkKey = `${capacity} BHK`;
-  const price = service.price?.[bhkKey];
+  let price = service.price?.[bhkKey];
 
   if (price === undefined && service.price) {
     const firstKey = Object.keys(service.price)[0];
@@ -70,7 +69,7 @@ export default function ServiceCardList({
           <View style={styles.left}>
             <Image
               source={{
-                uri: `${config.pictureUrl}/${service.image}`
+                uri: `${config.pictureUrl}/${service.image}`,
               }}
               style={styles.image}
               resizeMode="cover"
