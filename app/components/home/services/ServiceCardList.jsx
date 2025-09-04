@@ -21,7 +21,7 @@ export default function ServiceCardList({
 }) {
 
   const bhkKey = `${capacity} BHK`;
-  const price = service.price?.[bhkKey];
+  let price = service.price?.[bhkKey];
 
   if (price === undefined && service.price) {
     const firstKey = Object.keys(service.price)[0];
