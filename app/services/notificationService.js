@@ -21,7 +21,6 @@ export const fetchInboxNotifications = async (indieId) => {
 
 // Delete a specific notification by its ID
 export const removeInboxNotification = async (indieId, notificationId) => {
-  console.log(indieId, notificationId);
   try {
     const result = await deleteIndieNotificationInbox(
       indieId,

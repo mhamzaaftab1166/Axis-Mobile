@@ -2,7 +2,12 @@ import { useNavigation } from "expo-router";
 import { useCallback, useRef, useState } from "react";
 import { Animated, Easing, StatusBar, StyleSheet, View } from "react-native";
 import { Button, ProgressBar, useTheme } from "react-native-paper";
+import config from "../../../../config.json";
 import CenteredAppbarHeader from "../../../components/common/CenteredAppBar";
+import AppErrorMessage from "../../../components/forms/AppErrorMessage";
+import { formatPayload } from "../../../helpers/general";
+import { ROUTES } from "../../../helpers/routePaths";
+import { useCreateBooking } from "../../../hooks/useBookingQuery";
 import useAddressStore from "../../../store/useAddressStore";
 import useBookingStore from "../../../store/useBookingStore";
 import Step1 from "./Step1";
@@ -64,6 +69,31 @@ export default function AddPropertyWizard() {
     [opacity, step, translateX]
   );
 
+  const [error, setError] = useState("");
+  const [isError, setIsError] = useState(false);
+  const [showOtpStep, setShowOtpStep] = useState(false);
+
+  const [clientSecret, setClientSecret] = useState(null);
+  const [paymentMethodId, setPaymentMethodId] = useState(null);
+
+  const { mutate: bookMyService, isPending: isBooking } = useCreateBooking({
+    onErrorCallback: (errMsg) => {
+      setError(errMsg);
+      setIsError(true);
+    },
+    onSuccessCallback: () => {
+      setError("");
+      setIsError(false);
+      clearBooking();
+      navigation.replace(ROUTES.HOME);
+    },
+    onRequireAction: (clientSecret, methodId)=>{
+      setShowOtpStep(true);
+      setClientSecret(clientSecret);
+      setPaymentMethodId(methodId);
+    }
+  });
+
   const next = () => formRef.current?.submitForm();
   const back = () => {
     if (step > 0) animateStepChange(step - 1);
@@ -80,31 +110,10 @@ export default function AddPropertyWizard() {
       return;
     }
     if (step === 2) {
-      // clearBooking();
-      // navigation.replace(ROUTES.HOME);
+      const formatted = formatPayload(values,selectedAddress,config.secretKeyForEncryption);
+      bookMyService(formatted);
     }
   };
-
-  // if (selectedServices.length === 0) {
-  //   return (
-  //     <View style={styles.emptyWrapper}>
-  //       <CenteredAppbarHeader
-  //         title="Book Service"
-  //         onBack={() => navigation.goBack()}
-  //         cartDisplay={false}
-  //       />
-  //       <EmptyState
-  //         // icon={MaterialIcons}
-  //         iconSize={80}
-  //         iconColor={colors.placeholder}
-  //         title="No Services Selected"
-  //         description="You haven’t selected any services yet. Please select a service to continue."
-  //         buttonLabel="Browse Services"
-  //         onButtonPress={() => router.replace(ROUTES.SERVICE_LISTING)}
-  //       />
-  //     </View>
-  //   );
-  // }
 
   return (
     <View style={[styles.container, { backgroundColor: bg }]}>
@@ -124,6 +133,12 @@ export default function AddPropertyWizard() {
         style={styles.progress}
       />
 
+      <View style={{
+        alignSelf: "center",
+      }}>
+        <AppErrorMessage visible={isError} error={error} />
+      </View>
+
       <Animated.View
         style={{
           flex: 1,
@@ -133,7 +148,11 @@ export default function AddPropertyWizard() {
       >
         {step === 0 && <Step1 ref={formRef} onSubmit={onStepSubmit} />}
         {step === 1 && <Step2 ref={formRef} onSubmit={onStepSubmit} />}
-        {step === 2 && <Step3 ref={formRef} onSubmit={onStepSubmit} />}
+        {step === 2 && <Step3  
+          isBooking={isBooking}
+          ref={formRef} onSubmit={onStepSubmit} 
+          requireAction={showOtpStep}
+        />}
       </Animated.View>
 
       <View style={styles.footer}>

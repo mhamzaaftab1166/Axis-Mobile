@@ -1,4 +1,5 @@
 import { FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
+import CryptoJS from "react-native-crypto-js";
 
 export const getGreeting = () => {
   const hour = new Date().getHours();
@@ -249,4 +250,48 @@ export const calculateTax = (amount, percentage) => {
   const num = Number(amount) || 0;
   const rate = Number(percentage) || 0;
   return num * (rate / 100);
+};
+
+// service payload
+export const formatPayload = (values, selectedAddress, encryptionKey) => {
+  const unitCapacity = selectedAddress?.unitId?.unitCapacity || 1;
+
+  const { amount, tax, totalAmountAfterTax } = calculateTotals(
+    values.selectedServices,
+    unitCapacity
+  );
+
+  return {
+    cvv: encryptCVV(values?.cvv,encryptionKey) || null,
+    selectedCard: values?.selectedCard
+      ? { id: values.selectedCard.id }
+      : null,
+    selectedServices: values.selectedServices?.map((s) => ({ id: s.id })) || [],
+    serviceTime: values.serviceTime,
+    amount,
+    tax,
+    totalAmountAfterTax,
+    address: selectedAddress._id
+  };
+};
+
+export const calculateTotals = (services, unitCapacity, taxRate = 5) => {
+
+  const amount = services.reduce((sum, service) => {
+    return sum + getServicePrice(service, unitCapacity);
+  }, 0);
+
+  const tax = (amount * taxRate) / 100;
+  const totalAmountAfterTax = amount + tax;
+
+  return { amount, tax, totalAmountAfterTax };
+}
+
+function getServicePrice(service, unitCapacity = 1) {
+  if (!service.price) return 0;
+  return service.price[`${unitCapacity} BHK`];
+}
+
+export const encryptCVV = (cvv,SECRET_KEY) => {
+  return CryptoJS.AES.encrypt(cvv, SECRET_KEY).toString();
 };

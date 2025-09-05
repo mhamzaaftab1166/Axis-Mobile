@@ -1,20 +1,20 @@
 import { Formik } from "formik";
-import { forwardRef, useImperativeHandle, useRef, useState } from "react";
+import { forwardRef, useImperativeHandle, useRef } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Button, useTheme } from "react-native-paper";
 import * as Yup from "yup";
 import AppFormDropdown from "../../../components/forms/AppFormDropdown";
 import AppFormField from "../../../components/forms/AppFormFeild";
 import LoadingOveralay from "../../../components/LoadingOverlay";
+import { calculateTotals } from "../../../helpers/general";
 import { useGetPaymentMethods } from "../../../hooks/usePaymetMethodQuery";
+import useAddressStore from "../../../store/useAddressStore";
 import useBookingStore from "../../../store/useBookingStore";
 
-const Step3 = forwardRef(function Step3({ onSubmit }, ref) {
+const Step3 = forwardRef(function Step3({ onSubmit, requireAction, isBooking = false, onConfirmPayment = ()=>{}, onCanclePayment = ()=>{} }, ref) {
   const booking = useBookingStore((state) => state.booking);
   const { colors } = useTheme();
   const formikRef = useRef(null);
-
-  const [showOtpStep, setShowOtpStep] = useState(false);
 
   const validationSchema = Yup.object({
     selectedCard: Yup.object().required("Please select a card"),
@@ -31,6 +31,13 @@ const Step3 = forwardRef(function Step3({ onSubmit }, ref) {
     },
   }));
 
+  const selectedAddress = useAddressStore((s) => s.selectedAddress);
+
+  const { totalAmountAfterTax } = calculateTotals(
+    booking?.selectedServices,
+    selectedAddress?.unitId?.unitCapacity || 1
+  );
+
   const { data: cards, isLoading: loadingCards } = useGetPaymentMethods();
 
   return (
@@ -38,10 +45,7 @@ const Step3 = forwardRef(function Step3({ onSubmit }, ref) {
       innerRef={formikRef}
       initialValues={{ selectedCard: null, cvv: "" }}
       validationSchema={validationSchema}
-      onSubmit={(values) => {
-        console.log("Payment data:", { ...booking, ...values });
-        setShowOtpStep(true);
-      }}
+      onSubmit={(values) => onSubmit({ ...booking, ...values })}
     >
       {({ handleSubmit }) => (
         <ScrollView style={styles.inner} showsVerticalScrollIndicator={false}>
@@ -62,18 +66,19 @@ const Step3 = forwardRef(function Step3({ onSubmit }, ref) {
             maxLength={3}
           />
 
-          {!showOtpStep && (
+          {!requireAction && (
             <Button
               mode="contained"
               onPress={handleSubmit}
               style={[styles.btn, { backgroundColor: colors.primary }]}
               labelStyle={{ color: colors.onPrimary }}
+              loading={isBooking}
             >
-              Pay AED 50
+              Pay AED {totalAmountAfterTax} /-
             </Button>
           )}
 
-          {showOtpStep && (
+          {requireAction && (
             <View style={styles.otpWrapper}>
               <Text style={[styles.desc, { color: colors.onSurface }]}>
                 This payment requires 3D Secure verification. An OTP will be
@@ -81,7 +86,7 @@ const Step3 = forwardRef(function Step3({ onSubmit }, ref) {
               </Text>
               <Button
                 mode="contained"
-                onPress={() => onSubmit({ ...booking })}
+                onPress={onConfirmPayment}
                 style={[styles.btn, { backgroundColor: colors.tertiary }]}
                 labelStyle={{ color: colors.onPrimary }}
               >

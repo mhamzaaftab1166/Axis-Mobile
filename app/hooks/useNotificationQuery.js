@@ -44,7 +44,6 @@ export const useDeleteNotification = ({
       onSuccessCallback?.();
     },
     onError: (error) => {
-      console.log(error);
       const msg =
         error?.response?.data?.error ||
         error?.message ||

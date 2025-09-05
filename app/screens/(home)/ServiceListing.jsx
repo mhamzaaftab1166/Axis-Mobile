@@ -18,8 +18,6 @@ import useBookingStore from "../../store/useBookingStore";
 export default function ServiceListing() {
   const { selectedItem } = useLocalSearchParams();
   
-  console.log("Selected item:", selectedItem);
-
   const { allServices: services, isLoading } = useGetAllServices();
   
   const navigation = useNavigation();
