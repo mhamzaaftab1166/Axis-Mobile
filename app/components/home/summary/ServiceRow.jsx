@@ -1,5 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { Image, StyleSheet, Text, View } from "react-native";
+import config from "../../../../config.json";
+import useAddressStore from "../../../store/useAddressStore";
 
 const getBadgeStyle = (tag) => {
   switch (tag) {
@@ -17,12 +19,25 @@ export default function ServiceRow({ service = {}, colors = {}, fonts = {} }) {
     typeof service.image === "number"
       ? service.image
       : service.image
-      ? { uri: service.image }
+      ? { uri: `${config.pictureUrl}/${service.image}` }
       : null;
 
+  const selectedAddress = useAddressStore((s) => s.selectedAddress);
+
+  // Get unit capacity safely
+  const unitCapacity = selectedAddress?.unitId?.unitCapacity || 1;
+
+  // Build the key (e.g. "5 BHK")
+  const bhkKey = unitCapacity ? `${unitCapacity} BHK` : null;
+
+  // Get the price for this capacity
+  const unitPrice = bhkKey && service.price ? service.price[bhkKey] : 0;
+
+  // Final subtotal (price × quantity)
+  const subtotal = (Number(unitPrice) || 0) * (service.quantity || 1);
+  
   const badgeStyle = service.badge ? getBadgeStyle(service.badge) : null;
 
-  const subtotal = (Number(service.price) || 0) * (service.quantity || 1);
   const formattedSubtotal = (() => {
     try {
       return new Intl.NumberFormat("en-AE", {

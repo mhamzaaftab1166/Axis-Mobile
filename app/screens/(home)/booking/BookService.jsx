@@ -3,7 +3,7 @@ import { useCallback, useRef, useState } from "react";
 import { Animated, Easing, StatusBar, StyleSheet, View } from "react-native";
 import { Button, ProgressBar, useTheme } from "react-native-paper";
 import CenteredAppbarHeader from "../../../components/common/CenteredAppBar";
-import { ROUTES } from "../../../helpers/routePaths";
+import useAddressStore from "../../../store/useAddressStore";
 import useBookingStore from "../../../store/useBookingStore";
 import Step1 from "./Step1";
 import Step2 from "./Step2";
@@ -29,6 +29,8 @@ export default function AddPropertyWizard() {
   const progressColor = dark ? colors.onPrimary : colors.secondary;
   const nextBg = colors.tertiary;
   const nextText = colors.onPrimary;
+
+  const selectedAddress = useAddressStore((s) => s.selectedAddress);
 
   const TOTAL_STEPS = 3;
 
@@ -78,8 +80,8 @@ export default function AddPropertyWizard() {
       return;
     }
     if (step === 2) {
-      clearBooking();
-      navigation.replace(ROUTES.HOME);
+      // clearBooking();
+      // navigation.replace(ROUTES.HOME);
     }
   };
 
@@ -92,7 +94,7 @@ export default function AddPropertyWizard() {
   //         cartDisplay={false}
   //       />
   //       <EmptyState
-  //         icon={MaterialIcons}
+  //         // icon={MaterialIcons}
   //         iconSize={80}
   //         iconColor={colors.placeholder}
   //         title="No Services Selected"

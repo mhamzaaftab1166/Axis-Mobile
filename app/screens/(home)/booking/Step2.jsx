@@ -12,7 +12,9 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "react-native-paper";
 import AddressBottomSheet from "../../../components/home/AddressBottomSheet";
 import BookingSummary from "../../../components/home/summary/BookingSummary";
+import LoadingOverlay from "../../../components/LoadingOverlay";
 import { ROUTES } from "../../../helpers/routePaths";
+import { useGetAllAddress } from "../../../hooks/useAddressQuery";
 import useAddressStore from "../../../store/useAddressStore";
 import useBookingStore from "../../../store/useBookingStore";
 
@@ -26,26 +28,11 @@ const Step2 = forwardRef(function Step2({ onSubmit }, ref) {
   const ensureDefault = useAddressStore((s) => s.ensureDefault);
   const [showAddrSheet, setShowAddrSheet] = useState(false);
 
-  const addresses = [
-    {
-      id: "1",
-      property: { id: "1", name: "Tower A" },
-      block: { id: "2", name: "Block 2" },
-      floor: { id: "5", name: "5th" },
-      unit: { id: "102", name: "102" },
-    },
-    {
-      id: "2",
-      property: { id: "2", name: "Tower B" },
-      block: { id: "1", name: "Block 1" },
-      floor: { id: "2", name: "2nd" },
-      unit: { id: "201", name: "201" },
-    },
-  ];
+  const { allAddresses, isLoading: loadingAddress } = useGetAllAddress();
 
   useEffect(() => {
-    ensureDefault(addresses[0]);
-  }, []);
+    ensureDefault(allAddresses ? allAddresses[0] : undefined);
+  }, [allAddresses]);
 
   useImperativeHandle(ref, () => ({
     submitForm: () => {
@@ -78,6 +65,7 @@ const Step2 = forwardRef(function Step2({ onSubmit }, ref) {
             <View
               style={[styles.inner, { backgroundColor: colors.background }]}
             >
+              <LoadingOverlay visible={loadingAddress} />
               <Text
                 style={[
                   styles.title,
@@ -99,9 +87,9 @@ const Step2 = forwardRef(function Step2({ onSubmit }, ref) {
       </Formik>
 
       <AddressBottomSheet
-        addresses={addresses}
+        addresses={allAddresses}
         visible={showAddrSheet}
-        selectedId={selectedAddress?.id}
+        selectedId={selectedAddress?._id}
         onClose={handleCloseAddressSheet}
         onSelect={handleSelectAddress}
         onAdd={() => router.push(ROUTES.ADD_ADDRESS)}

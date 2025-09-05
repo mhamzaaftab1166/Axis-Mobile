@@ -200,11 +200,11 @@ export const getAddressTextDetail = (service) => {
 
 export const formatAddressLabel = (addr) => {
   if (!addr) return "No address selected";
-  const prop = addr.property?.name ?? "";
+  const prop = addr.towerId?.towerName ?? "";
   const parts = [];
-  if (addr.block?.name) parts.push(addr.block.name);
-  if (addr.floor?.name) parts.push(addr.floor.name);
-  if (addr.unit?.name) parts.push(addr.unit.name);
+  if (addr.blockId?.blockName) parts.push(addr.blockId.blockName);
+  if (addr.floorId?.floorName) parts.push(addr.floorId.floorName);
+  if (addr.unitId?.unitName) parts.push(`${addr.unitId.unitName} - ${addr.unitId.unitCapacity} BHK`);
   const meta = parts.join(" • ");
   return { main: prop, meta };
 };
@@ -228,7 +228,6 @@ export const buildServiceOptions = (services)=> {
   );
 }
 
-
 export const filterServices = (categories = [], services = [], searchText = "") => {
   if (!Array.isArray(services)) return [];
 
@@ -244,4 +243,10 @@ export const filterServices = (categories = [], services = [], searchText = "") 
 
     return matchesCategory && matchesSearch;
   });
+};
+
+export const calculateTax = (amount, percentage) => {
+  const num = Number(amount) || 0;
+  const rate = Number(percentage) || 0;
+  return num * (rate / 100);
 };

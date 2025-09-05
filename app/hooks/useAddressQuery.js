@@ -16,7 +16,7 @@ export const useGetAllAddress = () => {
   const query = useQuery({
     queryKey: ["addresses"],
     queryFn: () => fetchAddress(),
-    staleTime: 10 * 60 * 1000,
+    staleTime:()=>{},
     enabled: !!token && hasHydrated,
   });
 

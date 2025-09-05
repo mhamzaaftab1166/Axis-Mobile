@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { Card, Divider, Surface, Text, useTheme } from "react-native-paper";
 import { serviceOptions } from "../../../helpers/contantData";
-import { formatAddressLabel } from "../../../helpers/general";
+import { calculateTax, formatAddressLabel } from "../../../helpers/general";
 import useAddressStore from "../../../store/useAddressStore";
 import BookingSchedule from "./BookingSchedule";
 import ServiceRow from "./ServiceRow";
@@ -14,6 +14,7 @@ export default function BookingSummary({ booking = {}, onChangeAddress }) {
   const services = Array.isArray(booking.selectedServices)
     ? booking.selectedServices
     : [];
+  
   const selectedAddress = useAddressStore((s) => s.selectedAddress);
 
   const addr = formatAddressLabel(selectedAddress);
@@ -48,6 +49,22 @@ export default function BookingSummary({ booking = {}, onChangeAddress }) {
 
   const svcTime = booking.serviceTime || {};
   const totalServicesCount = services.length;
+
+  const total = services.reduce((sum, service) => {
+
+    const unitCapacity = selectedAddress?.unitId?.unitCapacity || 1;
+    const bhkKey = `${unitCapacity} BHK`;
+
+    // Pick the price for this capacity
+    const unitPrice = service.price?.[bhkKey] || 0;
+
+    // Multiply by quantity (default 1)
+    const subtotal = (Number(unitPrice) || 0) * (service.quantity || 1);
+
+    return sum + subtotal;
+  }, 0);
+
+  const taxed = calculateTax(total,5);
 
   return (
     <View>
@@ -208,7 +225,7 @@ export default function BookingSummary({ booking = {}, onChangeAddress }) {
                   { color: colors.text, fontFamily: fonts?.medium?.fontFamily },
                 ]}
               >
-                AED 320.00
+                AED {total}
               </Text>
             </View>
 
@@ -230,7 +247,7 @@ export default function BookingSummary({ booking = {}, onChangeAddress }) {
                   { color: colors.text, fontFamily: fonts?.medium?.fontFamily },
                 ]}
               >
-                AED 30
+                AED {taxed}
               </Text>
             </View>
 
@@ -257,7 +274,7 @@ export default function BookingSummary({ booking = {}, onChangeAddress }) {
                   },
                 ]}
               >
-                AED 350.00
+                AED {total + taxed}
               </Text>
             </View>
           </View>

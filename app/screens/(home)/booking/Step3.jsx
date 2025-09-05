@@ -5,18 +5,14 @@ import { Button, useTheme } from "react-native-paper";
 import * as Yup from "yup";
 import AppFormDropdown from "../../../components/forms/AppFormDropdown";
 import AppFormField from "../../../components/forms/AppFormFeild";
+import LoadingOveralay from "../../../components/LoadingOverlay";
+import { useGetPaymentMethods } from "../../../hooks/usePaymetMethodQuery";
 import useBookingStore from "../../../store/useBookingStore";
 
 const Step3 = forwardRef(function Step3({ onSubmit }, ref) {
   const booking = useBookingStore((state) => state.booking);
   const { colors } = useTheme();
   const formikRef = useRef(null);
-
-  const [cards] = useState([
-    { id: "1", type: "visa", last4: "1234", cardHolder: "John Doe" },
-    { id: "2", type: "mastercard", last4: "5678", cardHolder: "Samantha Ray" },
-    { id: "3", type: "amex", last4: "9012", cardHolder: "Aarav Kumar" },
-  ]);
 
   const [showOtpStep, setShowOtpStep] = useState(false);
 
@@ -35,6 +31,8 @@ const Step3 = forwardRef(function Step3({ onSubmit }, ref) {
     },
   }));
 
+  const { data: cards, isLoading: loadingCards } = useGetPaymentMethods();
+
   return (
     <Formik
       innerRef={formikRef}
@@ -47,11 +45,14 @@ const Step3 = forwardRef(function Step3({ onSubmit }, ref) {
     >
       {({ handleSubmit }) => (
         <ScrollView style={styles.inner} showsVerticalScrollIndicator={false}>
+
+          <LoadingOveralay visible={loadingCards} />
           <AppFormDropdown
+            key="id"
             name="selectedCard"
             placeholder="Select Card"
             items={cards}
-            labelKey="cardHolder"
+            labelKey="name_on_card"
             valueKey="id"
           />
           <AppFormField

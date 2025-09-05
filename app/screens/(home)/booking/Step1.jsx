@@ -13,9 +13,12 @@ import { useTheme } from "react-native-paper";
 import AppFormServiceTimePicker from "../../../components/forms/BookService/AppFormServiceTimePicker";
 import ResetServiceTimeOnSelectedServicesChange from "../../../components/forms/BookService/AppFormServiceTimePicker/ResetServiceTimeOnSelectedServiceChange";
 import SelectedServiceCard from "../../../components/home/services/SelectedServiceCard";
-import { serviceOptions } from "../../../helpers/contantData";
+import LoadingOverlay from "../../../components/LoadingOverlay";
+import { buildServiceOptions } from "../../../helpers/general";
 import { ROUTES } from "../../../helpers/routePaths";
 import { bookingValidationSchema } from "../../../helpers/validations";
+import { useGetAllServices } from "../../../hooks/useServiceQuery";
+import useAddressStore from "../../../store/useAddressStore";
 import useBookingStore from "../../../store/useBookingStore";
 
 export default forwardRef(function Step1({ onSubmit }, ref) {
@@ -37,6 +40,11 @@ export default forwardRef(function Step1({ onSubmit }, ref) {
     });
   };
 
+  const selectedAddress = useAddressStore((s) => s.selectedAddress);
+
+  const { allServices: services, isLoading } = useGetAllServices();
+  let serviceOptions = buildServiceOptions(services ? services : [])
+
   return (
     <Formik
       innerRef={(f) => (formikRef = f)}
@@ -49,6 +57,7 @@ export default forwardRef(function Step1({ onSubmit }, ref) {
         <View
           style={[styles.container, { backgroundColor: colors.background }]}
         >
+          <LoadingOverlay visible={isLoading} />
           <ScrollView
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
@@ -96,6 +105,7 @@ export default forwardRef(function Step1({ onSubmit }, ref) {
                     servicesInCategory.map((service) => (
                       <SelectedServiceCard
                         key={service.id}
+                        capacity={selectedAddress?.unitId?.unitCapacity}
                         service={service}
                         onRemove={removeService}
                       />

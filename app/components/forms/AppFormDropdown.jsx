@@ -1,4 +1,5 @@
 import { useFormikContext } from "formik";
+import { Lock } from "lucide-react-native"; // if you use lucide-react
 import { useCallback, useMemo, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { TextInput as RNPTextInput, Text, useTheme } from "react-native-paper";
@@ -23,8 +24,10 @@ export default function AppFormDropdown({
       safeItems.map((item) => ({
         label: String(item[labelKey] ?? ""),
         value: item[valueKey],
+        key: item[valueKey],
+        disabled: name === "unit" && item.status !== "empty"
       })),
-    [safeItems, labelKey, valueKey]
+    [safeItems, labelKey, valueKey, name]
   );
 
   const selectedObj = values[name] || null;
@@ -44,23 +47,36 @@ export default function AppFormDropdown({
   const CustomDropdownItem = useCallback(
     ({ width, option, value, onSelect: onItemSelect, toggleMenu, isLast }) => {
       const isSelected = value === option.value;
+      const isDisabled = option.disabled;
+
       return (
         <Pressable
-          android_ripple={{
-            color: isSelected
-              ? `${colors.onPrimary}22`
-              : `${colors.onSurface}12`,
-          }}
+          android_ripple={
+            !isDisabled
+              ? {
+                  color: isSelected
+                    ? `${colors.onPrimary}22`
+                    : `${colors.onSurface}12`,
+                }
+              : null
+          }
+          disabled={isDisabled}
           onPress={() => {
             onItemSelect?.(option.value);
             toggleMenu?.();
           }}
           style={{
+            flexDirection: "row",
+            alignItems: "center",
             height: 50,
             width: width || "100%",
-            justifyContent: "center",
+            justifyContent: "space-between",
             paddingHorizontal: 16,
-            backgroundColor: isSelected ? colors.primary : colors.surface,
+            backgroundColor: isSelected
+              ? colors.primary
+              : isDisabled
+              ? `${colors.surface}66`
+              : colors.surface,
             borderBottomWidth: isLast ? 0 : StyleSheet.hairlineWidth,
             borderBottomColor: colors.outline || colors.backdrop,
           }}
@@ -68,21 +84,30 @@ export default function AppFormDropdown({
           <Text
             numberOfLines={1}
             style={{
-              color: isSelected ? colors.onPrimary : colors.onSurface,
+              color: isSelected
+                ? colors.onPrimary
+                : isDisabled
+                ? `${colors.onSurface}55`
+                : colors.onSurface,
               fontFamily:
                 fonts && fonts.bodyMedium
                   ? fonts.bodyMedium.fontFamily
                   : undefined,
+              textDecorationLine: isDisabled ? "line-through" : "none", 
             }}
           >
             {option.label}
           </Text>
+
+          {isDisabled && (
+            <Lock size={16} color={`${colors.onSurface}88`} /> 
+          )}
         </Pressable>
       );
     },
     [colors, fonts]
   );
-
+  
   const CustomDropdownInput = useCallback(
     ({ placeholder: ph, selectedLabel, rightIcon }) => {
       const value =

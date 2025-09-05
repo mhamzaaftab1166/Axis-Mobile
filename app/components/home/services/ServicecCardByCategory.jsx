@@ -2,14 +2,26 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "react-native-paper";
 import StarView from "react-native-star-view";
+import config from "../../../../config.json";
 
-export default function CompactServiceCard({ item, isSelected, onToggle }) {
+export default function CompactServiceCard({ item, isSelected, onToggle, capacity = 1 }) {
+
   const { colors } = useTheme();
+
+  const bhkKey = `${capacity} BHK`;
+  let price = item.price?.[bhkKey];
+
+  if (price === undefined && item.price) {
+    const firstKey = Object.keys(item.price)[0];
+    price = item.price[firstKey];
+  }
 
   return (
     <View style={[styles.card, { backgroundColor: colors.surface }]}>
       <View style={styles.thumbWrapper}>
-        <Image source={item.image} style={styles.thumb} />
+        <Image source={{
+          uri: `${config.pictureUrl}/${item.image}`
+        }} style={styles.thumb} />
         {item.badge && (
           <View
             style={[
@@ -33,7 +45,7 @@ export default function CompactServiceCard({ item, isSelected, onToggle }) {
             {item.name}
           </Text>
           <Text style={[styles.price, { color: "#28a745" }]}>
-            AED {item.price}
+            AED 150
           </Text>
         </View>
 

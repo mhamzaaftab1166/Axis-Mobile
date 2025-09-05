@@ -2,8 +2,16 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useTheme } from "react-native-paper";
 
-export default function SelectedServiceCard({ service, onRemove }) {
+export default function SelectedServiceCard({ service, onRemove, capacity = 1}) {
   const { colors } = useTheme();
+
+  const bhkKey = `${capacity} BHK`;
+  let price = service.price?.[bhkKey];
+
+  if (price === undefined && service.price) {
+    const firstKey = Object.keys(service.price)[0];
+    price = service.price[firstKey];
+  }
 
   return (
     <View
@@ -13,7 +21,7 @@ export default function SelectedServiceCard({ service, onRemove }) {
         <Text style={[styles.serviceName, { color: colors.text }]}>
           {service.name}
         </Text>
-        <Text style={styles.servicePrice}>AED {service.price}</Text>
+        <Text style={styles.servicePrice}>AED {price}</Text>
       </View>
       <TouchableOpacity onPress={() => onRemove(service)}>
         <MaterialIcons name="remove-circle" size={20} color="#d9534f" />
