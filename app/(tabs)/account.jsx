@@ -30,6 +30,8 @@ export default function AccountScreen() {
 
   const { count, isLoading: gettingCount } = useFetchUnreadCount(userData?.data?.user?._id);
 
+  const role = useAuthStore((s) => s.role);
+
   const options = [
     {
       key: "profile",
@@ -86,6 +88,8 @@ export default function AccountScreen() {
     },
   ];
 
+  const filteredOptions = role === "tenant" ? options : role === "supervisor" ? options.filter((opt)=> !["addresses","faq","payment"].includes(opt.key)) : options;
+
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: screenBg }]}>
       <View style={styles.container}>
@@ -117,7 +121,7 @@ export default function AccountScreen() {
 
         {/* Options */}
         <View style={styles.options}>
-          {options.map((opt, idx) => (
+          {filteredOptions.map((opt, idx) => (
             <React.Fragment key={opt.key}>
               <TouchableRipple onPress={opt.onPress}>
                 <View style={styles.optionRow}>
