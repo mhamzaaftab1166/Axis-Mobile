@@ -11,10 +11,10 @@ import {
 } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import config from "../../config.json";
-import LoadingOverlay from "../components/LoadingOverlay";
 import { ROUTES } from "../helpers/routePaths";
 import { useUserDetailQuery } from "../hooks/useAuthQuery";
 import { useFetchUnreadCount } from "../hooks/useNotificationQuery";
+import AccountSkeleton from "../skeltons/AccountSkelton";
 import useAuthStore from "../store/useAuthStore";
 
 export default function AccountScreen() {
@@ -28,7 +28,9 @@ export default function AccountScreen() {
   const { userData, isLoading: fetchingUserData } = useUserDetailQuery();
   const { clearAuth } = useAuthStore();
 
-  const { count, isLoading: gettingCount } = useFetchUnreadCount(userData?.data?.user?._id);
+  const { count, isLoading: gettingCount } = useFetchUnreadCount(
+    userData?.data?.user?._id
+  );
 
   const role = useAuthStore((s) => s.role);
 
@@ -81,24 +83,33 @@ export default function AccountScreen() {
       key: "logout",
       label: "Logout",
       icon: "logout",
-      onPress: ()=>{
+      onPress: () => {
         clearAuth();
         router.replace(ROUTES.LOGIN);
       },
     },
   ];
 
-  const filteredOptions = role === "tenant" ? options : role === "supervisor" ? options.filter((opt)=> !["addresses","faq","payment"].includes(opt.key)) : options;
+  const filteredOptions =
+    role === "tenant"
+      ? options
+      : role === "supervisor"
+      ? options.filter(
+          (opt) => !["addresses", "faq", "payment"].includes(opt.key)
+        )
+      : options;
 
+  if (gettingCount || fetchingUserData) return <AccountSkeleton />;
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: screenBg }]}>
       <View style={styles.container}>
-        <LoadingOverlay visible={gettingCount || fetchingUserData} />
-        {/* Profile Card */}
         <View style={styles.card}>
-          <Avatar.Image size={64} source={{
-            uri: `${config.pictureUrl}/${userData?.data?.user?.profileImage}`
-          }} />
+          <Avatar.Image
+            size={64}
+            source={{
+              uri: `${config.pictureUrl}/${userData?.data?.user?.profileImage}`,
+            }}
+          />
           <View style={styles.profileInfo}>
             <Text
               variant="titleMedium"
