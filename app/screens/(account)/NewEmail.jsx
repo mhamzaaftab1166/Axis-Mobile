@@ -11,6 +11,7 @@ import AppFormField from "../../components/forms/AppFormFeild";
 import SubmitButton from "../../components/forms/AppSubmitButton";
 import { ROUTES } from "../../helpers/routePaths";
 import { useUpdateEmail } from "../../hooks/useProfileQuery";
+import useAuthStore from "../../store/useAuthStore";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string()
@@ -21,6 +22,8 @@ const validationSchema = Yup.object().shape({
 export default function SetEmailScreen() {
   const navigation = useNavigation();
   const { colors } = useTheme();
+
+  const role = useAuthStore((s) => s.role);
 
   const screenBg = colors.background;
 
@@ -37,14 +40,14 @@ export default function SetEmailScreen() {
       setIsError(false);
       router.push({
         pathname: ROUTES.OTP_SCREEN,
-        params: { email: email }, 
+        params: { email: email },
       });
     },
   });
 
   const handleSubmit = (values) => {
     updateEmail({
-      newEmail: values.email
+      newEmail: values.email,
     });
   };
 
@@ -54,6 +57,7 @@ export default function SetEmailScreen() {
       <CenteredAppbarHeader
         title={"Change Email"}
         onBack={() => navigation.goBack()}
+        cartDisplay={role === "supervisor" ? false : true}
       />
 
       <View style={styles.content}>
@@ -64,9 +68,11 @@ export default function SetEmailScreen() {
           onSubmit={handleSubmit}
           validationSchema={validationSchema}
         >
-         <View style={{
-            alignSelf: "center",
-          }}>
+          <View
+            style={{
+              alignSelf: "center",
+            }}
+          >
             <AppErrorMessage visible={isError} error={error} />
           </View>
           <AppFormField

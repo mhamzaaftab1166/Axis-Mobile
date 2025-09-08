@@ -5,12 +5,13 @@ import { StatusBar, StyleSheet, View } from "react-native";
 import { Divider, Text, TouchableRipple, useTheme } from "react-native-paper";
 import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
 import { ROUTES } from "../../helpers/routePaths";
+import useAuthStore from "../../store/useAuthStore";
 
 export default function SettingsScreen() {
   const router = useRouter();
   const navigation = useNavigation();
   const { colors, fonts } = useTheme();
-
+  const role = useAuthStore((s) => s.role);
   const screenBg = colors.background;
   const textColor = colors.text;
   const iconColor = colors.text;
@@ -39,6 +40,7 @@ export default function SettingsScreen() {
       <CenteredAppbarHeader
         title={"Settings"}
         onBack={() => navigation.goBack()}
+        cartDisplay={role === "supervisor" ? false : true}
       />
 
       <View style={styles.content}>

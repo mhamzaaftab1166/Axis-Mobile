@@ -17,6 +17,7 @@ import AppErrorMessage from "../../components/forms/AppErrorMessage";
 import SubmitButton from "../../components/forms/AppSubmitButton";
 import { ROUTES } from "../../helpers/routePaths";
 import { useCofirmEmailChange } from "../../hooks/useProfileQuery";
+import useAuthStore from "../../store/useAuthStore";
 
 const INPUT_HEIGHT = 56;
 
@@ -27,20 +28,23 @@ export default function SetEmailScreen() {
   const screenBg = colors.background;
   const textColor = colors.text;
 
+  const role = useAuthStore((s) => s.role);
+
   const [error, setError] = useState("");
   const [isError, setIsError] = useState(false);
 
-  const { mutate: confirmEmailChange, isPending: isChangingEmail } = useCofirmEmailChange({
-    onErrorCallback: (errMsg) => {
-      setError(errMsg);
-      setIsError(true);
-    },
-    onSuccessCallback: () => {
-      setError("");
-      setIsError(false);
-      router.dismissTo(ROUTES.SETTINGS);
-    },
-  });
+  const { mutate: confirmEmailChange, isPending: isChangingEmail } =
+    useCofirmEmailChange({
+      onErrorCallback: (errMsg) => {
+        setError(errMsg);
+        setIsError(true);
+      },
+      onSuccessCallback: () => {
+        setError("");
+        setIsError(false);
+        router.dismissTo(ROUTES.SETTINGS);
+      },
+    });
 
   const inputRefs = [useRef(null), useRef(null), useRef(null), useRef(null)];
 
@@ -68,7 +72,6 @@ export default function SetEmailScreen() {
           (k) => typeof vals[k] === "string" && /^\d$/.test(vals[k])
         )
     );
-
 
   const focusNext = (index) => {
     if (index < 3) {
@@ -112,8 +115,8 @@ export default function SetEmailScreen() {
   const handleSubmit = (values) => {
     const code = values.digit1 + values.digit2 + values.digit3 + values.digit4;
     confirmEmailChange({
-      newEmail: email, 
-      otp: code
+      newEmail: email,
+      otp: code,
     });
   };
 
@@ -123,6 +126,7 @@ export default function SetEmailScreen() {
       <CenteredAppbarHeader
         title={"OTP Verification"}
         onBack={() => navigation.goBack()}
+        cartDisplay={role === "supervisor" ? false : true}
       />
       <View style={styles.content}>
         <Text style={[styles.infoText, { color: textColor }]}>
@@ -144,9 +148,11 @@ export default function SetEmailScreen() {
             errors,
           }) => (
             <>
-              <View style={{
-                alignSelf: "center",
-              }}>
+              <View
+                style={{
+                  alignSelf: "center",
+                }}
+              >
                 <AppErrorMessage visible={isError} error={error} />
               </View>
               <View style={styles.otpContainer}>

@@ -8,6 +8,7 @@ import AppForm from "../../components/forms/AppForm";
 import AppPhoneFormField from "../../components/forms/AppPhoneFormField";
 import SubmitButton from "../../components/forms/AppSubmitButton";
 import { ROUTES } from "../../helpers/routePaths";
+import useAuthStore from "../../store/useAuthStore";
 
 const validationSchema = Yup.object().shape({
   phone: Yup.string()
@@ -21,6 +22,8 @@ const validationSchema = Yup.object().shape({
 export default function SetPasswordScreen() {
   const navigation = useNavigation();
   const { colors } = useTheme();
+
+  const role = useAuthStore((s) => s.role);
 
   const screenBg = colors.background;
 
@@ -38,6 +41,7 @@ export default function SetPasswordScreen() {
       <CenteredAppbarHeader
         title={"Change Mobile"}
         onBack={() => navigation.goBack()}
+        cartDisplay={role === "supervisor" ? false : true}
       />
 
       <View style={styles.content}>

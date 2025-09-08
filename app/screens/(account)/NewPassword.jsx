@@ -11,6 +11,7 @@ import AppFormField from "../../components/forms/AppFormFeild";
 import SubmitButton from "../../components/forms/AppSubmitButton";
 import { ROUTES } from "../../helpers/routePaths";
 import { useUpdateMyPassword } from "../../hooks/useProfileQuery";
+import useAuthStore from "../../store/useAuthStore";
 
 const validationSchema = Yup.object().shape({
   currentPassword: Yup.string().required("Current password is required"),
@@ -33,27 +34,30 @@ export default function SetPasswordScreen() {
   const navigation = useNavigation();
   const { colors } = useTheme();
 
+  const role = useAuthStore((s) => s.role);
+
   const screenBg = colors.background;
 
   const [error, setError] = useState("");
   const [isError, setIsError] = useState(false);
 
-  const { mutate: updateMyPassword, isPending: isUpdating } = useUpdateMyPassword({
-    onErrorCallback: (errMsg) => {
-      setError(errMsg);
-      setIsError(true);
-    },
-    onSuccessCallback: () => {
-      setError("");
-      setIsError(false);
-      router.dismissTo(ROUTES.SETTINGS);
-    },
-  });
+  const { mutate: updateMyPassword, isPending: isUpdating } =
+    useUpdateMyPassword({
+      onErrorCallback: (errMsg) => {
+        setError(errMsg);
+        setIsError(true);
+      },
+      onSuccessCallback: () => {
+        setError("");
+        setIsError(false);
+        router.dismissTo(ROUTES.SETTINGS);
+      },
+    });
 
   const handleSubmit = (values) => {
     updateMyPassword({
       currentPassword: values.currentPassword,
-      newPassword: values.newPassword
+      newPassword: values.newPassword,
     });
   };
 
@@ -63,6 +67,7 @@ export default function SetPasswordScreen() {
       <CenteredAppbarHeader
         title={"Change Password"}
         onBack={() => navigation.goBack()}
+        cartDisplay={role === "supervisor" ? false : true}
       />
 
       <View style={styles.content}>
@@ -99,7 +104,7 @@ export default function SetPasswordScreen() {
             autoCapitalize="none"
           />
 
-          <SubmitButton  isLoading={isUpdating} title="Change Password" />
+          <SubmitButton isLoading={isUpdating} title="Change Password" />
         </AppForm>
       </View>
     </View>

@@ -21,12 +21,14 @@ import {
   useFetchNotifications,
 } from "../../hooks/useNotificationQuery";
 import NotificationsSkeleton from "../../skeltons/NotificationsSkelton";
+import useAuthStore from "../../store/useAuthStore";
 
 export default function Notifications() {
   const { colors, dark, fonts } = useTheme();
   const navigation = useNavigation();
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
+  const role = useAuthStore((s) => s.role);
 
   const screenBg = colors.background;
   const textColor = colors.text;
@@ -126,6 +128,7 @@ export default function Notifications() {
       <CenteredAppbarHeader
         title={"Notifications"}
         onBack={() => navigation.goBack()}
+        cartDisplay={role === "supervisor" ? false : true}
       />
 
       <SwipeListView

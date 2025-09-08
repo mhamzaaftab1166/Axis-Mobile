@@ -14,6 +14,7 @@ import { getGreeting } from "../../helpers/general";
 import { ROUTES } from "../../helpers/routePaths";
 import { useUserDetailQuery } from "../../hooks/useAuthQuery";
 import { useUpdateProfilePicture } from "../../hooks/useProfileQuery";
+import useAuthStore from "../../store/useAuthStore";
 
 const validationSchema = Yup.object().shape({
   full_name: Yup.string().required("Full name is required"),
@@ -23,6 +24,7 @@ const validationSchema = Yup.object().shape({
 export default function MyProfile() {
   const navigation = useNavigation();
   const { colors, fonts } = useTheme();
+  const role = useAuthStore((s) => s.role);
 
   const screenBg = colors.background;
   const textColor = colors.text;
@@ -77,6 +79,7 @@ export default function MyProfile() {
       <CenteredAppbarHeader
         title={"My Profile"}
         onBack={() => navigation.goBack()}
+        cartDisplay={role === "supervisor" ? false : true}
       />
       <ScrollView
         contentContainerStyle={styles.content}

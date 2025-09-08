@@ -11,6 +11,7 @@ import {
 } from "react-native-paper";
 import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
 import { ThemeContext } from "../../context/themeContext";
+import useAuthStore from "../../store/useAuthStore";
 
 const options = [
   { key: "default", label: "Default (System)", icon: "theme-light-dark" },
@@ -19,6 +20,7 @@ const options = [
 ];
 
 export default function ThemeToggleScreen() {
+  const role = useAuthStore((s) => s.role);
   const { colors, fonts } = useTheme();
   const navigation = useNavigation();
   const screenBg = colors.background;
@@ -30,6 +32,7 @@ export default function ThemeToggleScreen() {
       <CenteredAppbarHeader
         title={"Change Theme Mode"}
         onBack={() => navigation.goBack()}
+        cartDisplay={role === "supervisor" ? false : true}
       />
 
       <View style={styles.content}>
