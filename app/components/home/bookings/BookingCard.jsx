@@ -133,7 +133,7 @@ const BookedServiceCard = ({ item, colors, fonts }) => {
               ]}
             >
               <Text style={[styles.statusText, { color: statusColor.text }]}>
-                {item.status}
+                {statusColor.label}
               </Text>
             </View>
           </View>

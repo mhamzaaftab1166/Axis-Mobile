@@ -4,8 +4,10 @@ import { FlatList, StyleSheet, View } from "react-native";
 import { useTheme } from "react-native-paper";
 import ButtonSegmented from "../../../../components/common/ButtonSegmented";
 import CenteredAppbarHeader from "../../../../components/common/CenteredAppBar";
+import EmptyComponent from "../../../../components/forms/EmptyComponent";
 import BookedServiceCard from "../../../../components/home/bookings/BookingCard";
 import LoadingOverlay from "../../../../components/LoadingOverlay";
+import { filterBookings } from "../../../../helpers/general";
 import { useGetMyServices } from "../../../../hooks/useBookingQuery";
 
 export default function BookingListing() {
@@ -15,19 +17,15 @@ export default function BookingListing() {
 
   const { data, isLoading: fetchingMyServices } = useGetMyServices();
 
-  console.log(JSON.stringify(data,null,2));
-
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <CenteredAppbarHeader
         title="My Bookings"
         onBack={() => navigation.goBack()}
       />  
-
       <LoadingOverlay visible={fetchingMyServices}/>
-
       <FlatList
-        data={data}
+        data={filterBookings(data,mode)}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <BookedServiceCard
@@ -38,7 +36,8 @@ export default function BookingListing() {
           />
         )}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[styles.list, { flexGrow: 1}]}
+        ListEmptyComponent={EmptyComponent}
         ListHeaderComponent={
           <View style={styles.header}>
             <ButtonSegmented

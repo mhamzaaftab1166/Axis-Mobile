@@ -11,15 +11,17 @@ export const getGreeting = () => {
 export function getStatusColor(status) {
   switch (status?.toLowerCase()) {
     case "pending":
-      return { bg: "#FFF3CD", text: "#856404" }; // light yellow bg, brown text
-    case "in progress":
-      return { bg: "#D1ECF1", text: "#0C5460" }; // light blue bg, dark blue text
+      return { bg: "#FFF3CD", text: "#856404", label: "Pending" }; // light yellow bg, brown text
+    case "inprogress":
+      return { bg: "#D1ECF1", text: "#00d18bff", label: "In Progress" }; // light blue bg, dark blue text
     case "completed":
-      return { bg: "#D4EDDA", text: "#155724" }; // light green bg, green text
+      return { bg: "#D4EDDA", text: "#155724", label: "Completed" }; // light green bg, green text
     case "terminated":
-      return { bg: "#E0E0E0", text: "#333" }; // gray
+      return { bg: "#E0E0E0", text: "#333", label: "Terminated"  }; // gray
     case "rejected":
-      return { bg: "#F8D7DA", text: "#721C24" }; // light red bg, red text
+      return { bg: "#F8D7DA", text: "#721C24", label: "Rejected"  }; // light red bg, red text
+      case "success":
+      return { bg: "#B8DAFF", text: "#004085", label: "Success" }; 
     default:
       return { bg: "#EEE", text: "#000" }; // fallback
   }
@@ -131,9 +133,7 @@ export const getScheduleText = (item) => {
   if (!item?.serviceTime) return "";
 
   if (item.serviceTime.mode === "oneTime") {
-    const dateObj = new Date(item.serviceTime.oneTimeDate);
-    const formattedDate = dateObj.toISOString().split("T")[0]; // yyyy-MM-dd
-    return `${formattedDate} • ${item.serviceTime.oneTimeTime}`;
+    return `${item.serviceTime.oneTimeDate} • ${item.serviceTime.oneTimeTime}`;
   }
 
   if (item.serviceTime.regular) {
@@ -301,3 +301,33 @@ function getServicePrice(service, unitCapacity = 1) {
 export const encryptCVV = (cvv,SECRET_KEY) => {
   return CryptoJS.AES.encrypt(cvv, SECRET_KEY).toString();
 };
+
+
+// filter services based on status
+export const filterBookings = (data, mode) => {
+  const UPCOMING_STATUSES = [
+    "inProgress",
+    "processing",
+    "requires_action",
+    "pending",
+    "confirmed",
+    "success"
+  ];
+
+  const PREVIOUS_STATUSES = [
+    "completed",
+    "cancelled",
+    "terminated",
+    "rejected",
+    "failed"
+  ];
+
+  return data?.filter(item => {
+    if (mode === "upcoming") {
+      return UPCOMING_STATUSES.includes(item.status);
+    } else if (mode === "previous") {
+      return PREVIOUS_STATUSES.includes(item.status);
+    }
+    return true;
+  });
+}

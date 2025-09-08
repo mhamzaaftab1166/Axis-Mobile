@@ -108,7 +108,7 @@ export default function BookedServiceDetail() {
             style={[styles.statusBadge, { backgroundColor: statusColor?.bg }]}
           >
             <Text style={[styles.statusText, { color: statusColor?.text }]}>
-              {service?.status}
+              {statusColor.label}
             </Text>
           </View>
         </View>
@@ -117,7 +117,6 @@ export default function BookedServiceDetail() {
           style={[styles.divider, { backgroundColor: colors.outlineVariant }]}
         />
 
-        {/* Services List */}
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
           Services
         </Text>
