@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { IconButton, Surface, useTheme } from "react-native-paper";
+import config from "../../../../config.json";
 import {
   getAddressText,
   getScheduleText,
@@ -72,7 +73,9 @@ const BookedServiceCard = ({ item, colors, fonts }) => {
                 ]}
               >
                 {srv.image ? (
-                  <Image source={srv.image} style={styles.serviceImage} />
+                  <Image source={{
+                    uri: `${config.pictureUrl}/${srv.image}`
+                  }} style={styles.serviceImage} />
                 ) : (
                   <View
                     style={[styles.serviceImage, styles.placeholderImage]}
@@ -125,7 +128,7 @@ const BookedServiceCard = ({ item, colors, fonts }) => {
                 styles.statusBadge,
                 {
                   backgroundColor: statusColor.bg,
-                  borderColor: statusColor.text, // border same as text color
+                  borderColor: statusColor.text,
                 },
               ]}
             >

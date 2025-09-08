@@ -5,22 +5,29 @@ import { useTheme } from "react-native-paper";
 import ButtonSegmented from "../../../../components/common/ButtonSegmented";
 import CenteredAppbarHeader from "../../../../components/common/CenteredAppBar";
 import BookedServiceCard from "../../../../components/home/bookings/BookingCard";
-import { bookedServices } from "../../../../helpers/contantData";
+import LoadingOverlay from "../../../../components/LoadingOverlay";
+import { useGetMyServices } from "../../../../hooks/useBookingQuery";
 
 export default function BookingListing() {
   const [mode, setMode] = useState("upcoming");
   const navigation = useNavigation();
   const { colors, fonts, dark } = useTheme();
 
+  const { data, isLoading: fetchingMyServices } = useGetMyServices();
+
+  console.log(JSON.stringify(data,null,2));
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <CenteredAppbarHeader
         title="My Bookings"
         onBack={() => navigation.goBack()}
-      />
+      />  
+
+      <LoadingOverlay visible={fetchingMyServices}/>
 
       <FlatList
-        data={bookedServices}
+        data={data}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <BookedServiceCard

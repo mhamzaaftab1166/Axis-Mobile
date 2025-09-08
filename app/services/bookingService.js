@@ -6,7 +6,7 @@ const bookService = async (data) => {
 };
 
 const fetchMyService = async () => {
-  return await _axios('get', 'v1/tenant/service/fetch-my-services');
+  return await _axios('get', 'v1/tenant/service/fetch-services');
 };
 
 const terminateService = async (id) => {

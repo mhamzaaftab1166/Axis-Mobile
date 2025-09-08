@@ -131,7 +131,9 @@ export const getScheduleText = (item) => {
   if (!item?.serviceTime) return "";
 
   if (item.serviceTime.mode === "oneTime") {
-    return `${item.serviceTime.oneTimeDate} • ${item.serviceTime.oneTimeTime}`;
+    const dateObj = new Date(item.serviceTime.oneTimeDate);
+    const formattedDate = dateObj.toISOString().split("T")[0]; // yyyy-MM-dd
+    return `${formattedDate} • ${item.serviceTime.oneTimeTime}`;
   }
 
   if (item.serviceTime.regular) {
@@ -139,13 +141,17 @@ export const getScheduleText = (item) => {
       item.serviceTime.regular;
 
     const daysText =
-      type === "all"
+      type === "everyday"
         ? "Daily"
         : selectedDays
             ?.map((d) => d.charAt(0).toUpperCase() + d.slice(1))
             .join(", ");
 
-    return `${daysText} • from ${startDate} ${startTime}`;
+    const startDateFormatted = startDate
+      ? new Date(startDate).toISOString().split("T")[0]
+      : null;
+
+    return `${daysText} • from ${startDateFormatted} ${startTime}`;
   }
 
   return "";
