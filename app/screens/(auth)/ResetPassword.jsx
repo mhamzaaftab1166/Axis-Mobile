@@ -1,16 +1,20 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { router, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useNavigation } from "expo-router";
+
+import { CommonActions } from "@react-navigation/native";
 import {
   Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { Text, useTheme } from "react-native-paper";
 import * as Yup from "yup";
 
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import AppErrorMessage from "../../components/forms/AppErrorMessage";
 import AppForm from "../../components/forms/AppForm";
@@ -37,28 +41,34 @@ const validationSchema = Yup.object().shape({
 
 export default function ResetPasswordScreen() {
   const { colors } = useTheme();
-
+  const navigation = useNavigation();
   const [error, setError] = useState("");
   const [isError, setIsError] = useState(false);
 
   const { email } = useLocalSearchParams();
 
-  const { mutate: updatePasswordReq, isPending: isUpdating } = useUpdatePassword({
-    onErrorCallback: (errMsg) => {
-      setError(errMsg);
-      setIsError(true);
-    },
-    onSuccessCallback: () => {
-      setError("");
-      setIsError(false);
-      router.replace(ROUTES.LOGIN);
-    }}
-  );
+  const { mutate: updatePasswordReq, isPending: isUpdating } =
+    useUpdatePassword({
+      onErrorCallback: (errMsg) => {
+        setError(errMsg);
+        setIsError(true);
+      },
+      onSuccessCallback: () => {
+        setError("");
+        setIsError(false);
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{ name: ROUTES.LOGIN }],
+          })
+        );
+      },
+    });
 
   const handleSubmit = (values) => {
     updatePasswordReq({
       email: email,
-      password: values.password
+      password: values.password,
     });
   };
 
@@ -71,6 +81,12 @@ export default function ResetPasswordScreen() {
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
+          <MaterialCommunityIcons name="arrow-left" size={24} color="white" />
+        </TouchableOpacity>
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
@@ -103,10 +119,12 @@ export default function ResetPasswordScreen() {
               onSubmit={handleSubmit}
               validationSchema={validationSchema}
             >
-              <View style={{
-                alignSelf: "center"
-              }}>
-                <AppErrorMessage visible={isError} error={error}/>
+              <View
+                style={{
+                  alignSelf: "center",
+                }}
+              >
+                <AppErrorMessage visible={isError} error={error} />
               </View>
               <AppFormField
                 name="password"
@@ -159,6 +177,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     opacity: 0.85,
   },
+  backButton: {
+    position: "absolute",
+    top: 40,
+    left: 20,
+    zIndex: 10,
+  },
+
   formCard: {
     borderRadius: 16,
     padding: 20,

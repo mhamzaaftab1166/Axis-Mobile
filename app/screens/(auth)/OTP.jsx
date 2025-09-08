@@ -1,5 +1,7 @@
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { CommonActions } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { Formik } from "formik";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -11,6 +13,7 @@ import {
   ScrollView,
   StyleSheet,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { Button, Text, useTheme } from "react-native-paper";
@@ -26,13 +29,12 @@ const validationSchema = Yup.object().shape({
 });
 
 export default function OtpVerificationScreen() {
-
-  const { email, resetPassword } = useLocalSearchParams();
+  const { email, resetPassword, register } = useLocalSearchParams();
   const { colors } = useTheme();
   const [otpError, setOtpError] = useState("");
   const inputs = useRef([]);
   const [focusedIndex, setFocusedIndex] = useState(-1);
-
+  const navigation = useNavigation();
   // error
   const [error, setError] = useState("");
   const [isError, setIsError] = useState(false);
@@ -92,15 +94,27 @@ export default function OtpVerificationScreen() {
       setError("");
       setIsError(false);
 
-      if(resetPassword){
+      if (resetPassword) {
         // if resetting go to reset pass page with email
-        router.push({
+        router.replace({
           pathname: ROUTES.RESET_PASS,
-          params: { email }, 
-        })
-      }else{
+          params: { email },
+        });
+      } else if (register) {
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{ name: ROUTES.LOGIN }],
+          })
+        );
+      } else {
         // go to login
-        router.replace(ROUTES.LOGIN);
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{ name: ROUTES.LOGIN }],
+          })
+        );
       }
     },
   });
@@ -112,15 +126,15 @@ export default function OtpVerificationScreen() {
       setOtpError("OTP must be exactly 6 digits");
       return;
     }
-    if(!email){
+    if (!email) {
       setOtpError("Email not available!");
       return;
     }
     verifyOtpReq({
       email,
-      otp: values.otp
+      otp: values.otp,
     });
-  }
+  };
 
   return (
     <LinearGradient
@@ -131,6 +145,12 @@ export default function OtpVerificationScreen() {
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
+          <MaterialCommunityIcons name="arrow-left" size={24} color="white" />
+        </TouchableOpacity>
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
@@ -146,7 +166,9 @@ export default function OtpVerificationScreen() {
               variant="bodyMedium"
               style={[styles.subText, { color: colors.onPrimary }]}
             >
-              Enter the 6-digit code sent to your mobile number.
+              {email
+                ? `Enter the 6-digit code sent to ${email}.`
+                : "Enter the 6-digit code sent to your mobile number."}
             </Text>
           </View>
 
@@ -155,7 +177,7 @@ export default function OtpVerificationScreen() {
           >
             <View
               style={{
-                alignSelf: "center"
+                alignSelf: "center",
               }}
             >
               <AppErrorMessage visible={isError} error={error} />
@@ -300,6 +322,13 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 6,
   },
+  backButton: {
+    position: "absolute",
+    top: 40,
+    left: 20,
+    zIndex: 10,
+  },
+
   subText: {
     textAlign: "center",
     fontSize: 14,

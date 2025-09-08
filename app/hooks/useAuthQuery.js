@@ -44,7 +44,7 @@ export const useRegisterQuery = ({
       if (response?.status === HttpStatusCode.Ok) {
         router.push({
           pathname: ROUTES.OTP,
-          params: { email: response?.data },
+          params: { email: response?.data, register: true },
         });
         onSuccessCallback?.();
       } else {

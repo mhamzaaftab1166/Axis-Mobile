@@ -51,6 +51,14 @@ export default function ForgotPasswordOptionsScreen() {
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
         >
+          {/* Back Button */}
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <MaterialCommunityIcons name="arrow-left" size={24} color="white" />
+          </TouchableOpacity>
+
           {/* Logo + Heading */}
           <View style={styles.logoContainer}>
             <Image
@@ -115,9 +123,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 30,
   },
+  backButton: {
+    position: "absolute",
+    top: 40,
+    left: 20,
+    zIndex: 10,
+  },
   logoContainer: {
     alignItems: "center",
     marginBottom: 30,
+    marginTop: 60,
   },
   logo: {
     width: 110,

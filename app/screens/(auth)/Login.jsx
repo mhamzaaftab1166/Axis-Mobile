@@ -42,12 +42,12 @@ export default function LoginScreen() {
       setIsError(false);
     },
   });
-  
+
   const handleSubmit = (values) => {
     loggingIn({
       email: values.email,
       password: values.password,
-      rememberMe: values.rememberMe
+      rememberMe: values.rememberMe,
     });
   };
 
@@ -92,9 +92,11 @@ export default function LoginScreen() {
               onSubmit={handleSubmit}
               validationSchema={validationSchema}
             >
-              <View style={{
-                alignSelf: "center",
-              }}>
+              <View
+                style={{
+                  alignSelf: "center",
+                }}
+              >
                 <AppErrorMessage visible={isError} error={error} />
               </View>
               <AppFormField
@@ -126,7 +128,7 @@ export default function LoginScreen() {
                 Don’t have an account?{" "}
                 <Text
                   style={{ color: colors.primary, fontWeight: "600" }}
-                  onPress={() => router.replace(ROUTES.REGISTER)}
+                  onPress={() => router.push(ROUTES.REGISTER)}
                 >
                   Sign up
                 </Text>

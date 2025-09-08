@@ -1,16 +1,19 @@
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { router } from "expo-router";
+import { useState } from "react";
 import {
   Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { Text, useTheme } from "react-native-paper";
 import * as Yup from "yup";
 
-import { useState } from "react";
 import AppErrorMessage from "../../components/forms/AppErrorMessage";
 import AppForm from "../../components/forms/AppForm";
 import AppFormField from "../../components/forms/AppFormFeild";
@@ -29,21 +32,20 @@ export default function ForgotByEmailScreen() {
   const [error, setError] = useState("");
   const [isError, setIsError] = useState(false);
 
-  const { mutate: resetPasswordRequest, isPending: isResetting } = useResetPasswordRequest({
-    onErrorCallback: (errMsg) => {
-      setError(errMsg);
-      setIsError(true);
-    },
-    onSuccessCallback: () => {
-      setError("");
-      setIsError(false);
-    }}
-  );
+  const { mutate: resetPasswordRequest, isPending: isResetting } =
+    useResetPasswordRequest({
+      onErrorCallback: (errMsg) => {
+        setError(errMsg);
+        setIsError(true);
+      },
+      onSuccessCallback: () => {
+        setError("");
+        setIsError(false);
+      },
+    });
 
   const handleSubmit = (values) => {
-    resetPasswordRequest({
-      email: values.email
-    });
+    resetPasswordRequest({ email: values.email });
   };
 
   return (
@@ -59,6 +61,15 @@ export default function ForgotByEmailScreen() {
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
         >
+          {/* Back Button */}
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <MaterialCommunityIcons name="arrow-left" size={24} color="white" />
+          </TouchableOpacity>
+
+          {/* Logo + Heading */}
           <View style={styles.logoContainer}>
             <Image
               source={require("../../../assets/images/icon.png")}
@@ -79,6 +90,7 @@ export default function ForgotByEmailScreen() {
             </Text>
           </View>
 
+          {/* Card */}
           <View
             style={[styles.formCard, { backgroundColor: colors.background }]}
           >
@@ -87,19 +99,16 @@ export default function ForgotByEmailScreen() {
               onSubmit={handleSubmit}
               validationSchema={validationSchema}
             >
-              <View style={{
-                alignSelf: "center"
-              }}>
-                <AppErrorMessage visible={isError} error={error}/>
-              </View>     
+              <View style={{ alignSelf: "center" }}>
+                <AppErrorMessage visible={isError} error={error} />
+              </View>
               <AppFormField
                 name="email"
-                placeholder="Email Your Email"
+                placeholder="Enter Your Email"
                 keyboardType="email-address"
                 autoCapitalize="none"
                 icon={"email-outline"}
               />
-
               <SubmitButton isLoading={isResetting} title="Next" />
             </AppForm>
           </View>
@@ -116,9 +125,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 30,
   },
+  backButton: {
+    position: "absolute",
+    top: 40,
+    left: 20,
+    zIndex: 10,
+  },
   logoContainer: {
     alignItems: "center",
     marginBottom: 30,
+    marginTop: 60,
   },
   logo: {
     width: 110,
@@ -143,15 +159,5 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
     elevation: 4,
-  },
-  forgotText: {
-    textAlign: "right",
-    marginTop: 7,
-    fontWeight: "600",
-  },
-  signupText: {
-    textAlign: "center",
-    marginTop: 20,
-    fontSize: 14,
   },
 });
