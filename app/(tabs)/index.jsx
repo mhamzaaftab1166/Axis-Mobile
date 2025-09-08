@@ -68,8 +68,7 @@ export default function Home() {
       <SafeAreaView
         style={[styles.safe, { backgroundColor: colors.background }]}
       >
-        {
-          role === "tenant" ?
+        {role === "tenant" ? (
           <>
             <ScrollView contentContainerStyle={styles.container}>
               <TouchableOpacity
@@ -96,7 +95,10 @@ export default function Home() {
                         style={{ marginRight: 6 }}
                       />
                       <Text
-                        style={[styles.addressText, { color: colors.onSurface }]}
+                        style={[
+                          styles.addressText,
+                          { color: colors.onSurface },
+                        ]}
                       >
                         {selectedAddress
                           ? `${selectedAddress?.towerId?.towerName || ""}, ${
@@ -122,7 +124,9 @@ export default function Home() {
                 onNotificationPress={() => router.push(ROUTES.NOTIFICATIONS)}
               />
               <GreetingHeader name={userData?.data?.user?.name} />
-              <InfoCard onBookService={() => router.push(ROUTES.BOOK_SERVICE)} />
+              <InfoCard
+                onBookService={() => router.push(ROUTES.BOOK_SERVICE)}
+              />
               <CategoryListing />
               <HomeServiceSection
                 title="Popular Services"
@@ -158,17 +162,12 @@ export default function Home() {
               }}
               onAdd={() => router.push(ROUTES.ADD_ADDRESS)}
             />
-          </> : 
+          </>
+        ) : (
           <ScrollView contentContainerStyle={styles.container}>
-            <Text 
-              style={{
-                color: "white"
-              }}
-            >
-              Supervisor Components Here
-            </Text>
+            <GreetingHeader name={userData?.data?.user?.name} />
           </ScrollView>
-        }
+        )}
       </SafeAreaView>
     </GestureHandlerRootView>
   );
