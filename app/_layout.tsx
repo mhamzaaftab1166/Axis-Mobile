@@ -1,4 +1,5 @@
 // RootLayout.tsx
+import { StripeProvider } from '@stripe/stripe-react-native';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import React, { useContext } from "react";
@@ -8,6 +9,7 @@ import { Provider as PaperProvider } from "react-native-paper";
 
 import { ThemeContext, ThemeProvider } from "./context/themeContext";
 import { darkTheme, lightTheme } from "./theme/theme";
+import stripeKey from "./utils/stripeKey";
 
 // ✅ Create a query client (do it outside to avoid re-creation on each render)
 const queryClient = new QueryClient();
@@ -36,13 +38,16 @@ function MainApp() {
 }
 
 export default function RootLayout() {
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <MainApp />
-        </ThemeProvider>
-      </QueryClientProvider>
+      <StripeProvider publishableKey={stripeKey.publishableKey} merchantIdentifier="merchant.com.SpiffyClean">
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider>
+            <MainApp />
+          </ThemeProvider>
+        </QueryClientProvider>
+      </StripeProvider>
     </GestureHandlerRootView>
   );
 }

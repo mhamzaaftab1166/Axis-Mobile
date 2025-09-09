@@ -5,9 +5,11 @@ import { Button, ProgressBar, useTheme } from "react-native-paper";
 import config from "../../../../config.json";
 import CenteredAppbarHeader from "../../../components/common/CenteredAppBar";
 import AppErrorMessage from "../../../components/forms/AppErrorMessage";
+import LoadingOverlay from "../../../components/LoadingOverlay";
 import { formatPayload } from "../../../helpers/general";
 import { ROUTES } from "../../../helpers/routePaths";
 import { useCreateBooking } from "../../../hooks/useBookingQuery";
+import { useStripeCancelledIntent, useStripeConfirmPayment } from "../../../hooks/useStripeQuery";
 import useAddressStore from "../../../store/useAddressStore";
 import useBookingStore from "../../../store/useBookingStore";
 import Step1 from "./Step1";
@@ -75,6 +77,8 @@ export default function AddPropertyWizard() {
 
   const [clientSecret, setClientSecret] = useState(null);
   const [paymentMethodId, setPaymentMethodId] = useState(null);
+  const [intentId, setIntentId] = useState(null);
+  const [isWorkingOnStripe, setIsWorkingOnStripe] = useState(false);
 
   const { mutate: bookMyService, isPending: isBooking } = useCreateBooking({
     onErrorCallback: (errMsg) => {
@@ -87,12 +91,47 @@ export default function AddPropertyWizard() {
       clearBooking();
       navigation.replace(ROUTES.HOME);
     },
-    onRequireAction: (clientSecret, methodId)=>{
+    onRequireAction: (clientSecret, methodId, intentId)=>{
       setShowOtpStep(true);
       setClientSecret(clientSecret);
       setPaymentMethodId(methodId);
+      setIntentId(intentId);
+      setIsError(false);
+      setError("");
     }
   });
+  
+  const { mutate: cancelIntent, isPending: cancellingIntent } = useStripeCancelledIntent({
+    onSuccessCallback: () => {
+      navigation.replace(ROUTES.HOME);
+    },
+    onErrorCallback: (msg) => {
+      setIsError(true);
+      setError(msg);
+    },
+  });
+
+  const { mutate: confirmPayment, isPending: isLoading  } = useStripeConfirmPayment({
+    onSuccessCallback: (intentId) => {
+      setIsWorkingOnStripe(false);
+      if(intentId){
+        cancelIntent({intentId});
+      }else{
+        navigation.replace(ROUTES.HOME);
+      }
+    },
+    onErrorCallback: (msg) => {
+      setIsError(true);
+      setError(msg);
+      console.error("Error:", msg);
+      setIsWorkingOnStripe(false);
+    },
+  });
+
+  const handleConfirmation = ()=>{
+    setIsWorkingOnStripe(true);
+    confirmPayment({clientSecret,pmtMethodId: paymentMethodId, intentId});
+  }
 
   const next = () => formRef.current?.submitForm();
   const back = () => {
@@ -121,6 +160,8 @@ export default function AddPropertyWizard() {
         barStyle={"light-content"}
         backgroundColor={colors.secondary}
       />
+
+      <LoadingOverlay visible={isLoading || cancellingIntent} />
 
       <CenteredAppbarHeader
         title={`Step ${step + 1} of ${TOTAL_STEPS}`}
@@ -152,6 +193,8 @@ export default function AddPropertyWizard() {
           isBooking={isBooking}
           ref={formRef} onSubmit={onStepSubmit} 
           requireAction={showOtpStep}
+          onConfirmPayment={handleConfirmation}
+          isWorkingOnStripe={isWorkingOnStripe}
         />}
       </Animated.View>
 

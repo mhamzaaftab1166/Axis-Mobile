@@ -11,7 +11,8 @@ import { useGetPaymentMethods } from "../../../hooks/usePaymetMethodQuery";
 import useAddressStore from "../../../store/useAddressStore";
 import useBookingStore from "../../../store/useBookingStore";
 
-const Step3 = forwardRef(function Step3({ onSubmit, requireAction, isBooking = false, onConfirmPayment = ()=>{}, onCanclePayment = ()=>{} }, ref) {
+const Step3 = forwardRef(function Step3({ onSubmit, requireAction, isBooking = false, onConfirmPayment = ()=>{},
+   isWorkingOnStripe }, ref) {
   const booking = useBookingStore((state) => state.booking);
   const { colors } = useTheme();
   const formikRef = useRef(null);
@@ -89,6 +90,7 @@ const Step3 = forwardRef(function Step3({ onSubmit, requireAction, isBooking = f
                 onPress={onConfirmPayment}
                 style={[styles.btn, { backgroundColor: colors.tertiary }]}
                 labelStyle={{ color: colors.onPrimary }}
+                loading={isWorkingOnStripe}
               >
                 Confirm Payment
               </Button>

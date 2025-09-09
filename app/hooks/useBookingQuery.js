@@ -43,7 +43,7 @@ export const useCreateBooking = ({
     mutationFn: (data) => bookService(data),
     onSuccess: (response) => {
       if (response?.status === HttpStatusCode.Ok) {
-        const outcome = response?.data?.data?.case;
+        const outcome = response?.data?.case;
 
         if (outcome === "success") {
           // ✅ successful payment
@@ -51,11 +51,11 @@ export const useCreateBooking = ({
           onSuccessCallback?.();
         } else if (outcome === "requires_action") {
           // ⚠️ requires OTP / 3DS
-          onRequireAction?.(response?.data?.payment?.clientSecret,response?.data?.payment?.paymentMethod);
+          onRequireAction?.(response?.data?.clientSecret,response?.data?.paymentMethod,response?.data?.intentId);
         } else if (outcome === "failed") {
           // ❌ failed
           onErrorCallback?.(
-            response?.data?.payment?.message || "Payment failed!"
+            response?.data?.message || "Payment failed!"
           );
         } else {
           // fallback

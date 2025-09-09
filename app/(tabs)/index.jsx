@@ -13,6 +13,7 @@ import { useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { MaterialIcons } from "@expo/vector-icons";
+import config from "../../config.json";
 import CustomDataTable from "../components/common/DataTable";
 import SearchWithDropdown from "../components/common/SeaarchBar";
 import AddressBottomSheet from "../components/home/AddressBottomSheet";
@@ -125,7 +126,7 @@ export default function Home() {
                 onNotificationPress={() => router.push(ROUTES.NOTIFICATIONS)}
               />
               <View style={{ height: 5 }} />
-              <Greetings name={userData?.data?.user?.name} />
+              <Greetings name={userData?.data?.user?.name} profilePic={`${config.pictureUrl}/${userData?.data?.user?.profileImage}`}/>
               <View style={{ height: 18 }} />
 
               <InfoCard

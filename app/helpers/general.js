@@ -20,8 +20,10 @@ export function getStatusColor(status) {
       return { bg: "#E0E0E0", text: "#333", label: "Terminated"  }; // gray
     case "rejected":
       return { bg: "#F8D7DA", text: "#721C24", label: "Rejected"  }; // light red bg, red text
-      case "success":
+    case "success":
       return { bg: "#B8DAFF", text: "#004085", label: "Success" }; 
+    case "paymentcancelled":
+      return { bg: "#F8D7DA", text: "#721C24", label: "Payment Cancelled"  }; // light red bg, red text
     default:
       return { bg: "#EEE", text: "#000" }; // fallback
   }
@@ -311,7 +313,7 @@ export const filterBookings = (data, mode) => {
     "requires_action",
     "pending",
     "confirmed",
-    "success"
+    "success",
   ];
 
   const PREVIOUS_STATUSES = [
@@ -319,7 +321,8 @@ export const filterBookings = (data, mode) => {
     "cancelled",
     "terminated",
     "rejected",
-    "failed"
+    "failed",
+    "paymentCancelled"
   ];
 
   return data?.filter(item => {
