@@ -13,6 +13,7 @@ export const ROUTES = {
   MY_ADDRESSES: "screens/(account)/MyAddressesList",
   ADD_ADDRESS: "screens/(account)/AddAddress",
   FAQ: "screens/(account)/FAQ",
+  LOYALTY_POINTS: "screens/(account)/LoyaltyPoints",
   LOGIN: "screens/(auth)/Login",
   REGISTER: "screens/(auth)/Signup",
   FORGOT_PASS_OPTION: "screens/(auth)/ForgotPasswordOption",

@@ -4,7 +4,7 @@ import { FlatList, StyleSheet, View } from "react-native";
 import { useTheme } from "react-native-paper";
 import ButtonSegmented from "../../../../components/common/ButtonSegmented";
 import CenteredAppbarHeader from "../../../../components/common/CenteredAppBar";
-import EmptyComponent from "../../../../components/forms/EmptyComponent";
+import EmptyComponent from "../../../../components/common/EmptyState";
 import BookedServiceCard from "../../../../components/home/bookings/BookingCard";
 import LoadingOverlay from "../../../../components/LoadingOverlay";
 import { filterBookings } from "../../../../helpers/general";
@@ -22,10 +22,10 @@ export default function BookingListing() {
       <CenteredAppbarHeader
         title="My Bookings"
         onBack={() => navigation.goBack()}
-      />  
-      <LoadingOverlay visible={fetchingMyServices}/>
+      />
+      <LoadingOverlay visible={fetchingMyServices} />
       <FlatList
-        data={filterBookings(data,mode)}
+        data={filterBookings(data, mode)}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <BookedServiceCard
@@ -36,7 +36,7 @@ export default function BookingListing() {
           />
         )}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.list, { flexGrow: 1}]}
+        contentContainerStyle={[styles.list, { flexGrow: 1 }]}
         ListEmptyComponent={EmptyComponent}
         ListHeaderComponent={
           <View style={styles.header}>

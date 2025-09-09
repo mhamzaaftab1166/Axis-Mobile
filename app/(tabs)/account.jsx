@@ -66,7 +66,12 @@ export default function AccountScreen() {
       icon: "credit-card-plus-outline",
       onPress: () => router.push(ROUTES.PAYMENT_METHODS),
     },
-
+    {
+      key: "loyalty",
+      label: "Loyalty Points",
+      icon: "star-outline",
+      onPress: () => router.push(ROUTES.LOYALTY_POINTS),
+    },
     {
       key: "faq",
       label: "Frequently Asked Questions",
@@ -95,7 +100,7 @@ export default function AccountScreen() {
       ? options
       : role === "supervisor"
       ? options.filter(
-          (opt) => !["addresses", "faq", "payment"].includes(opt.key)
+          (opt) => !["addresses", "faq", "payment", "loyalty"].includes(opt.key)
         )
       : options;
 
