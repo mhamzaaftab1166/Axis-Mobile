@@ -9,7 +9,7 @@ import {
   View,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { Surface, useTheme } from "react-native-paper";
+import { useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { MaterialIcons } from "@expo/vector-icons";
@@ -17,7 +17,7 @@ import CustomDataTable from "../components/common/DataTable";
 import SearchWithDropdown from "../components/common/SeaarchBar";
 import AddressBottomSheet from "../components/home/AddressBottomSheet";
 import CategoryListing from "../components/home/CategoriesListing";
-import GreetingHeader from "../components/home/GreetingsHeader";
+import Greetings from "../components/home/Greetings";
 import HomeServiceSection from "../components/home/HomePageServices";
 import InfoCard from "../components/home/InfoCard";
 import { serviceTableColumns, staticServiceData } from "../helpers/contantData";
@@ -26,13 +26,14 @@ import { useGetAllAddress } from "../hooks/useAddressQuery";
 import { useUserDetailQuery } from "../hooks/useAuthQuery";
 import { useFetchUnreadCount } from "../hooks/useNotificationQuery";
 import { useGetAllServices, useGetTopServices } from "../hooks/useServiceQuery";
+import SupervisorHomePage from "../screens/(home)/SupervisorHomePage";
 import HomeSkeleton from "../skeltons/HomeLoadingSkelton";
 import useAddressStore from "../store/useAddressStore";
 import useAuthStore from "../store/useAuthStore";
 
 export default function Home() {
   const [showSheet, setShowSheet] = useState(false);
-  const { colors, dark } = useTheme();
+  const { colors } = useTheme();
 
   const { userData, isLoading: fetchingUserData } = useUserDetailQuery();
   const { topServices, isLoading: fetchingTopServices } = useGetTopServices();
@@ -75,13 +76,13 @@ export default function Home() {
                 onPress={() => setShowSheet(true)}
                 activeOpacity={0.8}
               >
-                <Surface
+                <View
                   style={[
                     styles.addressCard,
                     {
                       backgroundColor: colors.surface,
                       elevation: 0,
-                      borderWidth: dark ? 1 : 0,
+                      borderWidth: 1,
                       borderColor: colors.outline,
                     },
                   ]}
@@ -115,15 +116,18 @@ export default function Home() {
                       color={colors.primary}
                     />
                   </View>
-                </Surface>
+                </View>
               </TouchableOpacity>
-
+              <View style={{ height: 5 }} />
               <SearchWithDropdown
                 suggestions={allServices ? allServices : []}
                 notificationCount={count ? count : ""}
                 onNotificationPress={() => router.push(ROUTES.NOTIFICATIONS)}
               />
-              <GreetingHeader name={userData?.data?.user?.name} />
+              <View style={{ height: 5 }} />
+              <Greetings name={userData?.data?.user?.name} />
+              <View style={{ height: 18 }} />
+
               <InfoCard
                 onBookService={() => router.push(ROUTES.BOOK_SERVICE)}
               />
@@ -165,7 +169,7 @@ export default function Home() {
           </>
         ) : (
           <ScrollView contentContainerStyle={styles.container}>
-            <GreetingHeader name={userData?.data?.user?.name} />
+            <SupervisorHomePage userData={userData} />
           </ScrollView>
         )}
       </SafeAreaView>
