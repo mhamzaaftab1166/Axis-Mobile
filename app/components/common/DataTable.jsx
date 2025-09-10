@@ -1,4 +1,3 @@
-import dayjs from "dayjs";
 import { useState } from "react";
 import { Text, View } from "react-native";
 import { Card, Chip, DataTable, useTheme } from "react-native-paper";
@@ -8,6 +7,7 @@ const STATUS_COLOR_MAP = {
   Success: { bg: "#D4EDDA", text: "#155724" },
   Failed: { bg: "#F8D7DA", text: "#721C24" },
   Upcoming: { bg: "#CCE5FF", text: "#004085" },
+  InProgress: { bg: "#CCE5FF", text: "#5bb16fff" },
 };
 
 const DEFAULT_ITEMS_PER_PAGE = 5;
@@ -18,6 +18,7 @@ export default function CustomDataTable({
   showPagination = true,
   itemsPerPage = DEFAULT_ITEMS_PER_PAGE,
 }) {
+
   const [page, setPage] = useState(0);
   const { colors, dark } = useTheme();
 
@@ -61,12 +62,13 @@ export default function CustomDataTable({
             {columns.map((col) => {
               const cellValue = item[col.key];
               let display = cellValue;
-
-              if (col.key === "date") {
-                display = dayjs(cellValue).format("D MMM");
-              } else if (col.key === "time") {
-                display = dayjs(`${item.date}T${item.time}`).format("h A");
-              } else if (col.key === "status") {
+              
+              if(col.key === "scheduledDate"){
+                if(cellValue !== undefined){
+                  const parts = cellValue?.split(" ");
+                  display = `${parts[0]} ${parts[1]}`;
+                }
+              }else if (col.key === "status") {
                 const statusColor = STATUS_COLOR_MAP[cellValue] || {
                   bg: "#E0E0E0",
                   text: "#000",

@@ -132,8 +132,9 @@ export const bookedServices = [
 ];
 
 export const serviceTableColumns = [
-  { title: "Date", key: "date" },
-  { title: "Time", key: "time" },
+  { title: "Day", key: "scheduledDay" },
+  { title: "Date", key: "scheduledDate" },
+  { title: "Time", key: "scheduledTime" },
   { title: "Status", key: "status" },
 ];
 

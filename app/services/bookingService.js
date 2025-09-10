@@ -13,5 +13,10 @@ const terminateService = async (id) => {
   return await _axios('get', 'v1/tenant/service/terminate-service');
 };
 
-export { bookService, fetchMyService, terminateService };
+const fetchSubService = async (serviceId) => {
+  return await _axios('get', `v1/tenant/service/fetch-sub-services/${serviceId}`);
+};
+
+
+export { bookService, fetchMyService, fetchSubService, terminateService };
 

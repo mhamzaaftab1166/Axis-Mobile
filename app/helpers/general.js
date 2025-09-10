@@ -148,12 +148,7 @@ export const getScheduleText = (item) => {
         : selectedDays
             ?.map((d) => d.charAt(0).toUpperCase() + d.slice(1))
             .join(", ");
-
-    const startDateFormatted = startDate
-      ? new Date(startDate).toISOString().split("T")[0]
-      : null;
-
-    return `${daysText} • from ${startDateFormatted} ${startTime}`;
+    return `${daysText} • from ${startDate} ${startTime}`;
   }
 
   return "";

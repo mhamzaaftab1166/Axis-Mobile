@@ -3,6 +3,7 @@ import { HttpStatusCode } from "axios";
 import {
   bookService,
   fetchMyService,
+  fetchSubService,
   terminateService
 } from "../services/bookingService";
 
@@ -103,4 +104,23 @@ export const useTerminateService = ({
       onErrorCallback?.(msg);
     },
   });
+};
+
+// =====================
+// Fetch My Services
+// =====================
+export const useGetSubServices = (serviceId) => {
+  const query = useQuery({
+    queryKey: ["subservices",serviceId],
+    queryFn: ()=>fetchSubService(serviceId),
+    staleTime: () => {},
+    enabled: !!serviceId,
+  });
+
+  return {
+    data: query?.data?.data,
+    isLoading: query.isLoading,
+    isError: query.isError,
+    error: query.error,
+  };
 };

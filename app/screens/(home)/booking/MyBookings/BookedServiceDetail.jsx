@@ -6,15 +6,16 @@ import { Appbar, Divider, Menu, Text, useTheme } from "react-native-paper";
 import ConfirmDialog from "../../../../components/common/ConfirmDialog";
 import CustomDataTable from "../../../../components/common/DataTable";
 import DetailItem from "../../../../components/home/bookings/DetailItem";
+import LoadingOverlay from "../../../../components/LoadingOverlay";
 import {
-  serviceTableColumns,
-  staticServiceData,
+  serviceTableColumns
 } from "../../../../helpers/contantData";
 import {
   getAddressTextDetail,
   getScheduleTextDetail,
   getStatusColor,
 } from "../../../../helpers/general";
+import { useGetSubServices } from "../../../../hooks/useBookingQuery";
 
 export default function BookedServiceDetail() {
   const { bookedService } = useLocalSearchParams();
@@ -59,9 +60,12 @@ export default function BookedServiceDetail() {
     0
   );
 
+  const { data: subServices, isLoading: fetchingSubs } = useGetSubServices(JSON.parse(bookedService)?.id);
+
   return (
     <View style={[styles.container, { backgroundColor: screenBg }]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.secondary} />
+      <LoadingOverlay  visible={fetchingSubs} />
       <Appbar.Header style={{ backgroundColor: colors.primary }}>
         <Appbar.BackAction
           onPress={() => router.back()}
@@ -215,7 +219,7 @@ export default function BookedServiceDetail() {
         </View>
 
         <CustomDataTable
-          data={staticServiceData}
+          data={subServices}
           columns={serviceTableColumns}
           showPagination={true}
         />
