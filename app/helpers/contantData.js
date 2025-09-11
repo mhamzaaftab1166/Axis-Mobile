@@ -170,3 +170,28 @@ export const staticServiceData = [
     status: "Pending",
   },
 ];
+
+export const SUB_SERVICES_STATUS_MAP = {
+  pending: { color: "#F57C00", icon: "clock-outline", label: "Pending" },
+  "in progress": {
+    color: "#1565C0",
+    icon: "progress-clock",
+    label: "In Progress",
+  },
+  completed: {
+    color: "#2E7D32",
+    icon: "check-circle-outline",
+    label: "Completed",
+  },
+  missed: { color: "#C62828", icon: "close-circle-outline", label: "Missed" },
+  cancelled: { color: "#9E9E9E", icon: "cancel", label: "Cancelled" },
+  default: { color: "#616161", icon: "circle-outline", label: "Unknown" },
+};
+
+export const SUB_SERVICES_AVAILABLE_STATUSES = [
+  "In Progress",
+  "Pending",
+  "Completed",
+  "Missed",
+  "Cancelled",
+];

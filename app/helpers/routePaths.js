@@ -28,4 +28,6 @@ export const ROUTES = {
     "screens/(home)/booking/MyBookings/BookedServiceDetail",
   SERVICE_LISTING: "screens/(home)/ServiceListing",
   SERVICE_LISTING_BY_CATEGORY: "screens/(home)/ServiceListingByCategory",
+  SUPERVSOR_COMPLETED_JOBS: "screens/(home)/supervisor/PreviousJobs",
+  SUPERVSOR_ASSIGNED_JOBS: "screens/(home)/supervisor/AsignedJobs",
 };

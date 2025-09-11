@@ -1,5 +1,6 @@
 import { FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
 import CryptoJS from "react-native-crypto-js";
+import { SUB_SERVICES_STATUS_MAP } from "./contantData";
 
 export const getGreeting = () => {
   const hour = new Date().getHours();
@@ -17,13 +18,13 @@ export function getStatusColor(status) {
     case "completed":
       return { bg: "#D4EDDA", text: "#155724", label: "Completed" }; // light green bg, green text
     case "terminated":
-      return { bg: "#E0E0E0", text: "#333", label: "Terminated"  }; // gray
+      return { bg: "#E0E0E0", text: "#333", label: "Terminated" }; // gray
     case "rejected":
-      return { bg: "#F8D7DA", text: "#721C24", label: "Rejected"  }; // light red bg, red text
+      return { bg: "#F8D7DA", text: "#721C24", label: "Rejected" }; // light red bg, red text
     case "success":
-      return { bg: "#B8DAFF", text: "#004085", label: "Success" }; 
+      return { bg: "#B8DAFF", text: "#004085", label: "Success" };
     case "paymentcancelled":
-      return { bg: "#F8D7DA", text: "#721C24", label: "Payment Cancelled"  }; // light red bg, red text
+      return { bg: "#F8D7DA", text: "#721C24", label: "Payment Cancelled" }; // light red bg, red text
     default:
       return { bg: "#EEE", text: "#000" }; // fallback
   }
@@ -208,12 +209,13 @@ export const formatAddressLabel = (addr) => {
   const parts = [];
   if (addr.blockId?.blockName) parts.push(addr.blockId.blockName);
   if (addr.floorId?.floorName) parts.push(addr.floorId.floorName);
-  if (addr.unitId?.unitName) parts.push(`${addr.unitId.unitName} - ${addr.unitId.unitCapacity} BHK`);
+  if (addr.unitId?.unitName)
+    parts.push(`${addr.unitId.unitName} - ${addr.unitId.unitCapacity} BHK`);
   const meta = parts.join(" • ");
   return { main: prop, meta };
 };
 
-export const buildServiceOptions = (services)=> {
+export const buildServiceOptions = (services) => {
   return Object.values(
     services.reduce((acc, service) => {
       const cat = service.category?.toLowerCase() || "unknown";
@@ -230,17 +232,22 @@ export const buildServiceOptions = (services)=> {
       return acc;
     }, {})
   );
-}
+};
 
-export const filterServices = (categories = [], services = [], searchText = "") => {
+export const filterServices = (
+  categories = [],
+  services = [],
+  searchText = ""
+) => {
   if (!Array.isArray(services)) return [];
 
-  const lowerCats = categories.map(c => c.toLowerCase());
+  const lowerCats = categories.map((c) => c.toLowerCase());
   const lowerSearch = searchText.trim().toLowerCase();
 
-  return services.filter(service => {
+  return services.filter((service) => {
     const matchesCategory =
-      lowerCats.length === 0 || lowerCats.includes(service.category?.toLowerCase());
+      lowerCats.length === 0 ||
+      lowerCats.includes(service.category?.toLowerCase());
 
     const matchesSearch =
       lowerSearch === "" || service.name?.toLowerCase().includes(lowerSearch);
@@ -265,21 +272,18 @@ export const formatPayload = (values, selectedAddress, encryptionKey) => {
   );
 
   return {
-    cvv: encryptCVV(values?.cvv,encryptionKey) || null,
-    selectedCard: values?.selectedCard
-      ? { id: values.selectedCard.id }
-      : null,
+    cvv: encryptCVV(values?.cvv, encryptionKey) || null,
+    selectedCard: values?.selectedCard ? { id: values.selectedCard.id } : null,
     selectedServices: values.selectedServices?.map((s) => ({ id: s.id })) || [],
     serviceTime: values.serviceTime,
     amount,
     tax,
     totalAmountAfterTax,
-    address: selectedAddress._id
+    address: selectedAddress._id,
   };
 };
 
 export const calculateTotals = (services, unitCapacity, taxRate = 5) => {
-
   const amount = services.reduce((sum, service) => {
     return sum + getServicePrice(service, unitCapacity);
   }, 0);
@@ -288,17 +292,16 @@ export const calculateTotals = (services, unitCapacity, taxRate = 5) => {
   const totalAmountAfterTax = amount + tax;
 
   return { amount, tax, totalAmountAfterTax };
-}
+};
 
 function getServicePrice(service, unitCapacity = 1) {
   if (!service.price) return 0;
   return service.price[`${unitCapacity} BHK`];
 }
 
-export const encryptCVV = (cvv,SECRET_KEY) => {
+export const encryptCVV = (cvv, SECRET_KEY) => {
   return CryptoJS.AES.encrypt(cvv, SECRET_KEY).toString();
 };
-
 
 // filter services based on status
 export const filterBookings = (data, mode) => {
@@ -317,10 +320,10 @@ export const filterBookings = (data, mode) => {
     "terminated",
     "rejected",
     "failed",
-    "paymentCancelled"
+    "paymentCancelled",
   ];
 
-  return data?.filter(item => {
+  return data?.filter((item) => {
     if (mode === "upcoming") {
       return UPCOMING_STATUSES.includes(item.status);
     } else if (mode === "previous") {
@@ -328,4 +331,12 @@ export const filterBookings = (data, mode) => {
     }
     return true;
   });
-}
+};
+
+export const getSubServiceStatusConfig = (status) => {
+  if (!status) return SUB_SERVICES_STATUS_MAP.default;
+  return (
+    SUB_SERVICES_STATUS_MAP[status.toLowerCase()] ||
+    SUB_SERVICES_STATUS_MAP.default
+  );
+};

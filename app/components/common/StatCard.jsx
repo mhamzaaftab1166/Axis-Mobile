@@ -1,14 +1,13 @@
-// components/StatCard.js
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Surface, useTheme } from "react-native-paper";
 
 const PRESETS = {
-  primary: { bg: "#EEF2FF", iconBg: "#6366F1", text: "#1F2937" }, // soft indigo bg, indigo icon
-  success: { bg: "#ECFDF5", iconBg: "#10B981", text: "#065F46" }, // green
-  warning: { bg: "#FFFBEB", iconBg: "#F59E0B", text: "#92400E" }, // amber
-  info: { bg: "#F0F9FF", iconBg: "#06B6D4", text: "#044E54" }, // teal
-  neutral: { bg: "#F3F4F6", iconBg: "#6B7280", text: "#111827" }, // gray
+  primary: { bg: "#EEF2FF", iconBg: "#6366F1", text: "#1F2937" },
+  success: { bg: "#ECFDF5", iconBg: "#10B981", text: "#065F46" },
+  warning: { bg: "#FFFBEB", iconBg: "#F59E0B", text: "#92400E" },
+  info: { bg: "#F0F9FF", iconBg: "#06B6D4", text: "#044E54" },
+  neutral: { bg: "#F3F4F6", iconBg: "#6B7280", text: "#111827" },
 };
 
 function StatCard({
@@ -47,40 +46,45 @@ function StatCard({
   return (
     <Container {...containerProps} style={[styles.wrapper, style]}>
       <Surface style={[styles.surface, { backgroundColor: cardBg }]}>
-        <View style={styles.contentRow}>
-          <View style={[styles.iconWrap, { backgroundColor: circleBg }]}>
-            {icon ? (
-              React.isValidElement(icon) ? (
-                icon
+        {/* Wrap content in a View for shadow + overflow handling */}
+        <View style={{ borderRadius: 14, overflow: "hidden" }}>
+          <View style={styles.contentRow}>
+            <View style={[styles.iconWrap, { backgroundColor: circleBg }]}>
+              {icon ? (
+                React.isValidElement(icon) ? (
+                  icon
+                ) : (
+                  <Text style={[styles.iconText, { color: "#fff" }]}>
+                    {icon}
+                  </Text>
+                )
               ) : (
-                <Text style={[styles.iconText, { color: "#fff" }]}>{icon}</Text>
-              )
-            ) : (
-              <Text style={[styles.iconText, { color: "#fff" }]}>
-                {label?.[0]?.toUpperCase() ?? "S"}
-              </Text>
-            )}
-          </View>
+                <Text style={[styles.iconText, { color: "#fff" }]}>
+                  {label?.[0]?.toUpperCase() ?? "S"}
+                </Text>
+              )}
+            </View>
 
-          <View style={styles.textWrap}>
-            <Text
-              numberOfLines={1}
-              style={[
-                styles.count,
-                { color: labelColor, fontFamily: fonts.medium?.fontFamily },
-              ]}
-            >
-              {formattedCount}
-            </Text>
-            <Text
-              numberOfLines={2}
-              style={[
-                styles.label,
-                { color: labelColor, fontFamily: fonts.regular?.fontFamily },
-              ]}
-            >
-              {label}
-            </Text>
+            <View style={styles.textWrap}>
+              <Text
+                numberOfLines={1}
+                style={[
+                  styles.count,
+                  { color: labelColor, fontFamily: fonts.medium?.fontFamily },
+                ]}
+              >
+                {formattedCount}
+              </Text>
+              <Text
+                numberOfLines={2}
+                style={[
+                  styles.label,
+                  { color: labelColor, fontFamily: fonts.regular?.fontFamily },
+                ]}
+              >
+                {label}
+              </Text>
+            </View>
           </View>
         </View>
       </Surface>
@@ -89,9 +93,7 @@ function StatCard({
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
-    width: "48%",
-  },
+  wrapper: { width: "48%" },
   surface: {
     borderRadius: 14,
     padding: 16,
@@ -100,13 +102,9 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.12,
     shadowRadius: 6,
-    overflow: "hidden",
+    // remove overflow here
   },
-  contentRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
+  contentRow: { flexDirection: "row", alignItems: "center", gap: 12 },
   iconWrap: {
     width: 48,
     height: 48,

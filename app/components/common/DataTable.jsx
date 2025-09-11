@@ -18,7 +18,6 @@ export default function CustomDataTable({
   showPagination = true,
   itemsPerPage = DEFAULT_ITEMS_PER_PAGE,
 }) {
-
   const [page, setPage] = useState(0);
   const { colors, dark } = useTheme();
 
@@ -62,13 +61,13 @@ export default function CustomDataTable({
             {columns.map((col) => {
               const cellValue = item[col.key];
               let display = cellValue;
-              
-              if(col.key === "scheduledDate"){
-                if(cellValue !== undefined){
+
+              if (col.key === "scheduledDate") {
+                if (cellValue !== undefined) {
                   const parts = cellValue?.split(" ");
                   display = `${parts[0]} ${parts[1]}`;
                 }
-              }else if (col.key === "status") {
+              } else if (col.key === "status") {
                 const statusColor = STATUS_COLOR_MAP[cellValue] || {
                   bg: "#E0E0E0",
                   text: "#000",
