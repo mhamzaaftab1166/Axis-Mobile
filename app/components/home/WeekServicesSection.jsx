@@ -155,12 +155,12 @@ export default function WeekServicesSection({ services }) {
                                 },
                               ]}
                             >
-                              {sub.id}
+                              {sub?.uniqueNumber}
                             </Text>
                             <Text
                               style={[styles.subtleText, { color: mutedText }]}
                             >
-                              Subservice
+                              {service.requestedService}
                             </Text>
                           </View>
                         </View>

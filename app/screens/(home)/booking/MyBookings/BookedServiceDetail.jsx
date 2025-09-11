@@ -60,7 +60,7 @@ export default function BookedServiceDetail() {
     0
   );
 
-  const { data: subServices, isLoading: fetchingSubs } = useGetSubServices(JSON.parse(bookedService)?.id);
+  const { data: subServices, isLoading: fetchingSubs } = useGetSubServices(service?.id);
 
   return (
     <View style={[styles.container, { backgroundColor: screenBg }]}>
@@ -75,20 +75,23 @@ export default function BookedServiceDetail() {
           title="Service Detail"
           titleStyle={{ color: colors.onPrimary, fontFamily: fonts.medium }}
         />
-        <Menu
-          visible={menuVisible}
-          onDismiss={closeMenu}
-          anchor={
-            <Appbar.Action
-              icon="dots-vertical"
-              color={colors.onPrimary}
-              onPress={openMenu}
-            />
-          }
-        >
-          <Menu.Item onPress={handleUpdate} title="Update" />
-          <Menu.Item onPress={openDialog} title="Terminate" />
-        </Menu>
+        {
+          service?.status !== "complete" &&
+          <Menu
+            visible={menuVisible}
+            onDismiss={closeMenu}
+            anchor={
+              <Appbar.Action
+                icon="dots-vertical"
+                color={colors.onPrimary}
+                onPress={openMenu}
+              />
+            }
+          >
+            <Menu.Item onPress={handleUpdate} title="Update" />
+            <Menu.Item onPress={openDialog} title="Terminate" />
+          </Menu>
+        }
       </Appbar.Header>
 
       <ScrollView contentContainerStyle={styles.scroll}>
@@ -214,7 +217,9 @@ export default function BookedServiceDetail() {
               },
             ]}
           >
-            Upcoming Services
+            {
+              service.status === "complete" ? "Services" : "Upcoming Services"
+            }
           </Text>
         </View>
 

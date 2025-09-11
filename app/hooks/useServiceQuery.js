@@ -6,14 +6,14 @@ import {
 import useAuthStore from "../store/useAuthStore";
 
 // 🔝 fetch top (popular) services
-export const useGetTopServices = () => {
+export const useGetTopServices = (role) => {
   const { token, hasHydrated } = useAuthStore();
 
   const query = useQuery({
     queryKey: ["top-services"],
     queryFn: () => fetchTopServices(),
     staleTime: () => {},
-    enabled: !!token && hasHydrated,
+    enabled: !!token && hasHydrated && role === "tenant",
   });
 
   return {
@@ -24,14 +24,14 @@ export const useGetTopServices = () => {
   };
 };
 
-export const useGetAllServices = () => {
+export const useGetAllServices = (role) => {
   const { token, hasHydrated } = useAuthStore();
 
   const query = useQuery({
     queryKey: ["all-services"],
     queryFn: () => fetchAllServices(),
     staleTime: () => {},
-    enabled: !!token && hasHydrated,
+    enabled: !!token && hasHydrated && role === "tenant",
   });
 
   return {

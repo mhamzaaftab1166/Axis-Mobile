@@ -19,50 +19,15 @@ import {
 } from "react-native-paper";
 import CenteredAppbarHeader from "../../../components/common/CenteredAppBar";
 
-import { SUB_SERVICES_AVAILABLE_STATUSES } from "../../../helpers/contantData";
-import { getSubServiceStatusConfig } from "../../../helpers/general";
-
-const SAMPLE_ASSIGNED = [
-  {
-    serviceNo: "2001",
-    id: "service-2001",
-    startDate: "12 September, 2025",
-    subServices: [
-      {
-        id: "AS-3001",
-        scheduledDate: "12 September, 2025",
-        time: "09:00",
-        status: "In Progress",
-      },
-      {
-        id: "AS-3002",
-        scheduledDate: "12 September, 2025",
-        time: "11:30",
-        status: "Pending",
-      },
-    ],
-  },
-  {
-    serviceNo: "2002",
-    id: "service-2002",
-    startDate: "13 September, 2025",
-    subServices: [
-      {
-        id: "AS-4001",
-        scheduledDate: "13 September, 2025",
-        time: "10:00",
-        status: "Pending",
-      },
-    ],
-  },
-];
+import { SUB_SERVICES_AVAILABLE_STATUSES, subServicesStatusGroups } from "../../../helpers/contantData";
+import { filterByStatus, getSubServiceStatusConfig } from "../../../helpers/general";
+import { useSupServicesStore } from "../../../store/useSupServicesStore";
 
 export default function AssignedJobs() {
   const navigation = useNavigation();
   const theme = useTheme();
   const { colors, dark, fonts } = theme;
 
-  const [services, setServices] = useState(SAMPLE_ASSIGNED);
   const [openDropdownFor, setOpenDropdownFor] = useState(null);
   const [snackbar, setSnackbar] = useState({ visible: false, message: "" });
 
@@ -72,6 +37,10 @@ export default function AssignedJobs() {
 
   const toggleDropdown = (subId) =>
     setOpenDropdownFor((prev) => (prev === subId ? null : subId));
+
+  const [services, setServices] = useState(
+    filterByStatus(useSupServicesStore((s) => s.services), subServicesStatusGroups.assigned)
+  );
 
   const handleChangeStatus = (serviceId, subId, newStatus) => {
     const normalizedStatus = newStatus.trim();
@@ -92,6 +61,8 @@ export default function AssignedJobs() {
       visible: true,
       message: `${subId} status updated to ${normalizedStatus}`,
     });
+
+    useSupServicesStore.getState().updateServiceStatus(serviceId, subId, normalizedStatus);
   };
 
   return (
@@ -116,10 +87,10 @@ export default function AssignedJobs() {
           services.map((service) => (
             <List.Section key={service.id} style={styles.serviceSection}>
               <List.Accordion
-                title={`Service No ${service.serviceNo}`}
+                title={`Service No ${service?.uniqueNumber}`}
                 description={
-                  service.startDate
-                    ? `Start Date • ${service.startDate}`
+                  service?.startDate
+                    ? `Start Date • ${service?.startDate}`
                     : undefined
                 }
                 titleStyle={[
@@ -179,7 +150,7 @@ export default function AssignedJobs() {
                                         },
                                       ]}
                                     >
-                                      {sub.id}
+                                      {sub?.uniqueNumber}
                                     </Text>
                                     <Text
                                       numberOfLines={1}

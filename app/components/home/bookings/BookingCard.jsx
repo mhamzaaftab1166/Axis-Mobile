@@ -60,6 +60,18 @@ const BookedServiceCard = ({ item, colors, fonts }) => {
             />
           </View>
 
+          <View style={styles.row}>
+            <Text
+              style={[
+                styles.property,
+                { fontFamily: fonts.bold?.fontFamily, color: colors.text },
+              ]}
+              numberOfLines={2}
+            >
+              Service Number: {item?.uniqueId}
+            </Text>
+          </View>
+
           <View style={styles.divider} />
 
           <View style={styles.servicesWrapper}>

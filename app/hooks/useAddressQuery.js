@@ -10,14 +10,14 @@ import {
 import useAuthStore from "../store/useAuthStore";
 
 // ✅ Get all addresses
-export const useGetAllAddress = () => {
+export const useGetAllAddress = (role) => {
   const { token, hasHydrated } = useAuthStore();
 
   const query = useQuery({
     queryKey: ["addresses"],
     queryFn: () => fetchAddress(),
     staleTime:()=>{},
-    enabled: !!token && hasHydrated,
+    enabled: !!token && hasHydrated && role === "tenant",
   });
 
   return {

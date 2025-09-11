@@ -17,6 +17,13 @@ const fetchSubService = async (serviceId) => {
   return await _axios('get', `v1/tenant/service/fetch-sub-services/${serviceId}`);
 };
 
+const fetchMyServices = async () => {
+  return await _axios('get', `v1/supervisor/service/fetch-services/`);
+};
 
-export { bookService, fetchMyService, fetchSubService, terminateService };
+const fetchSupServiceStats = async () => {
+  return await _axios('get', `v1/supervisor/service/service-stats/`);
+};
+
+export { bookService, fetchMyService, fetchMyServices, fetchSubService, fetchSupServiceStats, terminateService };
 

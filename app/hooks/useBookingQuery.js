@@ -1,15 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { HttpStatusCode } from "axios";
+import { useEffect } from "react";
 import {
   bookService,
   fetchMyService,
+  fetchMyServices,
   fetchSubService,
+  fetchSupServiceStats,
   terminateService
 } from "../services/bookingService";
-
 import useAuthStore from "../store/useAuthStore";
+import { useSupServicesStore } from "../store/useSupServicesStore";
 
-// =====================
+// =====================r
 // Fetch My Services
 // =====================
 export const useGetMyServices = () => {
@@ -115,6 +118,51 @@ export const useGetSubServices = (serviceId) => {
     queryFn: ()=>fetchSubService(serviceId),
     staleTime: () => {},
     enabled: !!serviceId,
+  });
+
+  return {
+    data: query?.data?.data,
+    isLoading: query.isLoading,
+    isError: query.isError,
+    error: query.error,
+  };
+};
+
+
+// =====================
+// Fetch My Services
+// =====================
+export const useGetSupServices = () => {
+  const setServices = useSupServicesStore((s) => s.setServices);
+
+  const query = useQuery({
+    queryKey: ["supervisor-services"],
+    queryFn: fetchMyServices,
+    staleTime: 1000 * 60 * 15,
+  });
+
+  useEffect(() => {
+    if (query.data) {
+      setServices(query.data?.data || []);
+    }
+  }, [query.data, setServices]);
+
+  return {
+    data: query?.data?.data,
+    isLoading: query.isLoading,
+    isError: query.isError,
+    error: query.error,
+  };
+};
+
+// =====================
+// Fetch My Stats
+// =====================
+export const useGetSupervisorStats = () => {
+  const query = useQuery({
+    queryKey: ["supervisor-stats"],
+    queryFn: fetchSupServiceStats,
+    staleTime: 1000 * 60 * 15,
   });
 
   return {

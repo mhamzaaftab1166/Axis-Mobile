@@ -37,9 +37,9 @@ export default function Home() {
   const { colors } = useTheme();
 
   const { userData, isLoading: fetchingUserData } = useUserDetailQuery();
-  const { topServices, isLoading: fetchingTopServices } = useGetTopServices();
-  const { allServices, isLoading: fetchingAllServices } = useGetAllServices();
-  const { allAddresses, isLoading: loadingAddress } = useGetAllAddress();
+  const { topServices, isLoading: fetchingTopServices } = useGetTopServices(userData?.data?.user?.role);
+  const { allServices, isLoading: fetchingAllServices } = useGetAllServices(userData?.data?.user?.role);
+  const { allAddresses, isLoading: loadingAddress } = useGetAllAddress(userData?.data?.user?.role);
 
   const { count, isLoading: gettingCount } = useFetchUnreadCount(
     userData?.data?.user?._id

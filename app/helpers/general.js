@@ -15,7 +15,7 @@ export function getStatusColor(status) {
       return { bg: "#FFF3CD", text: "#856404", label: "Pending" }; // light yellow bg, brown text
     case "inprogress":
       return { bg: "#D1ECF1", text: "#00d18bff", label: "In Progress" }; // light blue bg, dark blue text
-    case "completed":
+    case "complete":
       return { bg: "#D4EDDA", text: "#155724", label: "Completed" }; // light green bg, green text
     case "terminated":
       return { bg: "#E0E0E0", text: "#333", label: "Terminated" }; // gray
@@ -315,7 +315,7 @@ export const filterBookings = (data, mode) => {
   ];
 
   const PREVIOUS_STATUSES = [
-    "completed",
+    "complete",
     "cancelled",
     "terminated",
     "rejected",
@@ -339,4 +339,69 @@ export const getSubServiceStatusConfig = (status) => {
     SUB_SERVICES_STATUS_MAP[status.toLowerCase()] ||
     SUB_SERVICES_STATUS_MAP.default
   );
+};
+
+// get the next 6 days sub-services
+export const getNextWeekServices = (supervisorServices) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const sixDaysLater = new Date();
+  sixDaysLater.setDate(today.getDate() + 6);
+  sixDaysLater.setHours(23, 59, 59, 999);
+
+  return supervisorServices?.map((service) => {
+      const upcomingSubs = service.subServices
+        .filter((sub) => {
+          const subDate = new Date(sub.scheduledDate);
+          return subDate >= today && subDate <= sixDaysLater;
+        })
+        .map((sub) => ({
+          ...sub,
+          scheduledDate: new Date(sub.scheduledDate).toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          }),
+        }));
+
+      if (upcomingSubs.length > 0) {
+        return {
+          ...service,
+          subServices: upcomingSubs,
+        };
+      }
+      return null;
+    })
+    .filter(Boolean);
+};
+
+export const filterByStatus = (supervisorServices, statusFilter = []) => {
+  return supervisorServices
+    ?.map((service) => {
+      const filteredSubs = service.subServices
+        .filter((sub) => statusFilter.includes(sub.status))
+        .map((sub) => ({
+          ...sub,
+          scheduledDate: new Date(sub.scheduledDate).toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          }),
+        }));
+
+      if (filteredSubs.length > 0) {
+        return {
+          ...service,
+          startDate: new Date(service.startDate).toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          }),
+          subServices: filteredSubs,
+        };
+      }
+      return null;
+    })
+    .filter(Boolean);
 };

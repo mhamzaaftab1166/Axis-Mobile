@@ -1,6 +1,5 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "expo-router";
-import { useState } from "react";
 import {
   Platform,
   ScrollView,
@@ -10,65 +9,21 @@ import {
 } from "react-native";
 import { Avatar, List, Surface, Text, useTheme } from "react-native-paper";
 import CenteredAppbarHeader from "../../../components/common/CenteredAppBar";
-import { getSubServiceStatusConfig } from "../../../helpers/general";
-
-const SAMPLE_SERVICES = [
-  {
-    serviceNo: "1234",
-    id: "service-1234",
-    startDate: "10 September, 2025",
-    subServices: [
-      {
-        id: "SS-1001",
-        scheduledDate: "10 September, 2025",
-        time: "10:00",
-        status: "Completed",
-      },
-      {
-        id: "SS-1002",
-        scheduledDate: "10 September, 2025",
-        time: "12:00",
-        status: "Missed",
-      },
-      {
-        id: "SS-1003",
-        scheduledDate: "11 September, 2025",
-        time: "09:30",
-        status: "Cancelled",
-      },
-    ],
-  },
-  {
-    serviceNo: "1235",
-    id: "service-1235",
-    startDate: "09 September, 2025",
-    subServices: [
-      {
-        id: "SS-2001",
-        scheduledDate: "09 September, 2025",
-        time: "08:00",
-        status: "Completed",
-      },
-      {
-        id: "SS-2002",
-        scheduledDate: "09 September, 2025",
-        time: "14:00",
-        status: "Completed",
-      },
-    ],
-  },
-];
+import { subServicesStatusGroups } from "../../../helpers/contantData";
+import { filterByStatus, getSubServiceStatusConfig } from "../../../helpers/general";
+import { useSupServicesStore } from "../../../store/useSupServicesStore";
 
 export default function CompletedJobs() {
   const navigation = useNavigation();
   const theme = useTheme();
   const { colors, dark, fonts } = theme;
 
-  const [services] = useState(SAMPLE_SERVICES);
-
   const cardBackground = dark ? colors.surface : "#FFFFFF";
   const mutedText = dark ? "#AAB0B6" : "#6B7280";
   const surfaceElevation = Platform.OS === "android" ? 2 : 1;
+
+  const supervisorServices = useSupServicesStore((s)=>s.services);
+  const services = filterByStatus(supervisorServices,subServicesStatusGroups.previous);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -92,7 +47,7 @@ export default function CompletedJobs() {
           services.map((service) => (
             <List.Section key={service.id} style={styles.serviceSection}>
               <List.Accordion
-                title={`Service No ${service.serviceNo}`}
+                title={`Service No ${service.uniqueNumber}`}
                 description={
                   service.startDate
                     ? `Start Date • ${service.startDate}`
@@ -122,7 +77,6 @@ export default function CompletedJobs() {
                           { backgroundColor: cardBackground },
                         ]}
                       >
-                        {/* Inner wrapper for shadow + overflow handling */}
                         <View style={{ borderRadius: 14, overflow: "hidden" }}>
                           <TouchableOpacity
                             activeOpacity={0.85}
@@ -157,7 +111,7 @@ export default function CompletedJobs() {
                                       },
                                     ]}
                                   >
-                                    {sub.id}
+                                    {sub.uniqueNumber}
                                   </Text>
                                   <Text
                                     numberOfLines={1}
@@ -166,7 +120,7 @@ export default function CompletedJobs() {
                                       { color: mutedText },
                                     ]}
                                   >
-                                    Subservice
+                                    {service.requestedService}
                                   </Text>
                                 </View>
                               </View>
