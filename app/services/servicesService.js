@@ -9,5 +9,9 @@ const fetchAllServices = async () => {
   return await _axios('get', 'v1/tenant/services/get-all-services');
 };
 
-export { fetchAllServices, fetchTopServices };
+const fetchMyUpcomingSubs = async () => {
+  return await _axios('get', 'v1/tenant/services/sub-services');
+};
+
+export { fetchAllServices, fetchMyUpcomingSubs, fetchTopServices };
 

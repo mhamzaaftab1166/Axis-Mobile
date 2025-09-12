@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   fetchAllServices,
-  fetchTopServices,
+  fetchMyUpcomingSubs,
+  fetchTopServices
 } from "../services/servicesService";
 import useAuthStore from "../store/useAuthStore";
 
@@ -36,6 +37,24 @@ export const useGetAllServices = (role) => {
 
   return {
     allServices: query?.data?.data,
+    isLoading: query.isLoading,
+    isError: query.isError,
+    error: query.error,
+  };
+};
+
+export const useGetUpcomingSubServices = (role) => {
+  const { token, hasHydrated } = useAuthStore();
+
+  const query = useQuery({
+    queryKey: ["upcoming-subs"],
+    queryFn: () => fetchMyUpcomingSubs(),
+    staleTime: 1000 * 60 * 15,
+    enabled: !!token && hasHydrated && role === "tenant",
+  });
+
+  return {
+    allSubs: query?.data?.data,
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,

@@ -7,24 +7,20 @@ import Greetings from "../../components/home/Greetings";
 import WeekServicesSection from "../../components/home/WeekServicesSection";
 import { getNextWeekServices } from "../../helpers/general";
 import { ROUTES } from "../../helpers/routePaths";
-import {
-  useGetSupervisorStats,
-  useGetSupServices,
-} from "../../hooks/useBookingQuery";
+import { useGetSupervisorStats, useGetSupServices } from "../../hooks/useBookingQuery";
 import SupervisorHomeSkeleton from "../../skeltons/SupervisorHomeLoadingSkelton";
 import { useSupServicesStore } from "../../store/useSupServicesStore";
 
 const SupervisorHomePage = ({ userData }) => {
   // stats
-  const { data: myStatsData, isLoading: fetchingStats } =
-    useGetSupervisorStats();
+  const { data: myStatsData, isLoading: fetchingStats } = useGetSupervisorStats();
 
   // loading flag
   const { isLoading: fetchingSupervisorServices } = useGetSupServices();
   const supervisorServices = useSupServicesStore((s) => s.services);
   const filtered = getNextWeekServices(supervisorServices);
 
-  if (1 === 1) return <SupervisorHomeSkeleton />;
+  if (fetchingStats || fetchingSupervisorServices) return <SupervisorHomeSkeleton />;
   return (
     <View style={{ flex: 1 }}>
       <Greetings

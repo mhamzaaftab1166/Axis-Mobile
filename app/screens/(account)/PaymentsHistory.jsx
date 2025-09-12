@@ -16,63 +16,13 @@ import {
   openPaymentHistoryReceipt,
   paymentHistoryStatusConfig,
 } from "../../helpers/general";
-
+import { useGetMyPaymentHistory } from "../../hooks/usePaymentHistoryQuery";
+ 
 export default function PaymentsHistoryScreen() {
   const { colors, fonts, dark } = useTheme();
   const navigation = useNavigation();
 
-  const payments = [
-    {
-      id: "p_001",
-      services: ["Home Cleaning", "Window Wash"],
-      amount: 272.5,
-      currency: "AED",
-      paidAt: "11 September, 2025 • 10:30",
-      paymentStatus: "succeeded",
-      notes: "Paid via card ending 4242",
-      receiptUrl: "https://example.com/receipt/p_001",
-    },
-    {
-      id: "p_002",
-      services: ["AC Service"],
-      amount: 145.0,
-      currency: "AED",
-      paidAt: "21 August, 2025 • 21:15",
-      paymentStatus: "paymentFailed",
-      notes: "Card declined by issuer",
-      receiptUrl: null,
-    },
-    {
-      id: "p_003",
-      services: ["Deep Cleaning"],
-      amount: 420.0,
-      currency: "AED",
-      paidAt: "02 July, 2025 • 14:00",
-      paymentStatus: "canceled",
-      notes: "Canceled by user",
-      receiptUrl: "https://example.com/receipt/p_003",
-    },
-    {
-      id: "p_004",
-      services: ["Carpet Shampoo", "Sofa Cleaning"],
-      amount: 189.99,
-      currency: "AED",
-      paidAt: "15 June, 2025 • 11:45",
-      paymentStatus: "processing",
-      notes: "",
-      receiptUrl: null,
-    },
-    {
-      id: "p_005",
-      services: [],
-      amount: 15.0,
-      currency: "AED",
-      paidAt: "01 May, 2025 • 08:00",
-      paymentStatus: "requires_payment_method",
-      notes: "Awaiting card details",
-      receiptUrl: null,
-    },
-  ];
+  const { data: payments, isLoading: fetchingHistory } = useGetMyPaymentHistory();
 
   return (
     <View style={[styles.safe, { backgroundColor: colors.background }]}>
@@ -90,14 +40,14 @@ export default function PaymentsHistoryScreen() {
             Payment History
           </Text>
           <Text style={{ color: colors.placeholder }}>
-            {payments.length} records
+            {payments?.length} records
           </Text>
         </View>
 
         <ScrollView
           contentContainerStyle={[
             { padding: 16, paddingBottom: 96 },
-            payments.length === 0 && {
+            payments?.length === 0 && {
               flex: 1,
               justifyContent: "center",
               alignItems: "center",
@@ -105,13 +55,13 @@ export default function PaymentsHistoryScreen() {
           ]}
           showsVerticalScrollIndicator={false}
         >
-          {payments.length === 0 ? (
+          {payments?.length === 0 ? (
             <EmptyState
               title="No payments found. "
               description="Your transactions will appear here."
             />
           ) : (
-            payments.map((item) => {
+            payments?.map((item) => {
               const cfg = paymentHistoryStatusConfig(item.paymentStatus);
               return (
                 <View

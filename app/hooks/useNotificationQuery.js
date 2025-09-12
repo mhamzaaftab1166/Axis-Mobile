@@ -12,6 +12,7 @@ export const useFetchNotifications = (indieId) => {
     queryKey: ["notifications", indieId],
     queryFn: () => fetchInboxNotifications(indieId),
     enabled: !!indieId,
+    retryDelay: (attempt) => 300000 * attempt
   });
 
   return {
@@ -59,7 +60,7 @@ export const useFetchUnreadCount = (indieId) => {
     queryKey: ["unreadCount", indieId],
     queryFn: () => fetchUnreadNotificationCount(indieId),
     enabled: !!indieId,
-    refetchInterval: 10000,
+    refetchInterval: 100000,
   });
 
   return {

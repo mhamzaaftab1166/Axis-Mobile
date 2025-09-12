@@ -21,12 +21,12 @@ import CategoryListing from "../components/home/CategoriesListing";
 import Greetings from "../components/home/Greetings";
 import HomeServiceSection from "../components/home/HomePageServices";
 import InfoCard from "../components/home/InfoCard";
-import { serviceTableColumns, staticServiceData } from "../helpers/contantData";
+import { serviceTableColumns } from "../helpers/contantData";
 import { ROUTES } from "../helpers/routePaths";
 import { useGetAllAddress } from "../hooks/useAddressQuery";
 import { useUserDetailQuery } from "../hooks/useAuthQuery";
 import { useFetchUnreadCount } from "../hooks/useNotificationQuery";
-import { useGetAllServices, useGetTopServices } from "../hooks/useServiceQuery";
+import { useGetAllServices, useGetTopServices, useGetUpcomingSubServices } from "../hooks/useServiceQuery";
 import SupervisorHomePage from "../screens/(home)/SupervisorHomePage";
 import HomeSkeleton from "../skeltons/HomeLoadingSkelton";
 import useAddressStore from "../store/useAddressStore";
@@ -51,6 +51,8 @@ export default function Home() {
     userData?.data?.user?._id
   );
 
+  const { allSubs, isLoading: fetchingSubs } = useGetUpcomingSubServices(userData?.data?.user?.role);
+
   const selectedAddress = useAddressStore((s) => s.selectedAddress);
   const setAddress = useAddressStore((s) => s.setAddress);
   const ensureDefault = useAddressStore((s) => s.ensureDefault);
@@ -67,7 +69,8 @@ export default function Home() {
       gettingCount ||
       fetchingUserData ||
       fetchingTopServices ||
-      loadingAddress) &&
+      loadingAddress ||
+      fetchingSubs) &&
     role === "tenant"
   )
     return <HomeSkeleton />;
@@ -160,7 +163,7 @@ export default function Home() {
                 </Text>
               </View>
               <CustomDataTable
-                data={staticServiceData}
+                data={allSubs}
                 columns={serviceTableColumns}
                 showPagination={true}
               />

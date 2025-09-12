@@ -1,5 +1,5 @@
 const stripeKey = {
-  publishableKey: "pick the publish key from .env"
+  publishableKey: "//"
 };
 
 export default stripeKey;

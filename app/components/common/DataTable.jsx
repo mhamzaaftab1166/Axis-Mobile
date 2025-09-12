@@ -7,7 +7,10 @@ const STATUS_COLOR_MAP = {
   Success: { bg: "#D4EDDA", text: "#155724" },
   Failed: { bg: "#F8D7DA", text: "#721C24" },
   Upcoming: { bg: "#CCE5FF", text: "#004085" },
-  InProgress: { bg: "#CCE5FF", text: "#5bb16fff" },
+  InProgress: { bg: "#CCE5FF", text: "#356941ff" },
+  Completed: { bg: "#CCE5FF", text: "#5bb16fff" },
+  Missed: { bg: "#CCE5FF", text: "#721C24" },
+  Cancelled: { bg: "#CCE5FF", text: "#181616ff" },
 };
 
 const DEFAULT_ITEMS_PER_PAGE = 5;
@@ -62,7 +65,9 @@ export default function CustomDataTable({
               const cellValue = item[col.key];
               let display = cellValue;
 
-              if (col.key === "scheduledDate") {
+              if (col.key === "scheduledDay") {
+                display = cellValue.toUpperCase();
+              }else if (col.key === "scheduledDate") {
                 if (cellValue !== undefined) {
                   const parts = cellValue?.split(" ");
                   display = `${parts[0]} ${parts[1]}`;

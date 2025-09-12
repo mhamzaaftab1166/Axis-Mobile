@@ -7,7 +7,8 @@ import {
   fetchMyServices,
   fetchSubService,
   fetchSupServiceStats,
-  terminateService
+  terminateService,
+  updateSubService
 } from "../services/bookingService";
 import useAuthStore from "../store/useAuthStore";
 import { useSupServicesStore } from "../store/useSupServicesStore";
@@ -171,4 +172,27 @@ export const useGetSupervisorStats = () => {
     isError: query.isError,
     error: query.error,
   };
+};
+
+// =====================
+// Update a Sub-Service
+// =====================
+export const useUpdateSubServiceStatus = ({ onSuccessCallback, onErrorCallback } = {}) => {
+  return useMutation({
+    mutationFn: (data) => updateSubService(data),
+    onSuccess: (response, variables) => {
+      if (response?.status === HttpStatusCode.Ok) {
+        onSuccessCallback?.(variables);
+      } else {
+        onErrorCallback?.(response?.error || "Failed to update sub-service status");
+      }
+    },
+    onError: (error) => {
+      const msg =
+        error?.response?.data?.error ||
+        error?.message ||
+        "Something went wrong";
+      onErrorCallback?.(msg);
+    },
+  });
 };

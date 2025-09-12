@@ -21,6 +21,7 @@ import CenteredAppbarHeader from "../../../components/common/CenteredAppBar";
 
 import { SUB_SERVICES_AVAILABLE_STATUSES, subServicesStatusGroups } from "../../../helpers/contantData";
 import { filterByStatus, getSubServiceStatusConfig } from "../../../helpers/general";
+import { useUpdateSubServiceStatus } from "../../../hooks/useBookingQuery";
 import { useSupServicesStore } from "../../../store/useSupServicesStore";
 
 export default function AssignedJobs() {
@@ -34,35 +35,51 @@ export default function AssignedJobs() {
   const cardBackground = dark ? colors.surface : "#FFFFFF";
   const mutedText = dark ? "#AAB0B6" : "#6B7280";
   const surfaceElevation = Platform.OS === "android" ? 2 : 1;
+  const [error, setError] = useState("");
+  const [isError, setIsError] = useState(false);
 
   const toggleDropdown = (subId) =>
     setOpenDropdownFor((prev) => (prev === subId ? null : subId));
+
+  const { mutate: updateStatus, isPending: updatingStatus } = useUpdateSubServiceStatus({
+    onErrorCallback: (errMsg) => {
+      setError(errMsg);
+      setIsError(true);
+    },
+    onSuccessCallback: (data) => {
+      setError("");
+      setIsError(false);
+
+      setOpenDropdownFor(null);
+      setSnackbar({
+        visible: true,
+        message: `${data?.subId} status updated to ${data?.newStatus}`,
+      });
+
+      setServices((prev) =>
+        prev.map((svc) =>
+          svc.id !== data?.serviceId
+            ? svc
+            : {
+                ...svc,
+                subServices: svc.subServices.map((s) =>
+                  s.id !== data?.subId ? s : { ...s, status: data?.newStatus }
+                ),
+              }
+        )
+      );
+      useSupServicesStore.getState().updateServiceStatus(data?.serviceId, data?.subId, data?.newStatus);
+    },
+  });
 
   const [services, setServices] = useState(
     filterByStatus(useSupServicesStore((s) => s.services), subServicesStatusGroups.assigned)
   );
 
   const handleChangeStatus = (serviceId, subId, newStatus) => {
-    const normalizedStatus = newStatus.trim();
-    setServices((prev) =>
-      prev.map((svc) =>
-        svc.id !== serviceId
-          ? svc
-          : {
-              ...svc,
-              subServices: svc.subServices.map((s) =>
-                s.id !== subId ? s : { ...s, status: normalizedStatus }
-              ),
-            }
-      )
-    );
-    setOpenDropdownFor(null);
-    setSnackbar({
-      visible: true,
-      message: `${subId} status updated to ${normalizedStatus}`,
+    updateStatus({
+      serviceId, subId, newStatus: newStatus.trim()
     });
-
-    useSupServicesStore.getState().updateServiceStatus(serviceId, subId, normalizedStatus);
   };
 
   return (

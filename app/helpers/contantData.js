@@ -25,39 +25,6 @@ export const serviceTableColumns = [
   { title: "Status", key: "status" },
 ];
 
-export const staticServiceData = [
-  {
-    id: "2",
-    date: "2025-08-06",
-    time: "14:30",
-    status: "Success",
-  },
-  {
-    id: "3",
-    date: "2025-08-08",
-    time: "12:00",
-    status: "Failed",
-  },
-  {
-    id: "4",
-    date: "2025-08-10",
-    time: "16:00",
-    status: "Upcoming",
-  },
-  {
-    id: "5",
-    date: "2025-08-10",
-    time: "16:00",
-    status: "Pending",
-  },
-  {
-    id: "1",
-    date: "2025-08-05",
-    time: "09:00",
-    status: "Pending",
-  },
-];
-
 export const SUB_SERVICES_STATUS_MAP = {
   pending: { color: "#F57C00", icon: "clock-outline", label: "Pending" },
   inprogress: {
@@ -86,5 +53,5 @@ export const SUB_SERVICES_AVAILABLE_STATUSES = [
 
 export const subServicesStatusGroups = {
   previous: ["Completed", "Missed", "Cancelled", "Failed"],
-  assigned: ["Pending", "Upcoming", "In Progress"],
+  assigned: ["Pending", "Upcoming", "InProgress"],
 };
