@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
-import { StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import {
   Avatar,
   Divider,
@@ -67,6 +67,12 @@ export default function AccountScreen() {
       onPress: () => router.push(ROUTES.PAYMENT_METHODS),
     },
     {
+      key: "paymentHistory",
+      label: "Payment History",
+      icon: "history",
+      onPress: () => router.push(ROUTES.PAYMENT_HISTORY),
+    },
+    {
       key: "loyalty",
       label: "Loyalty Points",
       icon: "star-outline",
@@ -95,20 +101,47 @@ export default function AccountScreen() {
     },
   ];
 
-  const filteredOptions =
+  const isVisible = (opt) =>
     role === "tenant"
-      ? options
+      ? true
       : role === "supervisor"
-      ? options.filter(
-          (opt) => !["addresses", "faq", "payment", "loyalty"].includes(opt.key)
+      ? !["addresses", "faq", "payment", "loyalty", "paymentHistory"].includes(
+          opt.key
         )
-      : options;
+      : true;
+
+  const groupsDefinition = [
+    {
+      key: "account",
+      title: "Account",
+      keys: ["profile", "notifications", "addresses", "settings"],
+    },
+    {
+      key: "payments",
+      title: "Payments",
+      keys: ["payment", "paymentHistory", "loyalty"],
+    },
+    { key: "support", title: "Support", keys: ["faq"] },
+    { key: "preferences", title: "Preferences", keys: ["theme"] },
+    { key: "danger", title: "", keys: ["logout"] },
+  ];
+
+  const grouped = groupsDefinition
+    .map((g) => {
+      const items = g.keys
+        .map((k) => options.find((o) => o.key === k))
+        .filter(Boolean)
+        .filter(isVisible);
+      return { ...g, items };
+    })
+    .filter((g) => g.items.length > 0);
 
   if (gettingCount || fetchingUserData) return <AccountSkeleton />;
+
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: screenBg }]}>
       <View style={styles.container}>
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.surface }]}>
           <Avatar.Image
             size={64}
             source={{
@@ -135,64 +168,84 @@ export default function AccountScreen() {
           style={{ height: 0.5, backgroundColor: colors.outlineVariant }}
         />
 
-        {/* Options */}
-        <View style={styles.options}>
-          {filteredOptions.map((opt, idx) => (
-            <React.Fragment key={opt.key}>
-              <TouchableRipple onPress={opt.onPress}>
-                <View style={styles.optionRow}>
-                  <MaterialCommunityIcons
-                    name={opt.icon}
-                    size={24}
-                    color={iconColor}
-                    style={styles.optionIcon}
-                  />
-
-                  <View
-                    style={{
-                      flex: 1,
-                      flexDirection: "row",
-                      alignItems: "center",
-                    }}
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={{ paddingBottom: 88 }}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.options}>
+            {grouped.map((group, gi) => (
+              <View key={group.key} style={[gi > 0 && styles.groupGap]}>
+                {group.title ? (
+                  <Text
+                    variant="bodySmall"
+                    style={[
+                      styles.sectionHeader,
+                      { color: colors.placeholder, fontFamily: fonts.medium },
+                    ]}
                   >
-                    <Text
-                      variant="bodyMedium"
-                      style={[
-                        styles.optionLabel,
-                        { color: textColor, fontFamily: fonts.regular },
-                      ]}
-                    >
-                      {opt.label}
-                    </Text>
-                    {opt.count > 0 && (
-                      <View style={styles.badge}>
-                        <Text style={styles.badgeText}>{opt.count}</Text>
-                      </View>
-                    )}
-                  </View>
+                    {group.title}
+                  </Text>
+                ) : null}
 
-                  <MaterialCommunityIcons
-                    name="chevron-right"
-                    size={24}
-                    color={colors.placeholder}
-                  />
-                </View>
-              </TouchableRipple>
-              {idx < options.length - 1 && (
-                <Divider
-                  style={{
-                    height: 0.5,
-                    backgroundColor: colors.outlineVariant,
-                  }}
-                />
-              )}
-            </React.Fragment>
-          ))}
-        </View>
+                {group.items.map((opt, idx) => (
+                  <React.Fragment key={opt.key}>
+                    <TouchableRipple onPress={opt.onPress}>
+                      <View style={styles.optionRow}>
+                        <MaterialCommunityIcons
+                          name={opt.icon}
+                          size={24}
+                          color={iconColor}
+                          style={styles.optionIcon}
+                        />
+                        <View
+                          style={{
+                            flex: 1,
+                            flexDirection: "row",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Text
+                            variant="bodyMedium"
+                            style={[
+                              styles.optionLabel,
+                              { color: textColor, fontFamily: fonts.regular },
+                            ]}
+                          >
+                            {opt.label}
+                          </Text>
+                          {Number(opt.count) > 0 && (
+                            <View style={styles.badge}>
+                              <Text style={styles.badgeText}>{opt.count}</Text>
+                            </View>
+                          )}
+                        </View>
+
+                        <MaterialCommunityIcons
+                          name="chevron-right"
+                          size={24}
+                          color={colors.placeholder}
+                        />
+                      </View>
+                    </TouchableRipple>
+
+                    {idx < group.items.length - 1 && (
+                      <Divider
+                        style={{
+                          height: 0.5,
+                          backgroundColor: colors.outlineVariant,
+                        }}
+                      />
+                    )}
+                  </React.Fragment>
+                ))}
+              </View>
+            ))}
+          </View>
+        </ScrollView>
       </View>
 
-      {/* Footer */}
-      <View style={styles.footer}>
+      <View style={[styles.footer, { backgroundColor: screenBg }]}>
         <Text variant="bodySmall" style={{ color: colors.placeholder }}>
           Axis v1.1
         </Text>
@@ -202,42 +255,28 @@ export default function AccountScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-    padding: 16,
-  },
+  safe: { flex: 1 },
+  container: { flex: 1, padding: 16 },
   card: {
     flexDirection: "row",
     alignItems: "center",
     padding: 16,
     borderRadius: 12,
-    marginBottom: 16,
+    marginBottom: 8,
   },
-  profileInfo: {
-    flex: 1,
-    marginHorizontal: 16,
-  },
-  options: {
-    flex: 1,
-    marginTop: 8,
-  },
+  profileInfo: { flex: 1, marginHorizontal: 16 },
+  scroll: { flex: 1 },
+  options: { marginTop: 8 },
+  sectionHeader: { fontSize: 12, marginBottom: 8, marginLeft: 8 },
+  groupGap: { marginTop: 16 },
   optionRow: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 18,
     paddingHorizontal: 16,
   },
-  optionIcon: {
-    width: 24,
-    textAlign: "center",
-  },
-  optionLabel: {
-    fontSize: 16,
-    marginLeft: 16,
-  },
+  optionIcon: { width: 24, textAlign: "center" },
+  optionLabel: { fontSize: 16, marginLeft: 16 },
   badge: {
     backgroundColor: "red",
     borderRadius: 6,
@@ -248,11 +287,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  badgeText: {
-    color: "white",
-    fontSize: 10,
-    fontWeight: "bold",
-  },
+  badgeText: { color: "white", fontSize: 10, fontWeight: "bold" },
   footer: {
     alignItems: "center",
     paddingVertical: 12,

@@ -1,4 +1,5 @@
 import { FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Linking } from "react-native";
 import CryptoJS from "react-native-crypto-js";
 import { SUB_SERVICES_STATUS_MAP } from "./contantData";
 
@@ -341,6 +342,60 @@ export const getSubServiceStatusConfig = (status) => {
   );
 };
 
+export const paymentHistoryStatusConfig = (st) => {
+  const map = {
+    requires_payment_method: {
+      label: "Requires Payment Method",
+      color: "#F59E0B",
+      icon: "credit-card-outline",
+    },
+    requires_action: {
+      label: "Requires Action",
+      color: "#F97316",
+      icon: "gesture-tap",
+    },
+    processing: {
+      label: "Processing",
+      color: "#0EA5E9",
+      icon: "progress-clock",
+    },
+    succeeded: { label: "Succeeded", color: "#10B981", icon: "check-circle" },
+    canceled: { label: "Canceled", color: "#6B7280", icon: "close-circle" },
+    failed: { label: "Failed", color: "#EF4444", icon: "alert-circle" },
+    paymentfailed: {
+      label: "Failed",
+      color: "#EF4444",
+      icon: "alert-circle",
+    },
+  };
+  return (
+    map[(st || "").toLowerCase()] || {
+      label: st || "Unknown",
+      color: colors.placeholder,
+      icon: "help-circle",
+    }
+  );
+};
+
+export const formatPaymentHistoryCurrency = (amt, currency = "AED") => {
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency,
+    }).format(amt);
+  } catch {
+    return `${currency} ${amt}`;
+  }
+};
+
+export const openPaymentHistoryReceipt = async (url) => {
+  if (!url) return;
+  try {
+    const supported = await Linking.canOpenURL(url);
+    if (supported) await Linking.openURL(url);
+  } catch (e) {}
+};
+
 // get the next 6 days sub-services
 export const getNextWeekServices = (supervisorServices) => {
   const today = new Date();
@@ -350,7 +405,8 @@ export const getNextWeekServices = (supervisorServices) => {
   sixDaysLater.setDate(today.getDate() + 6);
   sixDaysLater.setHours(23, 59, 59, 999);
 
-  return supervisorServices?.map((service) => {
+  return supervisorServices
+    ?.map((service) => {
       const upcomingSubs = service.subServices
         .filter((sub) => {
           const subDate = new Date(sub.scheduledDate);
@@ -358,11 +414,14 @@ export const getNextWeekServices = (supervisorServices) => {
         })
         .map((sub) => ({
           ...sub,
-          scheduledDate: new Date(sub.scheduledDate).toLocaleDateString("en-GB", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          }),
+          scheduledDate: new Date(sub.scheduledDate).toLocaleDateString(
+            "en-GB",
+            {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            }
+          ),
         }));
 
       if (upcomingSubs.length > 0) {
@@ -383,11 +442,14 @@ export const filterByStatus = (supervisorServices, statusFilter = []) => {
         .filter((sub) => statusFilter.includes(sub.status))
         .map((sub) => ({
           ...sub,
-          scheduledDate: new Date(sub.scheduledDate).toLocaleDateString("en-GB", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          }),
+          scheduledDate: new Date(sub.scheduledDate).toLocaleDateString(
+            "en-GB",
+            {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            }
+          ),
         }));
 
       if (filteredSubs.length > 0) {
