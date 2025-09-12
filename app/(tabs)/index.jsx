@@ -37,9 +37,15 @@ export default function Home() {
   const { colors } = useTheme();
 
   const { userData, isLoading: fetchingUserData } = useUserDetailQuery();
-  const { topServices, isLoading: fetchingTopServices } = useGetTopServices(userData?.data?.user?.role);
-  const { allServices, isLoading: fetchingAllServices } = useGetAllServices(userData?.data?.user?.role);
-  const { allAddresses, isLoading: loadingAddress } = useGetAllAddress(userData?.data?.user?.role);
+  const { topServices, isLoading: fetchingTopServices } = useGetTopServices(
+    userData?.data?.user?.role
+  );
+  const { allServices, isLoading: fetchingAllServices } = useGetAllServices(
+    userData?.data?.user?.role
+  );
+  const { allAddresses, isLoading: loadingAddress } = useGetAllAddress(
+    userData?.data?.user?.role
+  );
 
   const { count, isLoading: gettingCount } = useFetchUnreadCount(
     userData?.data?.user?._id
@@ -57,11 +63,12 @@ export default function Home() {
   );
 
   if (
-    fetchingAllServices ||
-    gettingCount ||
-    fetchingUserData ||
-    fetchingTopServices ||
-    loadingAddress
+    (fetchingAllServices ||
+      gettingCount ||
+      fetchingUserData ||
+      fetchingTopServices ||
+      loadingAddress) &&
+    role === "tenant"
   )
     return <HomeSkeleton />;
 
@@ -126,7 +133,10 @@ export default function Home() {
                 onNotificationPress={() => router.push(ROUTES.NOTIFICATIONS)}
               />
               <View style={{ height: 5 }} />
-              <Greetings name={userData?.data?.user?.name} profilePic={`${config.pictureUrl}/${userData?.data?.user?.profileImage}`}/>
+              <Greetings
+                name={userData?.data?.user?.name}
+                profilePic={`${config.pictureUrl}/${userData?.data?.user?.profileImage}`}
+              />
               <View style={{ height: 18 }} />
 
               <InfoCard
