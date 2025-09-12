@@ -1,16 +1,9 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
-import {
-  Button,
-  Card,
-  Divider,
-  Modal,
-  Portal,
-  Text,
-  useTheme,
-} from "react-native-paper";
+import { Card, Divider, Text, useTheme } from "react-native-paper";
 import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
+import PopupDialog from "../../components/common/PopupDialogue";
 import { ROUTES } from "../../helpers/routePaths";
 
 export default function LoyaltyPointsScreen() {
@@ -55,28 +48,23 @@ export default function LoyaltyPointsScreen() {
       />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Balance Card */}
         <Card style={[styles.balanceCard, { backgroundColor: colors.surface }]}>
           <Text
             variant="headlineSmall"
-            style={[
-              styles.balanceTitle,
-              { color: colors.text, fontFamily: fonts.medium?.fontFamily },
-            ]}
+            style={{ color: colors.text, fontFamily: fonts.medium?.fontFamily }}
           >
             Loyalty Points
           </Text>
           <Text
             variant="headlineMedium"
-            style={[
-              styles.balanceValue,
-              { color: colors.primary, fontFamily: fonts.bold?.fontFamily },
-            ]}
+            style={{
+              color: colors.primary,
+              fontFamily: fonts.bold?.fontFamily,
+            }}
           >
             {pointsBalance}
           </Text>
           <Text
-            variant="bodyMedium"
             style={{
               textAlign: "center",
               marginTop: 8,
@@ -95,7 +83,6 @@ export default function LoyaltyPointsScreen() {
           </TouchableOpacity>
         </Card>
 
-        {/* How it works */}
         <TouchableOpacity
           onPress={() => setModalVisible(true)}
           style={styles.howItWorksContainer}
@@ -105,14 +92,10 @@ export default function LoyaltyPointsScreen() {
           </Text>
         </TouchableOpacity>
 
-        {/* Transaction History */}
         <Card style={[styles.historyCard, { backgroundColor: colors.surface }]}>
           <Text
             variant="titleMedium"
-            style={[
-              styles.historyTitle,
-              { color: colors.text, fontFamily: fonts.medium?.fontFamily },
-            ]}
+            style={{ color: colors.text, fontFamily: fonts.medium?.fontFamily }}
           >
             Transaction History
           </Text>
@@ -161,75 +144,50 @@ export default function LoyaltyPointsScreen() {
         </Card>
       </ScrollView>
 
-      {/* Modal */}
-      <Portal>
-        <Modal
-          visible={modalVisible}
-          onDismiss={() => setModalVisible(false)}
-          contentContainerStyle={[
-            styles.modalContainer,
-            { backgroundColor: colors.surface },
-          ]}
-        >
-          <Text
-            variant="titleMedium"
-            style={{
-              textAlign: "center",
-              marginBottom: 20,
-              color: colors.text,
-              fontFamily: fonts.medium?.fontFamily,
-            }}
-          >
-            How it Works
-          </Text>
-
-          {steps.map((item) => (
-            <View key={item.step} style={styles.stepRow}>
-              <View
-                style={[styles.stepCircle, { borderColor: colors.primary }]}
-              >
-                <Text
-                  style={{
-                    color: colors.primary,
-                    fontWeight: "bold",
-                    fontSize: 18,
-                  }}
-                >
-                  {item.step}
-                </Text>
-              </View>
+      <PopupDialog
+        visible={modalVisible}
+        onDismiss={() => setModalVisible(false)}
+        title="How it Works"
+        actions={[
+          {
+            label: "Got it",
+            mode: "contained",
+            onPress: () => setModalVisible(false),
+          },
+        ]}
+      >
+        {steps.map((item) => (
+          <View key={item.step} style={styles.stepRow}>
+            <View style={[styles.stepCircle, { borderColor: colors.primary }]}>
               <Text
                 style={{
-                  marginLeft: 16,
-                  flex: 1,
-                  color: colors.text,
-                  fontSize: 16,
+                  color: colors.primary,
+                  fontWeight: "bold",
+                  fontSize: 18,
                 }}
               >
-                {item.description}
+                {item.step}
               </Text>
             </View>
-          ))}
-
-          <Button
-            mode="contained"
-            style={[styles.gotItButton, { backgroundColor: colors.primary }]}
-            onPress={() => setModalVisible(false)}
-          >
-            Got it
-          </Button>
-        </Modal>
-      </Portal>
+            <Text
+              style={{
+                marginLeft: 16,
+                flex: 1,
+                color: colors.text,
+                fontSize: 16,
+              }}
+            >
+              {item.description}
+            </Text>
+          </View>
+        ))}
+      </PopupDialog>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  scrollContent: {
-    flexGrow: 1,
-    padding: 20,
-    paddingTop: 16,
-  },
+  scrollContent: { flexGrow: 1, padding: 20, paddingTop: 16 },
   balanceCard: {
     borderRadius: 16,
     padding: 24,
@@ -237,58 +195,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
     elevation: 5,
   },
-  balanceTitle: {
-    fontWeight: "600",
-    marginBottom: 8,
-    textAlign: "center",
-  },
-  balanceValue: {
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 8,
-  },
-  howItWorksContainer: {
-    alignSelf: "center",
-    marginBottom: 24,
-  },
-  howItWorksText: {
-    textDecorationLine: "underline",
-    fontWeight: "500",
-    fontSize: 16,
-  },
-  redeemContainer: {
-    alignSelf: "center",
-    marginTop: 18,
-  },
+  redeemContainer: { alignSelf: "center", marginTop: 18 },
   redeemText: {
     textDecorationLine: "underline",
     fontWeight: "500",
     fontSize: 16,
   },
-  historyCard: {
-    borderRadius: 16,
-    padding: 20,
-    elevation: 3,
+  howItWorksContainer: { alignSelf: "center", marginBottom: 24 },
+  howItWorksText: {
+    textDecorationLine: "underline",
+    fontWeight: "500",
+    fontSize: 16,
   },
-  historyTitle: {
-    marginBottom: 4,
-  },
+  historyCard: { borderRadius: 16, padding: 20, elevation: 3 },
   historyRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingVertical: 8,
   },
-  modalContainer: {
-    margin: 20,
-    borderRadius: 16,
-    padding: 24,
-  },
-  stepRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-  },
+  stepRow: { flexDirection: "row", alignItems: "center", marginBottom: 20 },
   stepCircle: {
     width: 50,
     height: 50,
@@ -296,10 +222,5 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     alignItems: "center",
     justifyContent: "center",
-  },
-  gotItButton: {
-    marginTop: 24,
-    borderRadius: 10,
-    paddingVertical: 8,
   },
 });
