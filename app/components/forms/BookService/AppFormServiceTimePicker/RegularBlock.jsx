@@ -69,7 +69,7 @@ export default function RegularBlock({
       type: newType,
       startDate: regular?.startDate || defaultRegDate,
       startTime: regular?.startTime || defaultRegTime,
-      selectedDays: newType === "all" ? null : [],
+      selectedDays: newType === "all" ? daysOfWeek.map(d => d.value) : [],
       repeat: regular?.repeat || false,
       repeatDuration: regular?.repeatDuration || null,
     });

@@ -14,6 +14,16 @@ import ModeSelector from "./ModeSelector";
 import OneTimeBlock from "./OneTimeBlock";
 import RegularBlock from "./RegularBlock";
 
+const daysOfWeek = [
+  { label: "Mon", value: "mon" },
+  { label: "Tue", value: "tue" },
+  { label: "Wed", value: "wed" },
+  { label: "Thu", value: "thu" },
+  { label: "Fri", value: "fri" },
+  { label: "Sat", value: "sat" },
+  { label: "Sun", value: "sun" },
+];
+
 export default function AppFormServiceTimePicker({ name }) {
   const { colors, fonts, dark } = useTheme();
   const { values, errors, touched, setFieldValue, setFieldTouched } =
@@ -44,7 +54,8 @@ export default function AppFormServiceTimePicker({ name }) {
   const regType = regular?.type || "all";
   const selectedDays = Array.isArray(regular?.selectedDays)
     ? regular.selectedDays
-    : [];
+    : daysOfWeek.map(d => d.value);
+  
   const isRepeat = Boolean(regular?.repeat);
   const currentRepeat = regular?.repeatDuration;
 
@@ -96,7 +107,7 @@ export default function AppFormServiceTimePicker({ name }) {
       type: "all",
       startDate: defaultRegDate,
       startTime: defaultRegTime,
-      selectedDays: [],
+      selectedDays: daysOfWeek.map(d => d.value),
       repeat: false,
       repeatDuration: null,
     };
