@@ -19,6 +19,7 @@ import {
 } from "react-native-paper";
 import CenteredAppbarHeader from "../../../components/common/CenteredAppBar";
 
+import EmptyState from "../../../components/common/EmptyState";
 import { SUB_SERVICES_AVAILABLE_STATUSES, subServicesStatusGroups } from "../../../helpers/contantData";
 import { filterByStatus, getSubServiceStatusConfig } from "../../../helpers/general";
 import { useUpdateSubServiceStatus } from "../../../hooks/useBookingQuery";
@@ -95,11 +96,11 @@ export default function AssignedJobs() {
         showsVerticalScrollIndicator={false}
       >
         {services.length === 0 ? (
-          <View style={styles.empty}>
-            <Text style={{ color: colors.disabled }}>
-              No assigned jobs found.
-            </Text>
-          </View>
+          <EmptyState
+            iconName="home"
+            title="No Assigned Job!"
+            description="You have 0 assigned jobs."
+          /> 
         ) : (
           services.map((service) => (
             <List.Section key={service.id} style={styles.serviceSection}>

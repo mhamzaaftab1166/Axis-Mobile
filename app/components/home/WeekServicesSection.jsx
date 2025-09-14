@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Avatar, Text, useTheme } from "react-native-paper";
 import { SUB_SERVICES_AVAILABLE_STATUSES } from "../../helpers/contantData";
 import { getSubServiceStatusConfig } from "../../helpers/general";
+import EmptyState from "../common/EmptyState";
 
 export default function WeekServicesSection({ services }) {
   const theme = useTheme();
@@ -38,82 +39,92 @@ export default function WeekServicesSection({ services }) {
 
   return (
     <View style={{ flex: 1 }}>
-      <View style={styles.headerRow}>
-        <Text
-          style={[
-            styles.title,
-            { color: colors.text, fontFamily: fonts.medium?.fontFamily },
-          ]}
-        >
-          This Week Services
-        </Text>
-        <View style={styles.filterWrapper}>
-          <TouchableOpacity
-            onPress={() => toggleDropdown("filter")}
-            activeOpacity={0.8}
+      {
+        filteredServices.length > 0 &&
+        <View style={styles.headerRow}>
+          <Text
+            style={[
+              styles.title,
+              { color: colors.text, fontFamily: fonts.medium?.fontFamily },
+            ]}
           >
-            <View
-              style={[
-                styles.filterPill,
-                { backgroundColor: dark ? colors.outlineVariant : "#EEF2FF" },
-              ]}
+            This Week Services
+          </Text>
+          <View style={styles.filterWrapper}>
+            <TouchableOpacity
+              onPress={() => toggleDropdown("filter")}
+              activeOpacity={0.8}
             >
-              <Text style={{ color: dark ? "#fff" : "#3730A3" }}>
-                {filterStatus}
-              </Text>
-              <MaterialCommunityIcons
-                name={
-                  openDropdownFor === "filter" ? "chevron-up" : "chevron-down"
-                }
-                size={16}
-                color={dark ? "#fff" : "#3730A3"}
-                style={{ marginLeft: 6 }}
-              />
-            </View>
-          </TouchableOpacity>
-          {openDropdownFor === "filter" && (
-            <View
-              style={[styles.dropdownMenu, { backgroundColor: cardBackground }]}
-            >
-              {["All", ...SUB_SERVICES_AVAILABLE_STATUSES].map((st) => (
-                <TouchableOpacity
-                  key={st}
-                  style={styles.dropdownItem}
-                  onPress={() => {
-                    setFilterStatus(st);
-                    setOpenDropdownFor(null);
-                  }}
-                >
-                  <MaterialCommunityIcons
-                    name={
-                      st === "All"
-                        ? "format-list-bulleted"
-                        : getSubServiceStatusConfig(st).icon
-                    }
-                    size={16}
-                    color={
-                      st === "All"
-                        ? mutedText
-                        : getSubServiceStatusConfig(st).color
-                    }
-                    style={{ width: 22 }}
-                  />
-                  <Text
-                    style={[styles.dropdownItemText, { color: colors.text }]}
+              <View
+                style={[
+                  styles.filterPill,
+                  { backgroundColor: dark ? colors.outlineVariant : "#EEF2FF" },
+                ]}
+              >
+                <Text style={{ color: dark ? "#fff" : "#3730A3" }}>
+                  {filterStatus}
+                </Text>
+                <MaterialCommunityIcons
+                  name={
+                    openDropdownFor === "filter" ? "chevron-up" : "chevron-down"
+                  }
+                  size={16}
+                  color={dark ? "#fff" : "#3730A3"}
+                  style={{ marginLeft: 6 }}
+                />
+              </View>
+            </TouchableOpacity>
+            {openDropdownFor === "filter" && (
+              <View
+                style={[styles.dropdownMenu, { backgroundColor: cardBackground }]}
+              >
+                {["All", ...SUB_SERVICES_AVAILABLE_STATUSES].map((st) => (
+                  <TouchableOpacity
+                    key={st}
+                    style={styles.dropdownItem}
+                    onPress={() => {
+                      setFilterStatus(st);
+                      setOpenDropdownFor(null);
+                    }}
                   >
-                    {st}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
+                    <MaterialCommunityIcons
+                      name={
+                        st === "All"
+                          ? "format-list-bulleted"
+                          : getSubServiceStatusConfig(st).icon
+                      }
+                      size={16}
+                      color={
+                        st === "All"
+                          ? mutedText
+                          : getSubServiceStatusConfig(st).color
+                      }
+                      style={{ width: 22 }}
+                    />
+                    <Text
+                      style={[styles.dropdownItemText, { color: colors.text }]}
+                    >
+                      {st}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+          </View>
         </View>
-      </View>
+      }
 
       <ScrollView
         contentContainerStyle={[styles.servicesList, { paddingBottom: 200 }]}
       >
-        {filteredServices.map((service) =>
+        {
+          filteredServices.length === 0 ?
+          <EmptyState
+            iconName="home"
+            title="No Upcoming Jobs!"
+            description="You have 0 upcoming jobs."
+          /> 
+          : filteredServices.map((service) =>
           service.subServices.map((sub) => {
             const statusCfg = getSubServiceStatusConfig(sub.status);
             const isOpen = openDropdownFor === sub.id;

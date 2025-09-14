@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Avatar, List, Surface, Text, useTheme } from "react-native-paper";
 import CenteredAppbarHeader from "../../../components/common/CenteredAppBar";
+import EmptyState from "../../../components/common/EmptyState";
 import { subServicesStatusGroups } from "../../../helpers/contantData";
 import { filterByStatus, getSubServiceStatusConfig } from "../../../helpers/general";
 import { useSupServicesStore } from "../../../store/useSupServicesStore";
@@ -38,11 +39,11 @@ export default function CompletedJobs() {
         showsVerticalScrollIndicator={false}
       >
         {services.length === 0 ? (
-          <View style={styles.empty}>
-            <Text style={{ color: colors.disabled }}>
-              No completed jobs found.
-            </Text>
-          </View>
+          <EmptyState
+            iconName="home"
+            title="No Previous Job!"
+            description="You have 0 completed jobs."
+          /> 
         ) : (
           services.map((service) => (
             <List.Section key={service.id} style={styles.serviceSection}>
