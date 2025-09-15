@@ -2,15 +2,16 @@ import { useFormikContext } from "formik";
 import { StyleSheet } from "react-native";
 import { Button, useTheme } from "react-native-paper";
 
-export default function SubmitButton({ title, isLoading }) {
+export default function SubmitButton({ title, isLoading, disabled }) {
   const { handleSubmit } = useFormikContext();
   const { colors } = useTheme();
+
   return (
     <Button
       mode="contained"
       onPress={handleSubmit}
       loading={isLoading}
-      disabled={isLoading}
+      disabled={isLoading || disabled}
       style={[styles.button, { backgroundColor: colors.primary }]}
       labelStyle={{ color: colors.onPrimary }}
       contentStyle={styles.content}

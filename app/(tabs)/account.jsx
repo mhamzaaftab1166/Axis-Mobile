@@ -11,6 +11,7 @@ import {
 } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import config from "../../config.json";
+import ReviewPopup from "../components/Ratings";
 import { ROUTES } from "../helpers/routePaths";
 import { useUserDetailQuery } from "../hooks/useAuthQuery";
 import { useFetchUnreadCount } from "../hooks/useNotificationQuery";
@@ -140,6 +141,11 @@ export default function AccountScreen() {
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: screenBg }]}>
+      <ReviewPopup
+        visible={true}
+        // onDismiss={() => setShowReview(false)}
+        onSubmit={(data) => console.log(data)}
+      />
       <View style={styles.container}>
         <View style={[styles.card, { backgroundColor: colors.surface }]}>
           <Avatar.Image
