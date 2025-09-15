@@ -15,14 +15,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import registerNNPushToken from "native-notify";
 import config from "../../config.json";
-import CustomDataTable from "../components/common/DataTable";
 import SearchWithDropdown from "../components/common/SeaarchBar";
 import AddressBottomSheet from "../components/home/AddressBottomSheet";
 import CategoryListing from "../components/home/CategoriesListing";
 import Greetings from "../components/home/Greetings";
 import HomeServiceSection from "../components/home/HomePageServices";
 import InfoCard from "../components/home/InfoCard";
-import { serviceTableColumns } from "../helpers/contantData";
+import CustomSubServiceTenantList from "../components/home/SubServiceTenant";
 import { ROUTES } from "../helpers/routePaths";
 import { useGetAllAddress } from "../hooks/useAddressQuery";
 import { useUserDetailQuery } from "../hooks/useAuthQuery";
@@ -69,7 +68,7 @@ export default function Home() {
 
   useFocusEffect(
     useCallback(() => {
-      if (allAddresses.length > 0) {
+      if (allAddresses?.length > 0) {
         const store = useAddressStore.getState();
 
         store.setAddresses(allAddresses);
@@ -169,21 +168,26 @@ export default function Home() {
                 homePageServices={topServices?.data}
                 onViewAll={() => router.push(ROUTES.SERVICE_LISTING)}
               />
-              <View style={styles.sectionHeaderRow}>
-                <Text
-                  style={[
-                    styles.sectionTitle,
-                    { color: colors.text, fontSize: 18, fontWeight: "600" },
-                  ]}
-                >
-                  Upcoming Services
-                </Text>
-              </View>
-              <CustomDataTable
-                data={allSubs}
-                columns={serviceTableColumns}
-                showPagination={true}
-              />
+              {allSubs?.length > 0 && (
+                <View>
+                  <View style={styles.sectionHeaderRow}>
+                    <Text
+                      style={[
+                        styles.sectionTitle,
+                        { color: colors.text, fontSize: 18, fontWeight: "600" },
+                      ]}
+                    >
+                      Upcoming Services
+                    </Text>
+                  </View>
+
+                  <CustomSubServiceTenantList
+                    data={allSubs || []}
+                    itemsPerPage={5}
+                    showPagination={true}
+                  />
+                </View>
+              )}
             </ScrollView>
 
             <AddressBottomSheet

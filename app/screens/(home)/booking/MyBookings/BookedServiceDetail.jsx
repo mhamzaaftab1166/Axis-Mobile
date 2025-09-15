@@ -4,12 +4,9 @@ import { useState } from "react";
 import { ScrollView, StatusBar, StyleSheet, View } from "react-native";
 import { Appbar, Divider, Menu, Text, useTheme } from "react-native-paper";
 import ConfirmDialog from "../../../../components/common/ConfirmDialog";
-import CustomDataTable from "../../../../components/common/DataTable";
 import DetailItem from "../../../../components/home/bookings/DetailItem";
+import CustomSubServiceTenantList from "../../../../components/home/SubServiceTenant";
 import LoadingOverlay from "../../../../components/LoadingOverlay";
-import {
-  serviceTableColumns
-} from "../../../../helpers/contantData";
 import {
   getAddressTextDetail,
   getScheduleTextDetail,
@@ -60,12 +57,14 @@ export default function BookedServiceDetail() {
     0
   );
 
-  const { data: subServices, isLoading: fetchingSubs } = useGetSubServices(service?.id);
+  const { data: subServices, isLoading: fetchingSubs } = useGetSubServices(
+    service?.id
+  );
 
   return (
     <View style={[styles.container, { backgroundColor: screenBg }]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.secondary} />
-      <LoadingOverlay  visible={fetchingSubs} />
+      <LoadingOverlay visible={fetchingSubs} />
       <Appbar.Header style={{ backgroundColor: colors.primary }}>
         <Appbar.BackAction
           onPress={() => router.back()}
@@ -75,8 +74,7 @@ export default function BookedServiceDetail() {
           title="Service Detail"
           titleStyle={{ color: colors.onPrimary, fontFamily: fonts.medium }}
         />
-        {
-          service?.status !== "complete" &&
+        {service?.status !== "complete" && (
           <Menu
             visible={menuVisible}
             onDismiss={closeMenu}
@@ -91,7 +89,7 @@ export default function BookedServiceDetail() {
             <Menu.Item onPress={handleUpdate} title="Update" />
             <Menu.Item onPress={openDialog} title="Terminate" />
           </Menu>
-        }
+        )}
       </Appbar.Header>
 
       <ScrollView contentContainerStyle={styles.scroll}>
@@ -206,28 +204,32 @@ export default function BookedServiceDetail() {
         />
 
         {/* Upcoming Services */}
-        <View style={styles.sectionHeaderRow}>
-          <Text
-            style={[
-              styles.sectionTitle,
-              {
-                fontFamily: fonts.medium,
-                color: colors.text,
-                fontWeight: "700",
-              },
-            ]}
-          >
-            {
-              service.status === "complete" ? "Services" : "Upcoming Services"
-            }
-          </Text>
-        </View>
+        {subServices.length > 0 && (
+          <View>
+            <View style={styles.sectionHeaderRow}>
+              <Text
+                style={[
+                  styles.sectionTitle,
+                  {
+                    fontFamily: fonts.medium,
+                    color: colors.text,
+                    fontWeight: "700",
+                  },
+                ]}
+              >
+                {service.status === "complete"
+                  ? "Services"
+                  : "Upcoming Services"}
+              </Text>
+            </View>
 
-        <CustomDataTable
-          data={subServices}
-          columns={serviceTableColumns}
-          showPagination={true}
-        />
+            <CustomSubServiceTenantList
+              data={subServices}
+              itemsPerPage={5}
+              showPagination={true}
+            />
+          </View>
+        )}
       </ScrollView>
 
       {/* Terminate Dialog */}
