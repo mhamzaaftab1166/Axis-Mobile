@@ -66,7 +66,7 @@ export const useLoginMutation = ({
   onSuccessCallback,
   onErrorCallback,
 } = {}) => {
-  const { setToken, setRole } = useAuthStore();
+  const { setToken, setRole, setIndieId } = useAuthStore();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ email, password, rememberMe }) =>
@@ -77,6 +77,7 @@ export const useLoginMutation = ({
         queryClient.clear();
         setToken(resData?.data?.authToken);
         setRole(resData?.data?.role);
+        setIndieId(resData?.data?.id);
         // register user
         registerIndieID(
           String(resData?.data?.id),

@@ -126,7 +126,7 @@ export default function BookedServiceDetail() {
           Services
         </Text>
 
-        {servicesArray.length > 0 ? (
+        {servicesArray?.length > 0 ? (
           <View
             style={[styles.serviceList, { backgroundColor: colors.background }]}
           >
@@ -204,7 +204,7 @@ export default function BookedServiceDetail() {
         />
 
         {/* Upcoming Services */}
-        {subServices.length > 0 && (
+        {subServices?.length > 0 && (
           <View>
             <View style={styles.sectionHeaderRow}>
               <Text

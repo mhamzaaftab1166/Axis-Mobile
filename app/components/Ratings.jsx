@@ -9,13 +9,13 @@ import {
 } from "react-native";
 import { Divider, Text, useTheme } from "react-native-paper";
 import PopupDialog from "../components/common/PopupDialogue";
+import AppErrorMessage from "./forms/AppErrorMessage";
 import AppForm from "./forms/AppForm";
 import AppFormField from "./forms/AppFormFeild";
 import SubmitButton from "./forms/AppSubmitButton";
-
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
-export default function ReviewPopup({ visible, onDismiss, onSubmit }) {
+export default function ReviewPopup({ visible, onDismiss, onSubmit, error, errorVisible, isSubmitting }) {
   const { colors } = useTheme();
   const [serviceRating, setServiceRating] = useState(0);
   const [staffRating, setStaffRating] = useState(0);
@@ -42,7 +42,7 @@ export default function ReviewPopup({ visible, onDismiss, onSubmit }) {
           >
             <MaterialIcons
               name={i <= rating ? "star" : "star-border"}
-              size={40} // bigger star
+              size={40}
               color={colors.primary}
             />
           </TouchableOpacity>
@@ -63,6 +63,13 @@ export default function ReviewPopup({ visible, onDismiss, onSubmit }) {
         contentContainerStyle={{ paddingBottom: 16 }}
         showsVerticalScrollIndicator={false}
       >
+        <View 
+          style={{
+            alignSelf: "center"
+          }}
+        >
+          <AppErrorMessage error={error} visible={errorVisible} />
+        </View>
         {/* Service Review */}
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
           Service Review
@@ -98,6 +105,7 @@ export default function ReviewPopup({ visible, onDismiss, onSubmit }) {
           />
 
           <SubmitButton
+            isLoading={isSubmitting}
             title="Submit Review"
             disabled={serviceRating === 0 || staffRating === 0}
           />

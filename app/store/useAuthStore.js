@@ -7,11 +7,13 @@ const useAuthStore = create(
     (set, get) => ({
       token: null,
       role: null,
+      indieId: null,
       hasHydrated: false,
       setToken: (token) => set({ token }),
       setRole: (role) => set({ role }),
+      setIndieId: (indieId) => set({ indieId }),
       setHasHydrated: () => set({ hasHydrated: true }),
-      clearAuth: () => set({ token: null, role: null }),
+      clearAuth: () => set({ token: null, role: null, indieId: null }),
     }),
     {
       name: "auth-storage",

@@ -1,5 +1,6 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { unregisterIndieDevice } from "native-notify";
 import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import {
@@ -11,12 +12,12 @@ import {
 } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import config from "../../config.json";
-import ReviewPopup from "../components/Ratings";
 import { ROUTES } from "../helpers/routePaths";
 import { useUserDetailQuery } from "../hooks/useAuthQuery";
 import { useFetchUnreadCount } from "../hooks/useNotificationQuery";
 import AccountSkeleton from "../skeltons/AccountSkelton";
 import useAuthStore from "../store/useAuthStore";
+import notificationData from "../utils/notificationData";
 
 export default function AccountScreen() {
   const { colors, fonts } = useTheme();
@@ -27,7 +28,7 @@ export default function AccountScreen() {
   const iconColor = colors.text;
 
   const { userData, isLoading: fetchingUserData } = useUserDetailQuery();
-  const { clearAuth } = useAuthStore();
+  const { indieId, clearAuth } = useAuthStore();
 
   const { count, isLoading: gettingCount } = useFetchUnreadCount(
     userData?.data?.user?._id
@@ -97,6 +98,11 @@ export default function AccountScreen() {
       icon: "logout",
       onPress: () => {
         clearAuth();
+        unregisterIndieDevice(
+          String(indieId),
+          notificationData.appId,
+          notificationData.appToken
+        );
         router.replace(ROUTES.LOGIN);
       },
     },
@@ -141,11 +147,6 @@ export default function AccountScreen() {
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: screenBg }]}>
-      <ReviewPopup
-        visible={true}
-        // onDismiss={() => setShowReview(false)}
-        onSubmit={(data) => console.log(data)}
-      />
       <View style={styles.container}>
         <View style={[styles.card, { backgroundColor: colors.surface }]}>
           <Avatar.Image

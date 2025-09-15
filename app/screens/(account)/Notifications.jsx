@@ -15,11 +15,13 @@ import { SwipeListView } from "react-native-swipe-list-view";
 import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
 import EmptyState from "../../components/common/EmptyState";
+import Ratings from "../../components/Ratings";
 import { useUserDetailQuery } from "../../hooks/useAuthQuery";
 import {
   useDeleteNotification,
   useFetchNotifications,
 } from "../../hooks/useNotificationQuery";
+import { useSubmitServiceReview } from "../../hooks/useReviewQuery";
 import NotificationsSkeleton from "../../skeltons/NotificationsSkelton";
 import useAuthStore from "../../store/useAuthStore";
 
@@ -29,6 +31,24 @@ export default function Notifications() {
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
   const role = useAuthStore((s) => s.role);
+  const [openReview, setOpenReview] = useState(false);
+  const [serviceIdToReview, setServiceIdToReview] = useState(null);
+
+  const [error, setError] = useState("");
+  const [isError, setIsError] = useState(false);
+
+  const { mutate: submitReview, isPending: submittedReview } = useSubmitServiceReview({
+    onErrorCallback: (errMsg) => {
+      setError(errMsg);
+      setIsError(true);
+    },
+    onSuccessCallback: () => {
+      setError("");
+      setIsError(false);
+      setOpenReview(false);
+      setServiceIdToReview(null);
+    },
+  });
 
   const screenBg = colors.background;
   const textColor = colors.text;
@@ -70,41 +90,69 @@ export default function Notifications() {
     setSelectedId(null);
   };
 
+  const onSubmitReview = (values)=>{
+    if(!setServiceIdToReview){
+      return;
+    }
+    submitReview({
+      bookingId: serviceIdToReview,
+      values
+    });
+  }
+
   const renderItem = (dataItem) => {
     const item = dataItem.item;
     return (
-      <View
-        style={[
-          styles.notificationCard,
-          {
-            backgroundColor: cardBg,
-            borderColor: dark ? colors.outline : "#ddd",
-          },
-        ]}
+      <TouchableOpacity
+        onPress={()=>{
+          const data = JSON.parse(dataItem.item?.pushData)
+          setServiceIdToReview(data?.serviceId);
+          setOpenReview(true);
+        }}
       >
-        <Image
-          source={require("../../../assets/images/account/avatar.avif")}
-          style={styles.image}
-        />
-        <View style={styles.textContainer}>
-          <Text
-            style={[
-              styles.title,
-              { color: textColor, fontFamily: fonts.medium },
-            ]}
-          >
-            {item.title}
-          </Text>
-          <Text
-            style={[
-              styles.description,
-              { color: textColor, fontFamily: fonts.regular },
-            ]}
-          >
-            {item.message}
-          </Text>
+        <View
+          style={[
+            styles.notificationCard,
+            {
+              backgroundColor: cardBg,
+              borderColor: dark ? colors.outline : "#ddd",
+            },
+          ]}
+        >
+          <Ratings
+            error={error}
+            errorVisible={isError}
+            visible={openReview}
+            onSubmit={onSubmitReview}
+            isSubmitting={submittedReview}
+            onDismiss={()=>{
+              setOpenReview(false);
+            }}
+          />
+          <Image
+            source={require("../../../assets/images/account/avatar.avif")}
+            style={styles.image}
+          />
+          <View style={styles.textContainer}>
+            <Text
+              style={[
+                styles.title,
+                { color: textColor, fontFamily: fonts.medium },
+              ]}
+            >
+              {item.title}
+            </Text>
+            <Text
+              style={[
+                styles.description,
+                { color: textColor, fontFamily: fonts.regular },
+              ]}
+            >
+              {item.message}
+            </Text>
+          </View>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 
