@@ -13,6 +13,7 @@ import { useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { MaterialIcons } from "@expo/vector-icons";
+import registerNNPushToken from "native-notify";
 import config from "../../config.json";
 import CustomDataTable from "../components/common/DataTable";
 import SearchWithDropdown from "../components/common/SeaarchBar";
@@ -26,13 +27,20 @@ import { ROUTES } from "../helpers/routePaths";
 import { useGetAllAddress } from "../hooks/useAddressQuery";
 import { useUserDetailQuery } from "../hooks/useAuthQuery";
 import { useFetchUnreadCount } from "../hooks/useNotificationQuery";
-import { useGetAllServices, useGetTopServices, useGetUpcomingSubServices } from "../hooks/useServiceQuery";
+import {
+  useGetAllServices,
+  useGetTopServices,
+  useGetUpcomingSubServices,
+} from "../hooks/useServiceQuery";
 import SupervisorHomePage from "../screens/(home)/SupervisorHomePage";
 import HomeSkeleton from "../skeltons/HomeLoadingSkelton";
 import useAddressStore from "../store/useAddressStore";
 import useAuthStore from "../store/useAuthStore";
+import notificationData from "../utils/notificationData";
 
 export default function Home() {
+  registerNNPushToken(notificationData.appId, notificationData.appToken);
+
   const [showSheet, setShowSheet] = useState(false);
   const { colors } = useTheme();
 
@@ -51,16 +59,25 @@ export default function Home() {
     userData?.data?.user?._id
   );
 
-  const { allSubs, isLoading: fetchingSubs } = useGetUpcomingSubServices(userData?.data?.user?.role);
+  const { allSubs, isLoading: fetchingSubs } = useGetUpcomingSubServices(
+    userData?.data?.user?.role
+  );
 
   const selectedAddress = useAddressStore((s) => s.selectedAddress);
   const setAddress = useAddressStore((s) => s.setAddress);
-  const ensureDefault = useAddressStore((s) => s.ensureDefault);
   const role = useAuthStore((s) => s.role);
 
   useFocusEffect(
     useCallback(() => {
-      ensureDefault(allAddresses ? allAddresses[0] : undefined);
+      if (allAddresses.length) {
+        const store = useAddressStore.getState();
+
+        store.setAddresses(allAddresses);
+
+        store.ensureDefault(allAddresses[0]);
+
+        store.validateSelectedAddress();
+      }
     }, [allAddresses])
   );
 

@@ -16,7 +16,7 @@ export const useGetAllAddress = (role) => {
   const query = useQuery({
     queryKey: ["addresses"],
     queryFn: () => fetchAddress(),
-    staleTime:()=>{},
+    staleTime: () => {},
     enabled: !!token && hasHydrated && role === "tenant",
   });
 

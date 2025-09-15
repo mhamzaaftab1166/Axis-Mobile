@@ -1,4 +1,3 @@
-// store/useAddressStore.js
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
@@ -6,33 +5,28 @@ import { createJSONStorage, persist } from "zustand/middleware";
 const useAddressStore = create(
   persist(
     (set, get) => ({
-      // ✅ State
       selectedAddress: null,
       addresses: [],
       hasHydrated: false,
 
-      // ✅ Actions
       setHasHydrated: () => set({ hasHydrated: true }),
 
-      setAddress: (address) => {
-        set({ selectedAddress: address });
-      },
+      setAddress: (address) => set({ selectedAddress: address }),
+      clearAddress: () => set({ selectedAddress: null }),
 
-      clearAddress: () => {
-        set({ selectedAddress: null });
-      },
+      setAddresses: (addresses) => set({ addresses }),
 
       ensureDefault: (defaultAddress) => {
         const current = get().selectedAddress;
-        if (!current && defaultAddress !== undefined) {
-          set({ selectedAddress: defaultAddress });
+        if (!current) {
+          set({
+            selectedAddress: defaultAddress || get().addresses[0] || null,
+          });
         }
       },
 
       addAddress: (address) =>
-        set((state) => ({
-          addresses: [...state.addresses, address],
-        })),
+        set((state) => ({ addresses: [...state.addresses, address] })),
 
       updateAddress: (id, updatedData) =>
         set((state) => ({
@@ -42,22 +36,33 @@ const useAddressStore = create(
         })),
 
       removeAddress: (id) =>
-        set((state) => ({
-          addresses: state.addresses.filter((addr) => addr.id !== id),
-        })),
+        set((state) => {
+          const newAddresses = state.addresses.filter((addr) => addr.id !== id);
+          let newSelected = state.selectedAddress;
+          if (state.selectedAddress?.id === id) {
+            newSelected = newAddresses.length > 0 ? newAddresses[0] : null;
+          }
+          return { addresses: newAddresses, selectedAddress: newSelected };
+        }),
 
-      clearAddresses: () => set({ addresses: [] }),
+      clearAddresses: () => set({ addresses: [], selectedAddress: null }),
+
+      validateSelectedAddress: () => {
+        const { selectedAddress, addresses } = get();
+        const exists = addresses.some(
+          (addr) => addr.id === selectedAddress?.id
+        );
+        if (!exists) {
+          set({ selectedAddress: addresses.length > 0 ? addresses[0] : null });
+        }
+      },
     }),
     {
       name: "address-storage",
       storage: createJSONStorage(() => AsyncStorage),
       onRehydrateStorage: () => (state, error) => {
         state?.setHasHydrated();
-        if (error) {
-          console.warn("[useAddressStore] Rehydrate error:", error);
-        } else {
-          console.log("[useAddressStore] Rehydrated successfully");
-        }
+        if (error) console.warn("[useAddressStore] Rehydrate error:", error);
       },
     }
   )
