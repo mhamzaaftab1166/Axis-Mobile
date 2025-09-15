@@ -69,7 +69,7 @@ export default function Home() {
 
   useFocusEffect(
     useCallback(() => {
-      if (allAddresses.length) {
+      if (allAddresses.length > 0) {
         const store = useAddressStore.getState();
 
         store.setAddresses(allAddresses);
