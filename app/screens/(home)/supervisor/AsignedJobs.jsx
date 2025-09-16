@@ -107,7 +107,10 @@ export default function AssignedJobs() {
       />
       <LoadingOverlay visible={updatingStatus} />
       <ScrollView
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[
+          styles.content,
+          services.length === 0 && { flex: 1, justifyContent: "center" },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         {services.length === 0 ? (
