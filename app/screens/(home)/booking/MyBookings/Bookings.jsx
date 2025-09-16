@@ -6,9 +6,9 @@ import ButtonSegmented from "../../../../components/common/ButtonSegmented";
 import CenteredAppbarHeader from "../../../../components/common/CenteredAppBar";
 import EmptyComponent from "../../../../components/common/EmptyState";
 import BookedServiceCard from "../../../../components/home/bookings/BookingCard";
-import LoadingOverlay from "../../../../components/LoadingOverlay";
 import { filterBookings } from "../../../../helpers/general";
 import { useGetMyServices } from "../../../../hooks/useBookingQuery";
+import BookingSkeleton from "../../../../skeltons/BookingsSkelton";
 
 export default function BookingListing() {
   const [mode, setMode] = useState("upcoming");
@@ -17,13 +17,14 @@ export default function BookingListing() {
 
   const { data, isLoading: fetchingMyServices } = useGetMyServices();
 
+  if (fetchingMyServices) return <BookingSkeleton />;
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <CenteredAppbarHeader
         title="My Bookings"
         onBack={() => navigation.goBack()}
       />
-      <LoadingOverlay visible={fetchingMyServices} />
       <FlatList
         data={filterBookings(data, mode)}
         keyExtractor={(item) => item.id}

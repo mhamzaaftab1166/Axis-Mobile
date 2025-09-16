@@ -63,9 +63,9 @@ export default function Home() {
   );
 
   const selectedAddress = useAddressStore((s) => s.selectedAddress);
+  const addresses = useAddressStore((s) => s.addresses);
   const setAddress = useAddressStore((s) => s.setAddress);
   const role = useAuthStore((s) => s.role);
-
   useFocusEffect(
     useCallback(() => {
       if (allAddresses?.length > 0) {

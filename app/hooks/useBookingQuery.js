@@ -8,7 +8,7 @@ import {
   fetchSubService,
   fetchSupServiceStats,
   terminateService,
-  updateSubService
+  updateSubService,
 } from "../services/bookingService";
 import useAuthStore from "../store/useAuthStore";
 import { useSupServicesStore } from "../store/useSupServicesStore";
@@ -56,12 +56,14 @@ export const useCreateBooking = ({
           onSuccessCallback?.();
         } else if (outcome === "requires_action") {
           // ⚠️ requires OTP / 3DS
-          onRequireAction?.(response?.data?.clientSecret,response?.data?.paymentMethod,response?.data?.intentId);
+          onRequireAction?.(
+            response?.data?.clientSecret,
+            response?.data?.paymentMethod,
+            response?.data?.intentId
+          );
         } else if (outcome === "failed") {
           // ❌ failed
-          onErrorCallback?.(
-            response?.data?.message || "Payment failed!"
-          );
+          onErrorCallback?.(response?.data?.message || "Payment failed!");
         } else {
           // fallback
           onErrorCallback?.("Unexpected booking outcome!");
@@ -115,8 +117,8 @@ export const useTerminateService = ({
 // =====================
 export const useGetSubServices = (serviceId) => {
   const query = useQuery({
-    queryKey: ["subservices",serviceId],
-    queryFn: ()=>fetchSubService(serviceId),
+    queryKey: ["subservices", serviceId],
+    queryFn: () => fetchSubService(serviceId),
     staleTime: () => {},
     enabled: !!serviceId,
   });
@@ -128,7 +130,6 @@ export const useGetSubServices = (serviceId) => {
     error: query.error,
   };
 };
-
 
 // =====================
 // Fetch My Services
@@ -177,14 +178,21 @@ export const useGetSupervisorStats = () => {
 // =====================
 // Update a Sub-Service
 // =====================
-export const useUpdateSubServiceStatus = ({ onSuccessCallback, onErrorCallback } = {}) => {
+export const useUpdateSubServiceStatus = ({
+  onSuccessCallback,
+  onErrorCallback,
+} = {}) => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data) => updateSubService(data),
     onSuccess: (response, variables) => {
       if (response?.status === HttpStatusCode.Ok) {
+        queryClient.invalidateQueries(["supervisor-stats"]);
         onSuccessCallback?.(variables);
       } else {
-        onErrorCallback?.(response?.error || "Failed to update sub-service status");
+        onErrorCallback?.(
+          response?.error || "Failed to update sub-service status"
+        );
       }
     },
     onError: (error) => {

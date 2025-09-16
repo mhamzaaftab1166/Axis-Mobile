@@ -20,8 +20,15 @@ import {
 import CenteredAppbarHeader from "../../../components/common/CenteredAppBar";
 
 import EmptyState from "../../../components/common/EmptyState";
-import { SUB_SERVICES_AVAILABLE_STATUSES, subServicesStatusGroups } from "../../../helpers/contantData";
-import { filterByStatus, getSubServiceStatusConfig } from "../../../helpers/general";
+import LoadingOverlay from "../../../components/LoadingOverlay";
+import {
+  SUB_SERVICES_AVAILABLE_STATUSES,
+  subServicesStatusGroups,
+} from "../../../helpers/contantData";
+import {
+  filterByStatus,
+  getSubServiceStatusConfig,
+} from "../../../helpers/general";
 import { useUpdateSubServiceStatus } from "../../../hooks/useBookingQuery";
 import { useSupServicesStore } from "../../../store/useSupServicesStore";
 
@@ -42,44 +49,52 @@ export default function AssignedJobs() {
   const toggleDropdown = (subId) =>
     setOpenDropdownFor((prev) => (prev === subId ? null : subId));
 
-  const { mutate: updateStatus, isPending: updatingStatus } = useUpdateSubServiceStatus({
-    onErrorCallback: (errMsg) => {
-      setError(errMsg);
-      setIsError(true);
-    },
-    onSuccessCallback: (data) => {
-      setError("");
-      setIsError(false);
+  const { mutate: updateStatus, isPending: updatingStatus } =
+    useUpdateSubServiceStatus({
+      onErrorCallback: (errMsg) => {
+        setError(errMsg);
+        setIsError(true);
+      },
+      onSuccessCallback: (data) => {
+        setError("");
+        setIsError(false);
 
-      setOpenDropdownFor(null);
-      setSnackbar({
-        visible: true,
-        message: `${data?.subId} status updated to ${data?.newStatus}`,
-      });
+        setOpenDropdownFor(null);
+        setSnackbar({
+          visible: true,
+          message: `Status updated to ${data?.newStatus}`,
+        });
 
-      setServices((prev) =>
-        prev.map((svc) =>
-          svc.id !== data?.serviceId
-            ? svc
-            : {
-                ...svc,
-                subServices: svc.subServices.map((s) =>
-                  s.id !== data?.subId ? s : { ...s, status: data?.newStatus }
-                ),
-              }
-        )
-      );
-      useSupServicesStore.getState().updateServiceStatus(data?.serviceId, data?.subId, data?.newStatus);
-    },
-  });
+        setServices((prev) =>
+          prev.map((svc) =>
+            svc.id !== data?.serviceId
+              ? svc
+              : {
+                  ...svc,
+                  subServices: svc.subServices.map((s) =>
+                    s.id !== data?.subId ? s : { ...s, status: data?.newStatus }
+                  ),
+                }
+          )
+        );
+        useSupServicesStore
+          .getState()
+          .updateServiceStatus(data?.serviceId, data?.subId, data?.newStatus);
+      },
+    });
 
   const [services, setServices] = useState(
-    filterByStatus(useSupServicesStore((s) => s.services), subServicesStatusGroups.assigned)
+    filterByStatus(
+      useSupServicesStore((s) => s.services),
+      subServicesStatusGroups.assigned
+    )
   );
 
   const handleChangeStatus = (serviceId, subId, newStatus) => {
     updateStatus({
-      serviceId, subId, newStatus: newStatus.trim()
+      serviceId,
+      subId,
+      newStatus: newStatus.trim(),
     });
   };
 
@@ -90,7 +105,7 @@ export default function AssignedJobs() {
         onBack={() => navigation.goBack()}
         cartDisplay={false}
       />
-
+      <LoadingOverlay visible={updatingStatus} />
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
@@ -100,7 +115,7 @@ export default function AssignedJobs() {
             iconName="home"
             title="No Assigned Job!"
             description="You have 0 assigned jobs."
-          /> 
+          />
         ) : (
           services.map((service) => (
             <List.Section key={service.id} style={styles.serviceSection}>
