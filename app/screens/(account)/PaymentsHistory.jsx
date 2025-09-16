@@ -17,13 +17,16 @@ import {
   paymentHistoryStatusConfig,
 } from "../../helpers/general";
 import { useGetMyPaymentHistory } from "../../hooks/usePaymentHistoryQuery";
- 
+import PaymentHistorySkeleton from "../../skeltons/PaymentHistorySkelton";
+
 export default function PaymentsHistoryScreen() {
   const { colors, fonts, dark } = useTheme();
   const navigation = useNavigation();
 
-  const { data: payments, isLoading: fetchingHistory } = useGetMyPaymentHistory();
+  const { data: payments, isLoading: fetchingHistory } =
+    useGetMyPaymentHistory();
 
+  if (fetchingHistory) return <PaymentHistorySkeleton />;
   return (
     <View style={[styles.safe, { backgroundColor: colors.background }]}>
       <CenteredAppbarHeader

@@ -26,6 +26,8 @@ export const ROUTES = {
   MY_BOOKINGS: "screens/(home)/booking/MyBookings/Bookings",
   BOOKED_SERVIICE_DETAIL:
     "screens/(home)/booking/MyBookings/BookedServiceDetail",
+  BOOKED_SERVIICE_UPDATE:
+    "screens/(home)/booking/MyBookings/BookedServiceUpdate",
   SERVICE_LISTING: "screens/(home)/ServiceListing",
   SERVICE_LISTING_BY_CATEGORY: "screens/(home)/ServiceListingByCategory",
   SUPERVSOR_COMPLETED_JOBS: "screens/(home)/supervisor/PreviousJobs",

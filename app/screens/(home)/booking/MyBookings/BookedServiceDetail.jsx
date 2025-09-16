@@ -13,7 +13,8 @@ import {
   getScheduleTextDetail,
   getStatusColor,
 } from "../../../../helpers/general";
-import { useGetSubServices, useTerminateService } from "../../../../hooks/useBookingQuery";
+import { ROUTES } from "../../../../helpers/routePaths";
+import { useGetSubServices } from "../../../../hooks/useBookingQuery";
 
 export default function BookedServiceDetail() {
   const { bookedService } = useLocalSearchParams();
@@ -56,7 +57,7 @@ export default function BookedServiceDetail() {
     closeMenu();
     if (!service) return;
     router.push({
-      pathname: "",
+      pathname: ROUTES.BOOKED_SERVIICE_UPDATE,
       params: { bookedService: JSON.stringify(service) },
     });
   };

@@ -11,7 +11,10 @@ import { Avatar, List, Surface, Text, useTheme } from "react-native-paper";
 import CenteredAppbarHeader from "../../../components/common/CenteredAppBar";
 import EmptyState from "../../../components/common/EmptyState";
 import { subServicesStatusGroups } from "../../../helpers/contantData";
-import { filterByStatus, getSubServiceStatusConfig } from "../../../helpers/general";
+import {
+  filterByStatus,
+  getSubServiceStatusConfig,
+} from "../../../helpers/general";
 import { useSupServicesStore } from "../../../store/useSupServicesStore";
 
 export default function CompletedJobs() {
@@ -23,8 +26,11 @@ export default function CompletedJobs() {
   const mutedText = dark ? "#AAB0B6" : "#6B7280";
   const surfaceElevation = Platform.OS === "android" ? 2 : 1;
 
-  const supervisorServices = useSupServicesStore((s)=>s.services);
-  const services = filterByStatus(supervisorServices,subServicesStatusGroups.previous);
+  const supervisorServices = useSupServicesStore((s) => s.services);
+  const services = filterByStatus(
+    supervisorServices,
+    subServicesStatusGroups.previous
+  );
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -35,7 +41,10 @@ export default function CompletedJobs() {
       />
 
       <ScrollView
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[
+          styles.content,
+          services.length === 0 && { flex: 1, justifyContent: "center" },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         {services.length === 0 ? (
@@ -43,7 +52,7 @@ export default function CompletedJobs() {
             iconName="home"
             title="No Previous Job!"
             description="You have 0 completed jobs."
-          /> 
+          />
         ) : (
           services.map((service) => (
             <List.Section key={service.id} style={styles.serviceSection}>

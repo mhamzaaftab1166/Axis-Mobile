@@ -195,57 +195,64 @@ export default function AccountScreen() {
                   </Text>
                 ) : null}
 
-                {group.items.map((opt, idx) => (
-                  <React.Fragment key={opt.key}>
-                    <TouchableRipple onPress={opt.onPress}>
-                      <View style={styles.optionRow}>
-                        <MaterialCommunityIcons
-                          name={opt.icon}
-                          size={24}
-                          color={iconColor}
-                          style={styles.optionIcon}
-                        />
-                        <View
-                          style={{
-                            flex: 1,
-                            flexDirection: "row",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Text
-                            variant="bodyMedium"
-                            style={[
-                              styles.optionLabel,
-                              { color: textColor, fontFamily: fonts.regular },
-                            ]}
+                {group.items.map((opt, idx) => {
+                  const isLastItem =
+                    gi === grouped.length - 1 && idx === group.items.length - 1;
+
+                  return (
+                    <React.Fragment key={opt.key}>
+                      <TouchableRipple onPress={opt.onPress}>
+                        <View style={styles.optionRow}>
+                          <MaterialCommunityIcons
+                            name={opt.icon}
+                            size={24}
+                            color={iconColor}
+                            style={styles.optionIcon}
+                          />
+                          <View
+                            style={{
+                              flex: 1,
+                              flexDirection: "row",
+                              alignItems: "center",
+                            }}
                           >
-                            {opt.label}
-                          </Text>
-                          {Number(opt.count) > 0 && (
-                            <View style={styles.badge}>
-                              <Text style={styles.badgeText}>{opt.count}</Text>
-                            </View>
-                          )}
+                            <Text
+                              variant="bodyMedium"
+                              style={[
+                                styles.optionLabel,
+                                { color: textColor, fontFamily: fonts.regular },
+                              ]}
+                            >
+                              {opt.label}
+                            </Text>
+                            {Number(opt.count) > 0 && (
+                              <View style={styles.badge}>
+                                <Text style={styles.badgeText}>
+                                  {opt.count}
+                                </Text>
+                              </View>
+                            )}
+                          </View>
+
+                          <MaterialCommunityIcons
+                            name="chevron-right"
+                            size={24}
+                            color={colors.placeholder}
+                          />
                         </View>
+                      </TouchableRipple>
 
-                        <MaterialCommunityIcons
-                          name="chevron-right"
-                          size={24}
-                          color={colors.placeholder}
+                      {!isLastItem && (
+                        <Divider
+                          style={{
+                            height: 0.5,
+                            backgroundColor: colors.outlineVariant,
+                          }}
                         />
-                      </View>
-                    </TouchableRipple>
-
-                    {idx < group.items.length - 1 && (
-                      <Divider
-                        style={{
-                          height: 0.5,
-                          backgroundColor: colors.outlineVariant,
-                        }}
-                      />
-                    )}
-                  </React.Fragment>
-                ))}
+                      )}
+                    </React.Fragment>
+                  );
+                })}
               </View>
             ))}
           </View>
