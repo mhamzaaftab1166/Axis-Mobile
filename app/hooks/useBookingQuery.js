@@ -68,10 +68,11 @@ export const useCreateBooking = ({
         }
       } else {
         // fallback error case (non-200 from backend)
-        onErrorCallback?.(response?.error || "Service Booking Failed!");
+        onErrorCallback?.(response?.error || "Service Booking Failed!",response?.data?.serviceId);
       }
     },
     onError: (error) => {
+      console.log(error);
       const msg =
         error?.response?.data?.error ||
         error?.message ||
@@ -94,7 +95,7 @@ export const useTerminateService = ({
     mutationFn: (id) => terminateService(id),
     onSuccess: (response) => {
       if (response?.status === HttpStatusCode.Ok) {
-        queryClient.invalidateQueries(["payment-methods"]);
+        queryClient.invalidateQueries(["my-services"]);
         onSuccessCallback?.();
       } else {
         onErrorCallback?.(response?.error || "Failed to remove payment method");
@@ -128,7 +129,6 @@ export const useGetSubServices = (serviceId) => {
     error: query.error,
   };
 };
-
 
 // =====================
 // Fetch My Services

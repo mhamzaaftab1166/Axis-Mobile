@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { HttpStatusCode } from "axios";
 import {
   submitReview
@@ -8,11 +8,15 @@ import {
 // Submit a review
 // =====================
 export const useSubmitServiceReview = ({ onSuccessCallback, onErrorCallback } = {}) => {
+  
+  const qc = useQueryClient();
+
   return useMutation({
     mutationFn: (data) => submitReview(data),
     onSuccess: (response) => {
       if (response?.status === HttpStatusCode.Ok) {
         onSuccessCallback?.();
+        qc.invalidateQueries(["top-services","all-services"]);
       } else {
         onErrorCallback?.(response?.error || "Failed to update sub-service status");
       }

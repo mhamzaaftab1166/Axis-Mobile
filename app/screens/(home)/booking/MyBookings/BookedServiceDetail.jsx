@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ScrollView, StatusBar, StyleSheet, View } from "react-native";
 import { Appbar, Divider, Menu, Text, useTheme } from "react-native-paper";
 import ConfirmDialog from "../../../../components/common/ConfirmDialog";
+import AppErrorMessage from "../../../../components/forms/AppErrorMessage";
 import DetailItem from "../../../../components/home/bookings/DetailItem";
 import CustomSubServiceTenantList from "../../../../components/home/SubServiceTenant";
 import LoadingOverlay from "../../../../components/LoadingOverlay";
@@ -12,7 +13,7 @@ import {
   getScheduleTextDetail,
   getStatusColor,
 } from "../../../../helpers/general";
-import { useGetSubServices } from "../../../../hooks/useBookingQuery";
+import { useGetSubServices, useTerminateService } from "../../../../hooks/useBookingQuery";
 
 export default function BookedServiceDetail() {
   const { bookedService } = useLocalSearchParams();
@@ -23,6 +24,9 @@ export default function BookedServiceDetail() {
   const [menuVisible, setMenuVisible] = useState(false);
   const [dialogVisible, setDialogVisible] = useState(false);
 
+  const [error, setError] = useState("");
+  const [isError, setIsError] = useState(false);
+
   const openMenu = () => setMenuVisible(true);
   const closeMenu = () => setMenuVisible(false);
 
@@ -32,8 +36,19 @@ export default function BookedServiceDetail() {
   };
   const closeDialog = () => setDialogVisible(false);
 
+  const { mutate: terminateService, isPending: isTerminating } = useTerminateService({
+    onErrorCallback: (errMsg) => {
+      setError(errMsg);
+      setIsError(true);
+    },
+    onSuccessCallback: () => {
+      setError("");
+      setIsError(false);
+    },
+  });
+
   const confirmTerminate = () => {
-    console.log("Terminated ID:", service?.id);
+    terminateService(service?.id);
     closeDialog();
   };
 
@@ -94,6 +109,13 @@ export default function BookedServiceDetail() {
 
       <ScrollView contentContainerStyle={styles.scroll}>
         {/* Top Section */}
+        <View
+          style={{
+            alignSelf: "center"
+          }}
+        >
+          <AppErrorMessage error={error} visible={isError} />
+        </View>
         <View style={styles.topRow}>
           <View style={{ flex: 1 }}>
             <Text
@@ -236,6 +258,7 @@ export default function BookedServiceDetail() {
       <ConfirmDialog
         visible={dialogVisible}
         title="Terminate Service"
+        isLoading={isTerminating}
         message="Are you sure you want to terminate this service?"
         onCancel={closeDialog}
         onConfirm={confirmTerminate}

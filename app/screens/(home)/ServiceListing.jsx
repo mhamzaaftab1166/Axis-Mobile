@@ -1,5 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { useLocalSearchParams, useNavigation } from "expo-router";
+import { useNavigation } from "expo-router";
 import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { useTheme } from "react-native-paper";
@@ -16,8 +16,6 @@ import useAddressStore from "../../store/useAddressStore";
 import useBookingStore from "../../store/useBookingStore";
 
 export default function ServiceListing() {
-  const { selectedItem } = useLocalSearchParams();
-  
   const { allServices: services, isLoading } = useGetAllServices();
   
   const navigation = useNavigation();

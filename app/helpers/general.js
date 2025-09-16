@@ -264,7 +264,7 @@ export const calculateTax = (amount, percentage) => {
 };
 
 // service payload
-export const formatPayload = (values, selectedAddress, encryptionKey) => {
+export const formatPayload = (values, selectedAddress, encryptionKey, serviceId) => {
   const unitCapacity = selectedAddress?.unitId?.unitCapacity || 1;
 
   const { amount, tax, totalAmountAfterTax } = calculateTotals(
@@ -281,6 +281,7 @@ export const formatPayload = (values, selectedAddress, encryptionKey) => {
     tax,
     totalAmountAfterTax,
     address: selectedAddress._id,
+    serviceId
   };
 };
 

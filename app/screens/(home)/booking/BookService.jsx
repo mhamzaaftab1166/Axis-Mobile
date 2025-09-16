@@ -79,11 +79,17 @@ export default function AddPropertyWizard() {
   const [paymentMethodId, setPaymentMethodId] = useState(null);
   const [intentId, setIntentId] = useState(null);
   const [isWorkingOnStripe, setIsWorkingOnStripe] = useState(false);
+  const [serviceId, setServiceId] = useState(null);
 
   const { mutate: bookMyService, isPending: isBooking } = useCreateBooking({
-    onErrorCallback: (errMsg) => {
+    onErrorCallback: (errMsg, serviceId) => {
       setError(errMsg);
       setIsError(true);
+      if(serviceId){
+        setServiceId(serviceId);
+      }else{
+        setServiceId(null);
+      }
     },
     onSuccessCallback: () => {
       setError("");
@@ -123,7 +129,6 @@ export default function AddPropertyWizard() {
     onErrorCallback: (msg) => {
       setIsError(true);
       setError(msg);
-      console.error("Error:", msg);
       setIsWorkingOnStripe(false);
     },
   });
@@ -149,7 +154,7 @@ export default function AddPropertyWizard() {
       return;
     }
     if (step === 2) {
-      const formatted = formatPayload(values,selectedAddress,config.secretKeyForEncryption);
+      const formatted = formatPayload(values,selectedAddress,config.secretKeyForEncryption,serviceId);
       bookMyService(formatted);
     }
   };

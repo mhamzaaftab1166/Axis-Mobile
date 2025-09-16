@@ -10,7 +10,7 @@ const fetchMyService = async () => {
 };
 
 const terminateService = async (id) => {
-  return await _axios('get', 'v1/tenant/service/terminate-service');
+  return await _axios('get', `v1/tenant/service/terminate-service/${id}`);
 };
 
 const fetchSubService = async (serviceId) => {

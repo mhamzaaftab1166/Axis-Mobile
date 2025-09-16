@@ -13,6 +13,7 @@ export const useStripeConfirmPayment = ({
       onSuccessCallback?.(response.intentId ? response.intentId : undefined);
     },
     onError: (error) => {
+      console.log(error);
       const msg =
         error?.response?.data?.error ||
         error?.message ||
