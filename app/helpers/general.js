@@ -24,6 +24,8 @@ export function getStatusColor(status) {
       return { bg: "#F8D7DA", text: "#721C24", label: "Rejected" }; // light red bg, red text
     case "success":
       return { bg: "#B8DAFF", text: "#004085", label: "Success" };
+    case "confirmed":
+      return { bg: "#B8DAFF", text: "#00d18bff", label: "Confirmed" };
     case "paymentcancelled":
       return { bg: "#F8D7DA", text: "#721C24", label: "Payment Cancelled" }; // light red bg, red text
     default:

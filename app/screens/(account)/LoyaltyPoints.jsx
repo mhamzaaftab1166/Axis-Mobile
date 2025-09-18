@@ -5,23 +5,14 @@ import { Card, Divider, Text, useTheme } from "react-native-paper";
 import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
 import PopupDialog from "../../components/common/PopupDialogue";
 import { ROUTES } from "../../helpers/routePaths";
+import { useGetLoyaltyPoints } from "../../hooks/useLoyaltyQuery";
 
 export default function LoyaltyPointsScreen() {
   const { colors, fonts } = useTheme();
   const router = useRouter();
   const [modalVisible, setModalVisible] = useState(false);
 
-  const pointsBalance = 1200;
-  const history = [
-    {
-      id: 1,
-      title: "Service Termination",
-      date: "Sep 05, 2025",
-      points: "+200",
-    },
-    { id: 2, title: "Booking Completed", date: "Aug 20, 2025", points: "+500" },
-    { id: 3, title: "Redeemed Discount", date: "Aug 02, 2025", points: "-300" },
-  ];
+  const { data: loyaltyPointsData, isLoading: fetchingLoyaltyPointsData } = useGetLoyaltyPoints();
 
   const steps = [
     {
@@ -62,7 +53,7 @@ export default function LoyaltyPointsScreen() {
               fontFamily: fonts.bold?.fontFamily,
             }}
           >
-            {pointsBalance}
+            {loyaltyPointsData?.data?.pointsBalance}
           </Text>
           <Text
             style={{
@@ -105,7 +96,7 @@ export default function LoyaltyPointsScreen() {
               backgroundColor: colors.outlineVariant,
             }}
           />
-          {history.map((item, idx) => (
+          {loyaltyPointsData?.data?.history.map((item, idx) => (
             <View key={item.id}>
               <View style={styles.historyRow}>
                 <View>
@@ -131,7 +122,7 @@ export default function LoyaltyPointsScreen() {
                   {item.points}
                 </Text>
               </View>
-              {idx < history.length - 1 && (
+              {idx < loyaltyPointsData?.data?.history?.length - 1 && (
                 <Divider
                   style={{
                     marginVertical: 6,

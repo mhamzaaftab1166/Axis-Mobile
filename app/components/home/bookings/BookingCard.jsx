@@ -12,7 +12,7 @@ import { ROUTES } from "../../../helpers/routePaths";
 const BookedServiceCard = ({ item, colors, fonts }) => {
   const { dark } = useTheme();
   const statusColor = getStatusColor(item.status);
-
+  
   const navigateToDetails = () => {
     router.push({
       pathname: ROUTES.BOOKED_SERVIICE_DETAIL,

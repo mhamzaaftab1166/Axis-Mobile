@@ -14,7 +14,7 @@ import {
   getStatusColor,
 } from "../../../../helpers/general";
 import { ROUTES } from "../../../../helpers/routePaths";
-import { useGetSubServices } from "../../../../hooks/useBookingQuery";
+import { useGetSubServices, useTerminateService } from "../../../../hooks/useBookingQuery";
 
 export default function BookedServiceDetail() {
   const { bookedService } = useLocalSearchParams();
