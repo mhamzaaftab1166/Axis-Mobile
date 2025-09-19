@@ -1,0 +1,148 @@
+import { useNavigation } from "expo-router";
+import { useState } from "react";
+import { StatusBar, StyleSheet, Text, View } from "react-native";
+import { Button, useTheme } from "react-native-paper";
+import * as Yup from "yup";
+
+import { router } from "expo-router";
+import CenteredAppbarHeader from "../../../../components/common/CenteredAppBar";
+import EmptyState from "../../../../components/common/EmptyState";
+import AppErrorMessage from "../../../../components/forms/AppErrorMessage";
+import AppForm from "../../../../components/forms/AppForm";
+import AppFormDropdown from "../../../../components/forms/AppFormDropdown";
+import AppFormField from "../../../../components/forms/AppFormFeild";
+import { ROUTES } from "../../../../helpers/routePaths";
+import { useGetPaymentMethods } from "../../../../hooks/usePaymetMethodQuery";
+
+const validationSchema = Yup.object({
+  selectedCard: Yup.object().required("Please select a card"),
+  cvv: Yup.string()
+    .required("CVV is required")
+    .matches(/^\d{3}$/, "CVV must be 3 digits"),
+});
+
+export default function MakePayment() {
+  const navigation = useNavigation();
+  const [requireAction, setRequireAction] = useState(false);
+  const [isWorkingOnStripe, setIsWorkingOnStripe] = useState(false);
+  const { colors } = useTheme();
+  const { data: cards, isLoading: loadingCards } = useGetPaymentMethods();
+
+  const screenBg = colors.background;
+
+  const [error, setError] = useState("");
+  const [isError, setIsError] = useState(false);
+
+  const handleSubmit = (values) => {
+    console.log("Form values", values);
+    // Add payment logic here
+  };
+
+  const onConfirmPayment = () => {
+    console.log("Confirming payment...");
+    // Add OTP verification logic here
+  };
+
+  return (
+    <View style={[styles.container, { backgroundColor: screenBg }]}>
+      <StatusBar barStyle={"light-content"} backgroundColor={colors.primary} />
+      <CenteredAppbarHeader
+        title={"Payment"}
+        onBack={() => navigation.goBack()}
+      />
+      <View style={styles.content}>
+        <AppForm
+          initialValues={{
+            selectedCard: null,
+            cvv: "",
+          }}
+          onSubmit={handleSubmit}
+          validationSchema={validationSchema}
+        >
+          {({ handleSubmit }) => (
+            <>
+              <View style={{ alignSelf: "center" }}>
+                <AppErrorMessage visible={isError} error={error} />
+              </View>
+
+              {Array.isArray(cards) && cards.length > 0 ? (
+                <>
+                  <AppFormDropdown
+                    name="selectedCard"
+                    placeholder="Select Card"
+                    items={cards}
+                    labelKey="name_on_card"
+                    valueKey="id"
+                  />
+                  <AppFormField
+                    name="cvv"
+                    placeholder="CVV"
+                    keyboardType="numeric"
+                    maxLength={3}
+                  />
+
+                  {!requireAction && (
+                    <Button
+                      mode="contained"
+                      onPress={handleSubmit}
+                      style={[
+                        styles.btn,
+                        {
+                          backgroundColor: colors.primary,
+                          borderRadius: 7,
+                          paddingVertical: 4,
+                        },
+                      ]}
+                      labelStyle={{ color: colors.onPrimary }}
+                    >
+                      Pay AED 10 /-
+                    </Button>
+                  )}
+
+                  {requireAction && (
+                    <View style={styles.otpWrapper}>
+                      <Text
+                        style={{ color: colors.onSurface, marginBottom: 8 }}
+                      >
+                        This payment requires 3D Secure verification. An OTP
+                        will be sent to your registered mobile/email.
+                      </Text>
+                      <Button
+                        mode="contained"
+                        onPress={onConfirmPayment}
+                        style={[
+                          styles.btn,
+                          { backgroundColor: colors.tertiary },
+                        ]}
+                        labelStyle={{ color: colors.onPrimary }}
+                        loading={isWorkingOnStripe}
+                      >
+                        Confirm Payment
+                      </Button>
+                    </View>
+                  )}
+                </>
+              ) : (
+                <EmptyState
+                  iconName="credit-card-off"
+                  title="No Saved Cards"
+                  description="You don’t have any saved payment methods. Please add one to continue."
+                  buttonLabel="Add Payment Method"
+                  onButtonPress={() => router.push(ROUTES.PAYMENT_METHODS)}
+                  style={{ marginTop: 60 }}
+                />
+              )}
+            </>
+          )}
+        </AppForm>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  content: { padding: 16 },
+  btn: { marginTop: 16 },
+  otpWrapper: { marginTop: 20 },
+});

@@ -32,6 +32,8 @@ export const ROUTES = {
   SERVICE_LISTING_BY_CATEGORY: "screens/(home)/ServiceListingByCategory",
   SERVICE_LISTING_BY_CATEGORY_UPDATE:
     "screens/(home)/ServiceListingByCategoryUpdate",
+
+  MAKE_PAYMENT: "screens/(home)/booking/MyBookings/PaymentScreenForUpdate",
   SUPERVSOR_COMPLETED_JOBS: "screens/(home)/supervisor/PreviousJobs",
   SUPERVSOR_ASSIGNED_JOBS: "screens/(home)/supervisor/AsignedJobs",
   PAYMENT_HISTORY: "screens/(account)/PaymentsHistory",

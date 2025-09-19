@@ -2,6 +2,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect } from "react";
 import {
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -13,29 +15,28 @@ import { useTheme } from "react-native-paper";
 
 import CenteredAppbarHeader from "../../../../components/common/CenteredAppBar";
 import AppForm from "../../../../components/forms/AppForm";
+import SubmitButton from "../../../../components/forms/AppSubmitButton";
 import AppFormServiceTimePicker from "../../../../components/forms/BookService/AppFormServiceTimePicker";
 import ResetServiceTimeOnSelectedServicesChange from "../../../../components/forms/BookService/AppFormServiceTimePicker/ResetServiceTimeOnSelectedServiceChange";
 import SelectedServiceCard from "../../../../components/home/services/SelectedServiceCard";
 import LoadingOverlay from "../../../../components/LoadingOverlay";
 import { buildServiceOptions } from "../../../../helpers/general";
 import { ROUTES } from "../../../../helpers/routePaths";
+import { bookingValidationSchema } from "../../../../helpers/validations";
 import { useGetAllServices } from "../../../../hooks/useServiceQuery";
 import useBookingUpdateStore from "../../../../store/useBookingStoreUpdate";
 
-export default function SetEmailScreen() {
+export default function UpdateBooking() {
   const navigation = useNavigation();
   const { colors } = useTheme();
   const params = useLocalSearchParams();
   const serviceData = JSON.parse(params.bookedService);
 
-  const screenBg = colors.background;
-
   const { allServices: services, isLoading } = useGetAllServices();
-  let serviceOptions = buildServiceOptions(services ? services : []);
+  const serviceOptions = buildServiceOptions(services || []);
 
   const removeService = useBookingUpdateStore((state) => state.removeService);
   const addService = useBookingUpdateStore((state) => state.addService);
-  const clearBooking = useBookingUpdateStore((state) => state.clearBooking);
   const booking = useBookingUpdateStore((state) => state.booking);
   const selectedServices = booking.selectedServices;
 
@@ -50,33 +51,41 @@ export default function SetEmailScreen() {
 
   useEffect(() => {
     if (serviceData?.services?.length > 0) {
-      serviceData.services.forEach((s) => addService(s));
+      serviceData.services.forEach(addService);
     }
-
     return () => {
       if (serviceData?.services?.length > 0) {
-        serviceData.services.forEach((s) => removeService(s));
+        serviceData.services.forEach(removeService);
       }
     };
   }, []);
 
+  const handleSubmit = (values) => {
+    console.log(values);
+    router.push(ROUTES.MAKE_PAYMENT);
+  };
+
   return (
-    <View style={[styles.container, { backgroundColor: screenBg }]}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <LoadingOverlay visible={isLoading} />
-      <StatusBar barStyle={"light-content"} backgroundColor={colors.primary} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
       <CenteredAppbarHeader
-        title={"Update Service"}
+        title="Update Service"
         onBack={() => navigation.goBack()}
       />
-      <View style={styles.content}>
+
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
           <AppForm
             initialValues={{ serviceTime: serviceData?.serviceTime }}
-            onSubmit={() => null}
-            validationSchema={null}
+            onSubmit={handleSubmit}
+            validationSchema={bookingValidationSchema}
           >
             <ResetServiceTimeOnSelectedServicesChange />
 
@@ -140,18 +149,25 @@ export default function SetEmailScreen() {
                 <AppFormServiceTimePicker name="serviceTime" />
               </>
             )}
+
+            <View style={styles.submitButtonContainer}>
+              <SubmitButton
+                title="Confirm & Next"
+                btnStyles={{ marginTop: 0 }}
+              />
+            </View>
           </AppForm>
         </ScrollView>
-      </View>
+      </KeyboardAvoidingView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  scrollContent: { padding: 16, paddingBottom: 32 },
+  flex: { flex: 1 },
+  scrollContent: { padding: 16, paddingBottom: 80 },
   heading: { fontSize: 20, marginBottom: 12, fontWeight: "600" },
-
   categoryCard: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -163,4 +179,5 @@ const styles = StyleSheet.create({
   },
   categoryName: { fontSize: 16, fontWeight: "600" },
   categorySubtitle: { fontSize: 12, marginTop: 2 },
+  submitButtonContainer: { marginTop: 16, marginBottom: 32 },
 });
