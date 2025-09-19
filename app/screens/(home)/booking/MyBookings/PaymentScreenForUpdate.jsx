@@ -1,4 +1,4 @@
-import { useNavigation } from "expo-router";
+import { useLocalSearchParams, useNavigation } from "expo-router";
 import { useState } from "react";
 import { StatusBar, StyleSheet, Text, View } from "react-native";
 import { Button, useTheme } from "react-native-paper";
@@ -27,6 +27,8 @@ export default function MakePayment() {
   const [isWorkingOnStripe, setIsWorkingOnStripe] = useState(false);
   const { colors } = useTheme();
   const { data: cards, isLoading: loadingCards } = useGetPaymentMethods();
+
+  const params = useLocalSearchParams();
 
   const screenBg = colors.background;
 
@@ -95,7 +97,7 @@ export default function MakePayment() {
                       ]}
                       labelStyle={{ color: colors.onPrimary }}
                     >
-                      Pay AED 10 /-
+                      Pay AED {params?.amount} /-
                     </Button>
                   )}
 

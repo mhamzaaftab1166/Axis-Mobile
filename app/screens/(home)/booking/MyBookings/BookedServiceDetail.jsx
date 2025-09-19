@@ -45,6 +45,7 @@ export default function BookedServiceDetail() {
     onSuccessCallback: () => {
       setError("");
       setIsError(false);
+      router.dismissTo(ROUTES.HOME);
     },
   });
 

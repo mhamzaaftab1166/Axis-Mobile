@@ -139,7 +139,9 @@ export const getScheduleText = (item) => {
   if (!item?.serviceTime) return "";
 
   if (item.serviceTime.mode === "oneTime") {
-    return `${item.serviceTime.oneTimeDate} • ${item.serviceTime.oneTimeTime}`;
+    return `${formatDateNew(item.serviceTime.oneTimeDate)} • ${
+      item.serviceTime.oneTimeTime
+    }`;
   }
 
   if (item.serviceTime.regular) {
@@ -152,10 +154,21 @@ export const getScheduleText = (item) => {
         : selectedDays
             ?.map((d) => d.charAt(0).toUpperCase() + d.slice(1))
             .join(", ");
-    return `${daysText} • from ${startDate} ${startTime}`;
+
+    return `${daysText} • from ${formatDateNew(startDate)} ${startTime}`;
   }
 
   return "";
+};
+
+const formatDateNew = (dateString) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 };
 
 export const getAddressText = (item) => {
@@ -169,7 +182,7 @@ export const getScheduleTextDetail = (service) => {
   if (!st) return "";
 
   if (st.mode === "oneTime") {
-    const date = st.oneTimeDate ?? "";
+    const date = formatDateNew(st.oneTimeDate) ?? "";
     const time = st.oneTimeTime ?? "";
     return `${date} @ ${time}`.trim();
   }
@@ -187,7 +200,7 @@ export const getScheduleTextDetail = (service) => {
   const startDate = reg.startDate ?? "";
   const startTime = reg.startTime ?? "";
 
-  let base = `${daysText} from ${startDate} ${startTime}`.trim();
+  let base = `${daysText} from ${formatDateNew(startDate)} ${startTime}`.trim();
 
   if (reg.repeat) {
     const dur = reg.repeatDuration
@@ -469,4 +482,17 @@ export const filterByStatus = (supervisorServices, statusFilter = []) => {
       return null;
     })
     .filter(Boolean);
+};
+
+
+export const buildUpdatePayload = (serviceTime, newServices, bookingId, selectedAddress) => {
+  // If serviceTime already has a `serviceTime` key, unwrap it
+  const formattedServiceTime = serviceTime?.serviceTime || serviceTime;
+
+  return {
+    bookingId, // the ID of the booking you are updating
+    serviceTime: formattedServiceTime, // only keep one level
+    selectedServices: newServices.map(s => s.id), // only send service IDs
+    addressId: selectedAddress?._id
+  };
 };

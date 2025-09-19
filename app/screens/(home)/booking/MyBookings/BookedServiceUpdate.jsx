@@ -1,6 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -20,10 +20,12 @@ import AppFormServiceTimePicker from "../../../../components/forms/BookService/A
 import ResetServiceTimeOnSelectedServicesChange from "../../../../components/forms/BookService/AppFormServiceTimePicker/ResetServiceTimeOnSelectedServiceChange";
 import SelectedServiceCard from "../../../../components/home/services/SelectedServiceCard";
 import LoadingOverlay from "../../../../components/LoadingOverlay";
-import { buildServiceOptions } from "../../../../helpers/general";
+import { buildServiceOptions, buildUpdatePayload } from "../../../../helpers/general";
 import { ROUTES } from "../../../../helpers/routePaths";
 import { bookingValidationSchema } from "../../../../helpers/validations";
+import { useUpdateBooking } from "../../../../hooks/useBookingQuery";
 import { useGetAllServices } from "../../../../hooks/useServiceQuery";
+import useAddressStore from "../../../../store/useAddressStore";
 import useBookingUpdateStore from "../../../../store/useBookingStoreUpdate";
 
 export default function UpdateBooking() {
@@ -35,12 +37,34 @@ export default function UpdateBooking() {
   const { allServices: services, isLoading } = useGetAllServices();
   const serviceOptions = buildServiceOptions(services || []);
 
+  const [error, setError] = useState("");
+  const [isError, setIsError] = useState(false);
+
+  const { mutate: updateService, isPending: updatingService } = useUpdateBooking({
+    onErrorCallback: (errMsg) => {
+      setError(errMsg);
+      setIsError(true);
+    },
+    onSuccessCallback: () => {
+      setError("");
+      setIsError(false);
+      router.push(ROUTES.HOME);
+    },
+    onRequirePayment: (data)=>{
+      console.log(data);
+      router.push({
+        pathname: ROUTES.MAKE_PAYMENT,
+        params: { amount: data },
+      });
+    }
+  });
+
   const removeService = useBookingUpdateStore((state) => state.removeService);
   const addService = useBookingUpdateStore((state) => state.addService);
   const booking = useBookingUpdateStore((state) => state.booking);
   const selectedServices = booking.selectedServices;
 
-  const selectedAddress = { unitId: { unitCapacity: 2 } };
+  const selectedAddress = useAddressStore((s) => s.selectedAddress);
 
   const handleCategoryPress = (category) => {
     router.push({
@@ -61,8 +85,8 @@ export default function UpdateBooking() {
   }, []);
 
   const handleSubmit = (values) => {
-    console.log(values);
-    router.push(ROUTES.MAKE_PAYMENT);
+    const updatedPayload = buildUpdatePayload(values,selectedServices,serviceData?.id,selectedAddress);
+    updateService(updatedPayload);
   };
 
   return (

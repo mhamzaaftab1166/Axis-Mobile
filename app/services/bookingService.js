@@ -29,5 +29,9 @@ const updateSubService = async (data) => {
   return await _axios('post', `v1/supervisor/service/update-sub-service/`,data);
 };
 
-export { bookService, fetchMyService, fetchMyServices, fetchSubService, fetchSupServiceStats, terminateService, updateSubService };
+const updateBookedService = async (data) => {
+  return await _axios('post', `v1/tenant/service/update-service/`,data);
+};
+
+export { bookService, fetchMyService, fetchMyServices, fetchSubService, fetchSupServiceStats, terminateService, updateBookedService, updateSubService };
 

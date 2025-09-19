@@ -8,6 +8,7 @@ import {
   fetchSubService,
   fetchSupServiceStats,
   terminateService,
+  updateBookedService,
   updateSubService,
 } from "../services/bookingService";
 import useAuthStore from "../store/useAuthStore";
@@ -201,6 +202,45 @@ export const useUpdateSubServiceStatus = ({
         error?.response?.data?.error ||
         error?.message ||
         "Something went wrong";
+      onErrorCallback?.(msg);
+    },
+  });
+};
+
+// =====================
+// Update Service Booking
+// =====================
+export const useUpdateBooking = ({
+  onSuccessCallback,
+  onErrorCallback,
+  onRequirePayment,
+} = {}) => {
+  return useMutation({
+    mutationFn: (data) => updateBookedService(data),
+    onSuccess: (response) => {
+      if (response?.status === HttpStatusCode.Ok) {
+        const outcome = response?.data?.action;
+
+        if (outcome === "noChange" || outcome === "loyaltyPoints") {
+          onSuccessCallback?.();
+        } else if (outcome === "paymentRequired") {
+          onRequirePayment?.(response?.data?.additionalPayment);
+        } else {
+          onErrorCallback?.("Unexpected booking outcome!");
+        }
+      } else {
+        onErrorCallback?.(
+          response?.error || "Service update failed!",
+          response?.data?.serviceId
+        );
+      }
+    },
+    onError: (error) => {
+      console.error(error);
+      const msg =
+        error?.response?.data?.error ||
+        error?.message ||
+        "Something went wrong while updating booking!";
       onErrorCallback?.(msg);
     },
   });

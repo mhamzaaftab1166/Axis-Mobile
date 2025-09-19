@@ -45,7 +45,7 @@ export default function CompactServiceCard({ item, isSelected, onToggle, capacit
             {item.name}
           </Text>
           <Text style={[styles.price, { color: "#28a745" }]}>
-            AED 150
+            AED {price}
           </Text>
         </View>
 
