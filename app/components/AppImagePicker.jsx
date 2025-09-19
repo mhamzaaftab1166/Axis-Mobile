@@ -27,10 +27,11 @@ const AppImagePicker = ({ imageUri, onChangeImage, onError }) => {
 
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ["images"],
         quality: 0.5,
         allowsEditing: true,
         aspect: [1, 1],
+        selectionLimit: 1,
       });
 
       if (!result.canceled && result.assets.length > 0) {

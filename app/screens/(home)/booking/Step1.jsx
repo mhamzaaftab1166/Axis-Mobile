@@ -43,7 +43,7 @@ export default forwardRef(function Step1({ onSubmit }, ref) {
   const selectedAddress = useAddressStore((s) => s.selectedAddress);
 
   const { allServices: services, isLoading } = useGetAllServices();
-  let serviceOptions = buildServiceOptions(services ? services : [])
+  let serviceOptions = buildServiceOptions(services ? services : []);
 
   return (
     <Formik

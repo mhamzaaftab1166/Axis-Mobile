@@ -2,15 +2,23 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useTheme } from "react-native-paper";
 
-export default function SelectedServiceCard({ service, onRemove, capacity = 1}) {
+export default function SelectedServiceCard({
+  service,
+  onRemove,
+  capacity = 1,
+}) {
   const { colors } = useTheme();
 
-  const bhkKey = `${capacity} BHK`;
-  let price = service.price?.[bhkKey];
+  let price = 0;
 
-  if (price === undefined && service.price) {
-    const firstKey = Object.keys(service.price)[0];
-    price = service.price[firstKey];
+  if (service.price !== undefined) {
+    if (typeof service.price === "number") {
+      price = service.price;
+    } else if (typeof service.price === "object") {
+      const bhkKey = `${capacity} BHK`;
+      price =
+        service.price[bhkKey] ?? service.price[Object.keys(service.price)[0]];
+    }
   }
 
   return (
