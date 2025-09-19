@@ -8,7 +8,7 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import { Text, useTheme } from "react-native-paper";
+import { Checkbox, Text, useTheme } from "react-native-paper";
 import * as Yup from "yup";
 
 import { useState } from "react";
@@ -28,7 +28,7 @@ const validationSchema = Yup.object().shape({
 
 export default function LoginScreen() {
   const { colors } = useTheme();
-
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const [isError, setIsError] = useState(false);
 
@@ -47,7 +47,7 @@ export default function LoginScreen() {
     loggingIn({
       email: values.email,
       password: values.password,
-      rememberMe: values.rememberMe,
+      rememberMe: rememberMe,
     });
   };
 
@@ -114,8 +114,25 @@ export default function LoginScreen() {
                 autoCapitalize="none"
                 icon="lock-outline"
               />
+              <View style={styles.rememberContainer}>
+                <Checkbox.Android
+                  status={rememberMe ? "checked" : "unchecked"}
+                  onPress={() => setRememberMe(!rememberMe)}
+                  color={colors.primary}
+                />
+                <Text
+                  style={[styles.rememberText, { color: colors.text }]}
+                  onPress={() => setRememberMe(!rememberMe)}
+                >
+                  Remember Me
+                </Text>
+              </View>
 
-              <SubmitButton title="Login" isLoading={isPending} />
+              <SubmitButton
+                title="Login"
+                isLoading={isPending}
+                btnStyles={{ marginTop: 10 }}
+              />
 
               <Text
                 style={[styles.forgotText, { color: colors.primary }]}
@@ -184,6 +201,15 @@ const styles = StyleSheet.create({
   signupText: {
     textAlign: "center",
     marginTop: 20,
+    fontSize: 14,
+  },
+  rememberContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
+  },
+  rememberText: {
+    marginLeft: 6,
     fontSize: 14,
   },
 });
