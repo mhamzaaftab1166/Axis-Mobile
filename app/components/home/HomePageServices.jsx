@@ -7,7 +7,7 @@ export default function HomeServiceSection({
   title,
   homePageServices = [],
   onViewAll,
-  addressCapacity = 0
+  addressCapacity = 0,
 }) {
   const { colors } = useTheme();
 
@@ -40,6 +40,7 @@ export default function HomeServiceSection({
         showsHorizontalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
         extraData={selectedServices}
+        contentContainerStyle={{ paddingLeft: 4, paddingTop: 4 }}
         renderItem={({ item }) => (
           <ServiceCardGrid
             service={item}
