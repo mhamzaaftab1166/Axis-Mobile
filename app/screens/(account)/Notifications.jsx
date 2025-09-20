@@ -41,6 +41,7 @@ export default function Notifications() {
     onErrorCallback: (errMsg) => {
       setError(errMsg);
       setIsError(true);
+      setOpenReview(true);
     },
     onSuccessCallback: () => {
       setError("");

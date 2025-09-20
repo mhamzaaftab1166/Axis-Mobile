@@ -163,11 +163,19 @@ export const useGetSupServices = () => {
 // Fetch My Stats
 // =====================
 export const useGetSupervisorStats = () => {
+  const setStats = useSupServicesStore((s) => s.setStats);
+
   const query = useQuery({
     queryKey: ["supervisor-stats"],
     queryFn: fetchSupServiceStats,
     staleTime: 1000 * 60 * 15,
   });
+
+  useEffect(() => {
+    if (query.data) {
+      setStats(query.data?.data || {});
+    }
+  }, [query.data, setStats]);
 
   return {
     data: query?.data?.data,

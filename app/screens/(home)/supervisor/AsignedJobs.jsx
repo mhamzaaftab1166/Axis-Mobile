@@ -80,6 +80,8 @@ export default function AssignedJobs() {
         useSupServicesStore
           .getState()
           .updateServiceStatus(data?.serviceId, data?.subId, data?.newStatus);
+        
+        useSupServicesStore.getState().moveFromAssignedToPrevious();
       },
     });
 

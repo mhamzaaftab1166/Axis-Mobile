@@ -13,11 +13,12 @@ import { useSupServicesStore } from "../../store/useSupServicesStore";
 
 const SupervisorHomePage = ({ userData }) => {
   // stats
-  const { data: myStatsData, isLoading: fetchingStats } = useGetSupervisorStats();
+  const { isLoading: fetchingStats } = useGetSupervisorStats();
 
   // loading flag
   const { isLoading: fetchingSupervisorServices } = useGetSupServices();
   const supervisorServices = useSupServicesStore((s) => s.services);
+  const supStats = useSupServicesStore((s)=> s.stats);
   const filtered = getNextWeekServices(supervisorServices);
 
   if (fetchingStats || fetchingSupervisorServices) return <SupervisorHomeSkeleton />;
@@ -40,7 +41,7 @@ const SupervisorHomePage = ({ userData }) => {
       >
         <StatCard
           label="Previous Jobs"
-          count={myStatsData?.previous}
+          count={supStats?.previous}
           icon={
             <MaterialCommunityIcons
               name="check-circle"
@@ -54,7 +55,7 @@ const SupervisorHomePage = ({ userData }) => {
 
         <StatCard
           label="Assigned Jobs"
-          count={myStatsData?.assigned}
+          count={supStats?.assigned}
           icon={
             <MaterialCommunityIcons name="briefcase" size={22} color="#fff" />
           }

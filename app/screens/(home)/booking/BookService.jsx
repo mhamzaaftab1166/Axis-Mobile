@@ -235,7 +235,7 @@ export default function AddPropertyWizard() {
           <Button
             mode="contained"
             onPress={next}
-            disabled={selectedServices.length === 0}
+            disabled={selectedServices.length === 0 || (step === 1 && !selectedAddress)}
             style={[
               styles.nextBtn,
               {
