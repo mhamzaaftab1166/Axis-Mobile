@@ -7,6 +7,7 @@ import {
   fetchMyServices,
   fetchSubService,
   fetchSupServiceStats,
+  payForUpdatedService,
   terminateService,
   updateBookedService,
   updateSubService,
@@ -249,6 +250,57 @@ export const useUpdateBooking = ({
         error?.response?.data?.error ||
         error?.message ||
         "Something went wrong while updating booking!";
+      onErrorCallback?.(msg);
+    },
+  });
+};
+
+// complete payment for the updated service
+// =====================
+// Book a Service
+// =====================
+export const useCompletePayment = ({
+  onSuccessCallback,
+  onErrorCallback,
+  onRequireAction,
+} = {}) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data) => payForUpdatedService(data),
+    onSuccess: (response) => {
+      if (response?.status === HttpStatusCode.Ok) {
+        const outcome = response?.data?.case;
+
+        if (outcome === "success") {
+          // ✅ successful payment
+          queryClient.invalidateQueries(["my-services"]);
+          onSuccessCallback?.();
+        } else if (outcome === "requires_action") {
+          // ⚠️ requires OTP / 3DS
+          onRequireAction?.(
+            response?.data?.clientSecret,
+            response?.data?.paymentMethod,
+            response?.data?.intentId
+          );
+        } else if (outcome === "failed") {
+          // ❌ failed
+          onErrorCallback?.(response?.data?.message || "Payment failed!");
+        } else {
+          // fallback
+          onErrorCallback?.("Unexpected booking outcome!");
+        }
+      } else {
+        // fallback error case (non-200 from backend)
+        onErrorCallback?.(response?.error || "Service Booking Failed!");
+      }
+    },
+    onError: (error) => {
+      console.log(error);
+      const msg =
+        error?.response?.data?.error ||
+        error?.message ||
+        "Something went wrong while booking service!";
       onErrorCallback?.(msg);
     },
   });

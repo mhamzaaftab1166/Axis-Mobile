@@ -51,10 +51,10 @@ export default function UpdateBooking() {
       router.push(ROUTES.HOME);
     },
     onRequirePayment: (data)=>{
-      console.log(data);
+      console.log(serviceData.id);
       router.push({
         pathname: ROUTES.MAKE_PAYMENT,
-        params: { amount: data },
+        params: { amount: data, serviceId: serviceData?.id },
       });
     }
   });

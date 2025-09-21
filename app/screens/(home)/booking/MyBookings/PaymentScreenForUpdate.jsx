@@ -12,7 +12,9 @@ import AppForm from "../../../../components/forms/AppForm";
 import AppFormDropdown from "../../../../components/forms/AppFormDropdown";
 import AppFormField from "../../../../components/forms/AppFormFeild";
 import { ROUTES } from "../../../../helpers/routePaths";
+import { useCompletePayment } from "../../../../hooks/useBookingQuery";
 import { useGetPaymentMethods } from "../../../../hooks/usePaymetMethodQuery";
+import { useStripeCancelledIntent, useStripeConfirmPayment } from "../../../../hooks/useStripeQuery";
 
 const validationSchema = Yup.object({
   selectedCard: Yup.object().required("Please select a card"),
@@ -23,12 +25,64 @@ const validationSchema = Yup.object({
 
 export default function MakePayment() {
   const navigation = useNavigation();
-  const [requireAction, setRequireAction] = useState(false);
-  const [isWorkingOnStripe, setIsWorkingOnStripe] = useState(false);
   const { colors } = useTheme();
   const { data: cards, isLoading: loadingCards } = useGetPaymentMethods();
+  
+  const [paymentMethodId, setPaymentMethodId] = useState(null);
+  const [intentId, setIntentId] = useState(null);
+  const [clientSecret, setClientSecret] = useState(null);
+  const [requireAction, setRequireAction] = useState(false);
+  const [isWorkingOnStripe, setIsWorkingOnStripe] = useState(false);
 
   const params = useLocalSearchParams();
+
+  const { mutate: confirmPaymentForService, isPending: isBooking } = useCompletePayment({
+    onErrorCallback: (errMsg) => {
+      setError(errMsg);
+      setIsError(true);
+    },
+    onSuccessCallback: () => {
+      setError("");
+      setIsError(false);
+      clearBooking();
+      navigation.replace(ROUTES.HOME);
+    },
+    onRequireAction: (clientSecret, methodId, intentId)=>{
+      setRequireAction(true);
+      setClientSecret(clientSecret);
+      setPaymentMethodId(methodId);
+      setIntentId(intentId);
+      setIsError(false);
+      setError("");
+    }
+  });
+
+  // stripe methods
+  const { mutate: cancelIntent, isPending: cancellingIntent } = useStripeCancelledIntent({
+    onSuccessCallback: () => {
+      navigation.replace(ROUTES.HOME);
+    },
+    onErrorCallback: (msg) => {
+      setIsError(true);
+      setError(msg);
+    },
+  });
+
+  const { mutate: confirmPayment, isPending: isLoading  } = useStripeConfirmPayment({
+    onSuccessCallback: (intentId) => {
+      setIsWorkingOnStripe(false);
+      if(intentId){
+        cancelIntent({intentId});
+      }else{
+        navigation.replace(ROUTES.HOME);
+      }
+    },
+    onErrorCallback: (msg) => {
+      setIsError(true);
+      setError(msg);
+      setIsWorkingOnStripe(false);
+    },
+  });
 
   const screenBg = colors.background;
 
