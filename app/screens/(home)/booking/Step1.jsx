@@ -10,6 +10,7 @@ import {
   View,
 } from "react-native";
 import { useTheme } from "react-native-paper";
+import AppFormBooleanPicker from "../../../components/forms/AppFormBooleanPicker";
 import AppFormServiceTimePicker from "../../../components/forms/BookService/AppFormServiceTimePicker";
 import ResetServiceTimeOnSelectedServicesChange from "../../../components/forms/BookService/AppFormServiceTimePicker/ResetServiceTimeOnSelectedServiceChange";
 import SelectedServiceCard from "../../../components/home/services/SelectedServiceCard";
@@ -48,7 +49,10 @@ export default forwardRef(function Step1({ onSubmit }, ref) {
   return (
     <Formik
       innerRef={(f) => (formikRef = f)}
-      initialValues={{ serviceTime: booking.serviceTime || {} }}
+      initialValues={{
+        serviceTime: booking.serviceTime || {},
+        materialRequired: booking?.materialRequired || true,
+      }}
       enableReinitialize
       onSubmit={onSubmit}
       validationSchema={bookingValidationSchema}
@@ -113,12 +117,15 @@ export default forwardRef(function Step1({ onSubmit }, ref) {
                 </View>
               );
             })}
+            <AppFormBooleanPicker
+              name="materialRequired"
+              yesLabel="Yes"
+              noLabel="No"
+              label={"Material Required ?"}
+            />
 
             {selectedServices.length > 0 && (
               <>
-                <Text style={[styles.heading, { color: colors.text }]}>
-                  Selected Services
-                </Text>
                 <AppFormServiceTimePicker name="serviceTime" />
               </>
             )}
