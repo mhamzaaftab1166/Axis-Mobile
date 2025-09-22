@@ -30,6 +30,7 @@ const FILTERS = [
     value: "upcomingInProgress",
     icon: "calendar-clock",
   },
+  { label: "Pending", value: "pending", icon: "clock-outline" },
   { label: "Missed", value: "missed", icon: "alert-circle-outline" },
   { label: "Cancelled", value: "cancelled", icon: "close-circle-outline" },
   { label: "Completed", value: "completed", icon: "check-circle-outline" },
@@ -50,6 +51,7 @@ export default function CustomSubServiceTenantList({
       return ["Upcoming", "InProgress"].includes(item.status);
     if (filter === "missed") return item.status === "Missed";
     if (filter === "cancelled") return item.status === "Cancelled";
+    if (filter === "pending") return item.status === "Pending";
     if (filter === "completed") return item.status === "Completed";
     return true;
   });
