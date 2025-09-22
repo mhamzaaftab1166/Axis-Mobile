@@ -167,24 +167,11 @@ export default function Home() {
                 onViewAll={() => router.push(ROUTES.SERVICE_LISTING)}
               />
               {allSubs?.length > 0 && (
-                <View>
-                  <View style={styles.sectionHeaderRow}>
-                    <Text
-                      style={[
-                        styles.sectionTitle,
-                        { color: colors.text, fontSize: 18, fontWeight: "600" },
-                      ]}
-                    >
-                      Upcoming Services
-                    </Text>
-                  </View>
-
-                  <CustomSubServiceTenantList
-                    data={allSubs || []}
-                    itemsPerPage={5}
-                    showPagination={true}
-                  />
-                </View>
+                <CustomSubServiceTenantList
+                  data={allSubs || []}
+                  itemsPerPage={5}
+                  showPagination={true}
+                />
               )}
             </ScrollView>
 

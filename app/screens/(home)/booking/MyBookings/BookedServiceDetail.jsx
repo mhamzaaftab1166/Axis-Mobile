@@ -237,23 +237,6 @@ export default function BookedServiceDetail() {
         {/* Upcoming Services */}
         {subServices?.length > 0 && (
           <View>
-            <View style={styles.sectionHeaderRow}>
-              <Text
-                style={[
-                  styles.sectionTitle,
-                  {
-                    fontFamily: fonts.medium,
-                    color: colors.text,
-                    fontWeight: "700",
-                  },
-                ]}
-              >
-                {service.status === "complete"
-                  ? "Services"
-                  : "Upcoming Services"}
-              </Text>
-            </View>
-
             <CustomSubServiceTenantList
               data={subServices}
               itemsPerPage={5}
