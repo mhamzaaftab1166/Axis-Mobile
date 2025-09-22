@@ -14,7 +14,10 @@ import {
   getStatusColor,
 } from "../../../../helpers/general";
 import { ROUTES } from "../../../../helpers/routePaths";
-import { useGetSubServices, useTerminateService } from "../../../../hooks/useBookingQuery";
+import {
+  useGetSubServices,
+  useTerminateService,
+} from "../../../../hooks/useBookingQuery";
 
 export default function BookedServiceDetail() {
   const { bookedService } = useLocalSearchParams();
@@ -37,21 +40,25 @@ export default function BookedServiceDetail() {
   };
   const closeDialog = () => setDialogVisible(false);
 
-  const { mutate: terminateService, isPending: isTerminating } = useTerminateService({
-    onErrorCallback: (errMsg) => {
-      setError(errMsg);
-      setIsError(true);
-    },
-    onSuccessCallback: () => {
-      setError("");
-      setIsError(false);
-      router.dismissTo(ROUTES.HOME);
-    },
-  });
+  const { mutate: terminateService, isPending: isTerminating } =
+    useTerminateService({
+      onErrorCallback: (errMsg) => {
+        setError(errMsg);
+        setIsError(true);
+      },
+      onSuccessCallback: () => {
+        setError("");
+        setIsError(false);
+        router.dismissTo(ROUTES.HOME);
+      },
+    });
 
   const confirmTerminate = () => {
-    terminateService(service?.id);
-    closeDialog();
+    terminateService(service?.id, {
+      onSuccess: () => {
+        closeDialog();
+      },
+    });
   };
 
   const handleUpdate = () => {
@@ -113,7 +120,7 @@ export default function BookedServiceDetail() {
         {/* Top Section */}
         <View
           style={{
-            alignSelf: "center"
+            alignSelf: "center",
           }}
         >
           <AppErrorMessage error={error} visible={isError} />

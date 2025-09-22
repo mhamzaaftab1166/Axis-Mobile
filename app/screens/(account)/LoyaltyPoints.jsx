@@ -6,13 +6,15 @@ import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
 import PopupDialog from "../../components/common/PopupDialogue";
 import { ROUTES } from "../../helpers/routePaths";
 import { useGetLoyaltyPoints } from "../../hooks/useLoyaltyQuery";
+import LoyaltyPointsSkeleton from "../../skeltons/LoyaltyPointsSkelton";
 
 export default function LoyaltyPointsScreen() {
   const { colors, fonts } = useTheme();
   const router = useRouter();
   const [modalVisible, setModalVisible] = useState(false);
 
-  const { data: loyaltyPointsData, isLoading: fetchingLoyaltyPointsData } = useGetLoyaltyPoints();
+  const { data: loyaltyPointsData, isLoading: fetchingLoyaltyPointsData } =
+    useGetLoyaltyPoints();
 
   const steps = [
     {
@@ -31,6 +33,8 @@ export default function LoyaltyPointsScreen() {
     },
   ];
 
+  if (fetchingLoyaltyPointsData) return <LoyaltyPointsSkeleton />;
+
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <CenteredAppbarHeader
@@ -39,22 +43,30 @@ export default function LoyaltyPointsScreen() {
       />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
+        {/* Balance Card */}
         <Card style={[styles.balanceCard, { backgroundColor: colors.surface }]}>
           <Text
             variant="headlineSmall"
-            style={{ color: colors.text, fontFamily: fonts.medium?.fontFamily }}
+            style={{
+              color: colors.text,
+              fontFamily: fonts.medium?.fontFamily,
+              textAlign: "center",
+            }}
           >
             Loyalty Points
           </Text>
+
           <Text
             variant="headlineMedium"
             style={{
               color: colors.primary,
               fontFamily: fonts.bold?.fontFamily,
+              textAlign: "center",
             }}
           >
             {loyaltyPointsData?.data?.pointsBalance}
           </Text>
+
           <Text
             style={{
               textAlign: "center",
@@ -64,6 +76,7 @@ export default function LoyaltyPointsScreen() {
           >
             Earn points when you terminate a service instead of cashback.
           </Text>
+
           <TouchableOpacity
             onPress={() => router.push(ROUTES.BOOK_SERVICE)}
             style={styles.redeemContainer}
@@ -74,6 +87,7 @@ export default function LoyaltyPointsScreen() {
           </TouchableOpacity>
         </Card>
 
+        {/* How It Works */}
         <TouchableOpacity
           onPress={() => setModalVisible(true)}
           style={styles.howItWorksContainer}
@@ -83,10 +97,14 @@ export default function LoyaltyPointsScreen() {
           </Text>
         </TouchableOpacity>
 
+        {/* Transaction History */}
         <Card style={[styles.historyCard, { backgroundColor: colors.surface }]}>
           <Text
             variant="titleMedium"
-            style={{ color: colors.text, fontFamily: fonts.medium?.fontFamily }}
+            style={{
+              color: colors.text,
+              fontFamily: fonts.medium?.fontFamily,
+            }}
           >
             Transaction History
           </Text>
@@ -105,7 +123,10 @@ export default function LoyaltyPointsScreen() {
                   </Text>
                   <Text
                     variant="bodySmall"
-                    style={{ color: colors.onSurfaceVariant, marginTop: 2 }}
+                    style={{
+                      color: colors.onSurfaceVariant,
+                      marginTop: 2,
+                    }}
                   >
                     {item.date}
                   </Text>
@@ -135,6 +156,7 @@ export default function LoyaltyPointsScreen() {
         </Card>
       </ScrollView>
 
+      {/* Popup Dialog */}
       <PopupDialog
         visible={modalVisible}
         onDismiss={() => setModalVisible(false)}

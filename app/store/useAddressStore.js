@@ -59,11 +59,19 @@ const useAddressStore = create(
       // Make sure selectedAddress still exists in list
       validateSelectedAddress: () => {
         const { selectedAddress, addresses } = get();
+
+        if (addresses.length === 0) {
+          // No addresses left → clear selected as well
+          set({ selectedAddress: null });
+          return;
+        }
+
         const exists = addresses.some(
           (addr) => addr._id === selectedAddress?._id
         );
+
         if (!exists) {
-          set({ selectedAddress: addresses.length > 0 ? addresses[0] : null });
+          set({ selectedAddress: addresses[0] });
         }
       },
     }),

@@ -61,22 +61,20 @@ export default function Home() {
   const { allSubs, isLoading: fetchingSubs } = useGetUpcomingSubServices(
     userData?.data?.user?.role
   );
-
-  const selectedAddress = useAddressStore((s) => s.selectedAddress);
   const addresses = useAddressStore((s) => s.addresses);
+  const selectedAddress = useAddressStore((s) => s.selectedAddress);
+
   const setAddress = useAddressStore((s) => s.setAddress);
   const role = useAuthStore((s) => s.role);
   useFocusEffect(
     useCallback(() => {
+      const store = useAddressStore.getState();
       if (allAddresses?.length > 0) {
-        const store = useAddressStore.getState();
-
         store.setAddresses(allAddresses);
 
         store.ensureDefault(allAddresses[0]);
-
-        store.validateSelectedAddress();
       }
+      store.validateSelectedAddress();
     }, [allAddresses])
   );
 
