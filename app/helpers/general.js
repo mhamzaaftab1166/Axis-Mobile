@@ -279,10 +279,10 @@ export const calculateTax = (amount, percentage) => {
 };
 
 // service payload
-export const formatPayload = (values, selectedAddress, encryptionKey, serviceId) => {
+export const formatPayload = (values, selectedAddress, encryptionKey, serviceId, noOfDays = 1) => {
   const unitCapacity = selectedAddress?.unitId?.unitCapacity || 1;
-
-  const { amount, tax, totalAmountAfterTax } = calculateTotals(
+  
+  const { amount } = calculateTotals(
     values.selectedServices,
     unitCapacity
   );
@@ -293,23 +293,26 @@ export const formatPayload = (values, selectedAddress, encryptionKey, serviceId)
     selectedServices: values.selectedServices?.map((s) => ({ id: s.id })) || [],
     serviceTime: values.serviceTime,
     amount,
-    tax,
-    totalAmountAfterTax,
     address: selectedAddress._id,
-    serviceId
+    serviceId,
+    noOfDays,
+    materialRequired: values?.materialRequired
   };
 };
 
-export const calculateTotals = (services, unitCapacity, taxRate = 5) => {
-  const amount = services.reduce((sum, service) => {
+export const calculateTotals = (services, unitCapacity, taxRate = 5, noOfDays = 1) => {
+  // Base amount from services
+  const baseAmount = services.reduce((sum, service) => {
     return sum + getServicePrice(service, unitCapacity);
   }, 0);
 
+  const amount = baseAmount * noOfDays;
   const tax = (amount * taxRate) / 100;
   const totalAmountAfterTax = amount + tax;
 
   return { amount, tax, totalAmountAfterTax };
 };
+
 
 function getServicePrice(service, unitCapacity = 1) {
   if (!service.price) return 0;
@@ -489,10 +492,17 @@ export const buildUpdatePayload = (serviceTime, newServices, bookingId, selected
   // If serviceTime already has a `serviceTime` key, unwrap it
   const formattedServiceTime = serviceTime?.serviceTime || serviceTime;
 
+  let noOfDays = 1;
+  if(formattedServiceTime.mode === "regular"){
+    const { startDate, type, selectedDays, repeatDuration } = formattedServiceTime.regular;
+    noOfDays = calculateTotalServiceDays(startDate, type, selectedDays, repeatDuration );
+  }
+
   return {
     bookingId, // the ID of the booking you are updating
     serviceTime: formattedServiceTime, // only keep one level
     selectedServices: newServices.map(s => s.id), // only send service IDs
-    addressId: selectedAddress?._id
+    addressId: selectedAddress?._id,
+    noOfDays
   };
 };

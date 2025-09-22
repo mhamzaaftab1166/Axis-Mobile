@@ -20,6 +20,7 @@ const Step3 = forwardRef(function Step3(
     isBooking = false,
     onConfirmPayment = () => {},
     isWorkingOnStripe,
+    noOfDays
   },
   ref
 ) {
@@ -44,7 +45,9 @@ const Step3 = forwardRef(function Step3(
 
   const { totalAmountAfterTax } = calculateTotals(
     booking?.selectedServices,
-    selectedAddress?.unitId?.unitCapacity || 1
+    selectedAddress?.unitId?.unitCapacity || 1,
+    5,
+    noOfDays
   );
 
   const { data: cards, isLoading: loadingCards } = useGetPaymentMethods();

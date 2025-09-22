@@ -18,7 +18,7 @@ import { useGetAllAddress } from "../../../hooks/useAddressQuery";
 import useAddressStore from "../../../store/useAddressStore";
 import useBookingStore from "../../../store/useBookingStore";
 
-const Step2 = forwardRef(function Step2({ onSubmit }, ref) {
+const Step2 = forwardRef(function Step2({ onSubmit, noOfDays }, ref) {
   const booking = useBookingStore((state) => state.booking);
   const { colors, fonts } = useTheme();
   const formikRef = useRef(null);
@@ -76,6 +76,7 @@ const Step2 = forwardRef(function Step2({ onSubmit }, ref) {
               </Text>
 
               <BookingSummary
+                noOfDays={noOfDays}
                 booking={booking}
                 onChangeAddress={handleOpenAddressSheet}
               />

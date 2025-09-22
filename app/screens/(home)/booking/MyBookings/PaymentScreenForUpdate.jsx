@@ -5,16 +5,19 @@ import { Button, useTheme } from "react-native-paper";
 import * as Yup from "yup";
 
 import { router } from "expo-router";
+import config from "../../../../../config.json";
 import CenteredAppbarHeader from "../../../../components/common/CenteredAppBar";
 import EmptyState from "../../../../components/common/EmptyState";
 import AppErrorMessage from "../../../../components/forms/AppErrorMessage";
 import AppForm from "../../../../components/forms/AppForm";
 import AppFormDropdown from "../../../../components/forms/AppFormDropdown";
 import AppFormField from "../../../../components/forms/AppFormFeild";
+import { encryptCVV } from "../../../../helpers/general";
 import { ROUTES } from "../../../../helpers/routePaths";
 import { useCompletePayment } from "../../../../hooks/useBookingQuery";
 import { useGetPaymentMethods } from "../../../../hooks/usePaymetMethodQuery";
 import { useStripeCancelledIntent, useStripeConfirmPayment } from "../../../../hooks/useStripeQuery";
+import useBookingStore from "../../../../store/useBookingStore";
 
 const validationSchema = Yup.object({
   selectedCard: Yup.object().required("Please select a card"),
@@ -33,6 +36,10 @@ export default function MakePayment() {
   const [clientSecret, setClientSecret] = useState(null);
   const [requireAction, setRequireAction] = useState(false);
   const [isWorkingOnStripe, setIsWorkingOnStripe] = useState(false);
+  const [error, setError] = useState("");
+  const [isError, setIsError] = useState(false);
+
+  const clearBooking = useBookingStore((state) => state.clearBooking);
 
   const params = useLocalSearchParams();
 
@@ -86,12 +93,13 @@ export default function MakePayment() {
 
   const screenBg = colors.background;
 
-  const [error, setError] = useState("");
-  const [isError, setIsError] = useState(false);
-
   const handleSubmit = (values) => {
-    console.log("Form values", values);
-    // Add payment logic here
+    confirmPaymentForService({
+      serviceId: params?.serviceId,
+      cvv: encryptCVV(values.cvv,config.secretKeyForEncryption),
+      cardId: values?.selectedCard?.id,
+      amount: params?.amount
+    });
   };
 
   const onConfirmPayment = () => {
@@ -150,6 +158,7 @@ export default function MakePayment() {
                         },
                       ]}
                       labelStyle={{ color: colors.onPrimary }}
+                      loading={isBooking}
                     >
                       Pay AED {params?.amount} /-
                     </Button>

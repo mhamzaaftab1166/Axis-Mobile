@@ -6,7 +6,7 @@ import config from "../../../../config.json";
 import CenteredAppbarHeader from "../../../components/common/CenteredAppBar";
 import AppErrorMessage from "../../../components/forms/AppErrorMessage";
 import LoadingOverlay from "../../../components/LoadingOverlay";
-import { formatPayload } from "../../../helpers/general";
+import { calculateTotalServiceDays, formatPayload } from "../../../helpers/general";
 import { ROUTES } from "../../../helpers/routePaths";
 import { useCreateBooking } from "../../../hooks/useBookingQuery";
 import { useStripeCancelledIntent, useStripeConfirmPayment } from "../../../hooks/useStripeQuery";
@@ -81,6 +81,8 @@ export default function AddPropertyWizard() {
   const [isWorkingOnStripe, setIsWorkingOnStripe] = useState(false);
   const [serviceId, setServiceId] = useState(null);
 
+  const [noOfDays, setNoOfDays] = useState(1);
+
   const { mutate: bookMyService, isPending: isBooking } = useCreateBooking({
     onErrorCallback: (errMsg, serviceId) => {
       setError(errMsg);
@@ -144,6 +146,11 @@ export default function AddPropertyWizard() {
   };
 
   const onStepSubmit = async (values) => {
+    if(values.serviceTime.mode === "regular"){
+      const { startDate, type, selectedDays, repeatDuration } = values.serviceTime.regular;
+      setNoOfDays(calculateTotalServiceDays(startDate, type, selectedDays, repeatDuration));
+    }
+
     if (step === 0) {
       if (values?.serviceTime) setServiceTime(values.serviceTime);
       animateStepChange(1);
@@ -154,7 +161,7 @@ export default function AddPropertyWizard() {
       return;
     }
     if (step === 2) {
-      const formatted = formatPayload(values,selectedAddress,config.secretKeyForEncryption,serviceId);
+      const formatted = formatPayload(values,selectedAddress,config.secretKeyForEncryption,serviceId,noOfDays);
       bookMyService(formatted);
     }
   };
@@ -193,8 +200,9 @@ export default function AddPropertyWizard() {
         }}
       >
         {step === 0 && <Step1 ref={formRef} onSubmit={onStepSubmit} />}
-        {step === 1 && <Step2 ref={formRef} onSubmit={onStepSubmit} />}
-        {step === 2 && <Step3  
+        {step === 1 && <Step2 ref={formRef} onSubmit={onStepSubmit} noOfDays={noOfDays} />}
+        {step === 2 && <Step3
+          noOfDays={noOfDays || 1}
           isBooking={isBooking}
           ref={formRef} onSubmit={onStepSubmit} 
           requireAction={showOtpStep}

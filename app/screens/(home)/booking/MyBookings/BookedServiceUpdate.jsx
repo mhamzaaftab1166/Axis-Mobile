@@ -51,7 +51,6 @@ export default function UpdateBooking() {
       router.push(ROUTES.HOME);
     },
     onRequirePayment: (data)=>{
-      console.log(serviceData.id);
       router.push({
         pathname: ROUTES.MAKE_PAYMENT,
         params: { amount: data, serviceId: serviceData?.id },
@@ -176,6 +175,7 @@ export default function UpdateBooking() {
 
             <View style={styles.submitButtonContainer}>
               <SubmitButton
+                isLoading={updatingService}
                 title="Confirm & Next"
                 btnStyles={{ marginTop: 0 }}
               />

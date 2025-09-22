@@ -23,7 +23,6 @@ const confirm3DSPayment = async (clientSecret, paymentMethodId, intentId) => {
 };
 
 const cancelPayment = async (paymentIntentId)=>{  
-    console.log(paymentIntentId);
     return await _axios('post', 'v1/tenant/service/cancel-payment', {paymentIntentId});
 }
 

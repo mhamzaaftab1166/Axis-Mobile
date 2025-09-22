@@ -9,7 +9,7 @@ import useAddressStore from "../../../store/useAddressStore";
 import BookingSchedule from "./BookingSchedule";
 import ServiceRow from "./ServiceRow";
 
-export default function BookingSummary({ booking = {}, onChangeAddress }) {
+export default function BookingSummary({ booking = {}, onChangeAddress, noOfDays }) {
   const { colors, fonts, dark } = useTheme();
   const services = Array.isArray(booking.selectedServices)
     ? booking.selectedServices
@@ -59,7 +59,7 @@ export default function BookingSummary({ booking = {}, onChangeAddress }) {
     const unitPrice = service.price?.[bhkKey] || 0;
 
     // Multiply by quantity (default 1)
-    const subtotal = (Number(unitPrice) || 0) * (service.quantity || 1);
+    const subtotal = (Number(unitPrice) || 0) * (noOfDays || 1);
 
     return sum + subtotal;
   }, 0);
@@ -186,7 +186,7 @@ export default function BookingSummary({ booking = {}, onChangeAddress }) {
                         marginBottom: idx === group.items.length - 1 ? 0 : 12,
                       }}
                     >
-                      <ServiceRow service={s} colors={colors} fonts={fonts} />
+                      <ServiceRow noOfDays={noOfDays} service={s} colors={colors} fonts={fonts} />
                       {idx !== group.items.length - 1 && (
                         <Divider
                           style={{

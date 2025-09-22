@@ -14,7 +14,7 @@ const getBadgeStyle = (tag) => {
   }
 };
 
-export default function ServiceRow({ service = {}, colors = {}, fonts = {} }) {
+export default function ServiceRow({ service = {}, colors = {}, fonts = {}, noOfDays = 1 }) {
   const imgSource =
     typeof service.image === "number"
       ? service.image
@@ -34,7 +34,7 @@ export default function ServiceRow({ service = {}, colors = {}, fonts = {} }) {
   const unitPrice = bhkKey && service.price ? service.price[bhkKey] : 0;
 
   // Final subtotal (price × quantity)
-  const subtotal = (Number(unitPrice) || 0) * (service.quantity || 1);
+  const subtotal = (Number(unitPrice) || 0) * (noOfDays || 1);
   
   const badgeStyle = service.badge ? getBadgeStyle(service.badge) : null;
 
@@ -123,7 +123,7 @@ export default function ServiceRow({ service = {}, colors = {}, fonts = {} }) {
               { color: colors.text, fontFamily: fonts?.medium?.fontFamily },
             ]}
           >
-            x{service.quantity || 1}
+            x{noOfDays || 1} Day(s)
           </Text>
 
           <Text
