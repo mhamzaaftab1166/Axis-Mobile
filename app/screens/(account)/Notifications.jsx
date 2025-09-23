@@ -106,9 +106,11 @@ export default function Notifications() {
     return (
       <TouchableOpacity
         onPress={()=>{
-          const data = JSON.parse(dataItem.item?.pushData)
-          setServiceIdToReview(data?.serviceId);
-          setOpenReview(true);
+          const {serviceId} = JSON.parse(dataItem.item?.pushData)
+          if(serviceId){
+            setServiceIdToReview(serviceId);
+            setOpenReview(true);
+          }
         }}
       >
         <View
