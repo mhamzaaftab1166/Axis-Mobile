@@ -502,7 +502,7 @@ export const buildUpdatePayload = (serviceTime, newServices, bookingId, selected
     bookingId, // the ID of the booking you are updating
     serviceTime: formattedServiceTime, // only keep one level
     selectedServices: newServices.map(s => s.id), // only send service IDs
-    addressId: selectedAddress?._id,
+    addressId: selectedAddress?.id,
     noOfDays
   };
 };

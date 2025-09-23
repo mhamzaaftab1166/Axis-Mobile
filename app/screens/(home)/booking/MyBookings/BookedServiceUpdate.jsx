@@ -25,7 +25,6 @@ import { ROUTES } from "../../../../helpers/routePaths";
 import { bookingValidationSchema } from "../../../../helpers/validations";
 import { useUpdateBooking } from "../../../../hooks/useBookingQuery";
 import { useGetAllServices } from "../../../../hooks/useServiceQuery";
-import useAddressStore from "../../../../store/useAddressStore";
 import useBookingUpdateStore from "../../../../store/useBookingStoreUpdate";
 
 export default function UpdateBooking() {
@@ -63,8 +62,6 @@ export default function UpdateBooking() {
   const booking = useBookingUpdateStore((state) => state.booking);
   const selectedServices = booking.selectedServices;
 
-  const selectedAddress = useAddressStore((s) => s.selectedAddress);
-
   const handleCategoryPress = (category) => {
     router.push({
       pathname: ROUTES.SERVICE_LISTING_BY_CATEGORY_UPDATE,
@@ -84,7 +81,7 @@ export default function UpdateBooking() {
   }, []);
 
   const handleSubmit = (values) => {
-    const updatedPayload = buildUpdatePayload(values,selectedServices,serviceData?.id,selectedAddress);
+    const updatedPayload = buildUpdatePayload(values,selectedServices,serviceData?.id,serviceData?.address);
     updateService(updatedPayload);
   };
 
@@ -155,7 +152,7 @@ export default function UpdateBooking() {
                     servicesInCategory.map((service) => (
                       <SelectedServiceCard
                         key={service.id}
-                        capacity={selectedAddress?.unitId?.unitCapacity}
+                        capacity={serviceData?.address?.unitCapacity}
                         service={service}
                         onRemove={removeService}
                       />

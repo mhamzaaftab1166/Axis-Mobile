@@ -40,18 +40,17 @@ export default function BookedServiceDetail() {
   };
   const closeDialog = () => setDialogVisible(false);
 
-  const { mutate: terminateService, isPending: isTerminating } =
-    useTerminateService({
-      onErrorCallback: (errMsg) => {
-        setError(errMsg);
-        setIsError(true);
-      },
-      onSuccessCallback: () => {
-        setError("");
-        setIsError(false);
-        router.dismissTo(ROUTES.HOME);
-      },
-    });
+  const { mutate: terminateService, isPending: isTerminating } = useTerminateService({
+    onErrorCallback: (errMsg) => {
+      setError(errMsg);
+      setIsError(true);
+    },
+    onSuccessCallback: () => {
+      setError("");
+      setIsError(false);
+      router.dismissTo(ROUTES.HOME);
+    },
+  });
 
   const confirmTerminate = () => {
     terminateService(service?.id, {
@@ -74,12 +73,6 @@ export default function BookedServiceDetail() {
   const scheduleText = getScheduleTextDetail(service);
   const addressText = getAddressTextDetail(service);
   const servicesArray = service?.services || [];
-
-  // optional: calculate total price
-  const totalPrice = servicesArray.reduce(
-    (sum, svc) => sum + (svc.price || 0),
-    0
-  );
 
   const { data: subServices, isLoading: fetchingSubs } = useGetSubServices(
     service?.id
@@ -190,6 +183,42 @@ export default function BookedServiceDetail() {
                   { color: colors.text, fontFamily: fonts.medium },
                 ]}
               >
+                No Of Days Requested
+              </Text>
+              <Text
+                style={[
+                  styles.servicePrice,
+                  { color: colors.primary, fontFamily: fonts.bold },
+                ]}
+              >
+                {service?.noOfDays}
+              </Text>
+            </View>
+            <View style={styles.serviceRow}>
+              <Text
+                style={[
+                  styles.serviceName,
+                  { color: colors.text, fontFamily: fonts.medium },
+                ]}
+              >
+                Tax (5%)
+              </Text>
+              <Text
+                style={[
+                  styles.servicePrice,
+                  { color: colors.primary, fontFamily: fonts.bold },
+                ]}
+              >
+                ${service?.tax}
+              </Text>
+            </View>
+            <View style={styles.serviceRow}>
+              <Text
+                style={[
+                  styles.serviceName,
+                  { color: colors.text, fontFamily: fonts.medium },
+                ]}
+              >
                 Total
               </Text>
               <Text
@@ -198,7 +227,7 @@ export default function BookedServiceDetail() {
                   { color: colors.primary, fontFamily: fonts.bold },
                 ]}
               >
-                ${totalPrice}
+                ${service?.totalAmountAfterTax}
               </Text>
             </View>
           </View>
