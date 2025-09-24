@@ -215,7 +215,7 @@ export default function AddPropertyWizard() {
         <Button
           mode="outlined"
           onPress={back}
-          disabled={step === 0}
+          disabled={step === 0 || isBooking}
           style={[
             step === TOTAL_STEPS - 1
               ? [styles.fullWidthBtn, { borderColor: colors.tertiary }]

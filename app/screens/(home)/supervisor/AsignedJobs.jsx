@@ -49,41 +49,40 @@ export default function AssignedJobs() {
   const toggleDropdown = (subId) =>
     setOpenDropdownFor((prev) => (prev === subId ? null : subId));
 
-  const { mutate: updateStatus, isPending: updatingStatus } =
-    useUpdateSubServiceStatus({
-      onErrorCallback: (errMsg) => {
-        setError(errMsg);
-        setIsError(true);
-      },
-      onSuccessCallback: (data) => {
-        setError("");
-        setIsError(false);
+  const { mutate: updateStatus, isPending: updatingStatus } =useUpdateSubServiceStatus({
+    onErrorCallback: (errMsg) => {
+      setError(errMsg);
+      setIsError(true);
+    },
+    onSuccessCallback: (data) => {
+      setError("");
+      setIsError(false);
 
-        setOpenDropdownFor(null);
-        setSnackbar({
-          visible: true,
-          message: `Status updated to ${data?.newStatus}`,
-        });
+      setOpenDropdownFor(null);
+      setSnackbar({
+        visible: true,
+        message: `Status updated to ${data?.newStatus}`,
+      });
 
-        setServices((prev) =>
-          prev.map((svc) =>
-            svc.id !== data?.serviceId
-              ? svc
-              : {
-                  ...svc,
-                  subServices: svc.subServices.map((s) =>
-                    s.id !== data?.subId ? s : { ...s, status: data?.newStatus }
-                  ),
-                }
-          )
-        );
-        useSupServicesStore
-          .getState()
-          .updateServiceStatus(data?.serviceId, data?.subId, data?.newStatus);
-        
-        useSupServicesStore.getState().moveFromAssignedToPrevious();
-      },
-    });
+      setServices((prev) =>
+        prev.map((svc) =>
+          svc.id !== data?.serviceId
+            ? svc
+            : {
+                ...svc,
+                subServices: svc.subServices.map((s) =>
+                  s.id !== data?.subId ? s : { ...s, status: data?.newStatus }
+                ),
+              }
+        )
+      );
+      useSupServicesStore
+        .getState()
+        .updateServiceStatus(data?.serviceId, data?.subId, data?.newStatus);
+      
+      useSupServicesStore.getState().moveFromAssignedToPrevious();
+    },
+  });
 
   const [services, setServices] = useState(
     filterByStatus(

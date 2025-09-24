@@ -1,12 +1,15 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
-import { Avatar, Text, useTheme } from "react-native-paper";
+import { Avatar, Snackbar, Text, useTheme } from "react-native-paper";
 import { SUB_SERVICES_AVAILABLE_STATUSES } from "../../helpers/contantData";
-import { getSubServiceStatusConfig } from "../../helpers/general";
+import { getNextWeekServices, getSubServiceStatusConfig } from "../../helpers/general";
+import { useUpdateSubServiceStatus } from "../../hooks/useBookingQuery";
+import { useSupServicesStore } from "../../store/useSupServicesStore";
 import EmptyState from "../common/EmptyState";
+import LoadingOverlay from "../LoadingOverlay";
 
-export default function WeekServicesSection({ services }) {
+export default function WeekServicesSection() {
   const theme = useTheme();
   const { colors, dark, fonts } = theme;
   const [filterStatus, setFilterStatus] = useState("All");
@@ -19,17 +22,43 @@ export default function WeekServicesSection({ services }) {
   const toggleDropdown = (id) =>
     setOpenDropdownFor((prev) => (prev === id ? null : id));
 
+  const [snackbar, setSnackbar] = useState({ visible: false, message: "" });
+  
   const handleChangeStatus = (serviceId, subId, newStatus) => {
-    services.forEach((svc) => {
-      if (svc.id === serviceId) {
-        const sub = svc.subServices.find((s) => s.id === subId);
-        if (sub) sub.status = newStatus.trim();
-      }
+    updateStatus({
+      serviceId,
+      subId,
+      newStatus: newStatus.trim(),
     });
-    setOpenDropdownFor(null);
   };
 
-  const filteredServices = services.map((svc) => ({
+  const supervisorServices = useSupServicesStore((s) => s.services);
+  const services = getNextWeekServices(supervisorServices);
+
+  const { mutate: updateStatus, isPending: updatingStatus } = useUpdateSubServiceStatus({
+    onErrorCallback: (errMsg) => {
+      setError(errMsg);
+      setIsError(true);
+    },
+    onSuccessCallback: (data) => {
+      setError("");
+      setIsError(false);
+
+      setOpenDropdownFor(null);
+      setSnackbar({
+        visible: true,
+        message: `Status updated to ${data?.newStatus}`,
+      });
+
+      useSupServicesStore
+        .getState()
+        .updateServiceStatus(data?.serviceId, data?.subId, data?.newStatus);
+      
+      useSupServicesStore.getState().moveFromAssignedToPrevious();
+    },
+  });
+
+  const filteredServices = services?.map((svc) => ({
     ...svc,
     subServices:
       filterStatus === "All"
@@ -39,8 +68,9 @@ export default function WeekServicesSection({ services }) {
 
   return (
     <View style={{ flex: 1 }}>
+      <LoadingOverlay visible={updatingStatus} />
       {
-        filteredServices.length > 0 &&
+        filteredServices?.length > 0 &&
         <View style={styles.headerRow}>
           <Text
             style={[
@@ -118,13 +148,13 @@ export default function WeekServicesSection({ services }) {
         contentContainerStyle={[styles.servicesList, { paddingBottom: 200 }]}
       >
         {
-          filteredServices.length === 0 ?
+          filteredServices?.length === 0 ?
           <EmptyState
             iconName="home"
             title="No Upcoming Jobs!"
             description="You have 0 upcoming jobs."
           /> 
-          : filteredServices.map((service) =>
+          : filteredServices?.map((service) =>
           service.subServices.map((sub) => {
             const statusCfg = getSubServiceStatusConfig(sub.status);
             const isOpen = openDropdownFor === sub.id;
@@ -273,6 +303,18 @@ export default function WeekServicesSection({ services }) {
           })
         )}
       </ScrollView>
+
+      <Snackbar
+        visible={snackbar.visible}
+        onDismiss={() => setSnackbar({ visible: false, message: "" })}
+        duration={2500}
+        action={{
+          label: "OK",
+          onPress: () => setSnackbar({ visible: false, message: "" }),
+        }}
+      >
+        {snackbar.message}
+      </Snackbar>
     </View>
   );
 }

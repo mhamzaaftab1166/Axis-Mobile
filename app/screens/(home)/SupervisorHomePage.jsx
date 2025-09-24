@@ -5,7 +5,6 @@ import config from "../../../config.json";
 import StatCard from "../../components/common/StatCard";
 import Greetings from "../../components/home/Greetings";
 import WeekServicesSection from "../../components/home/WeekServicesSection";
-import { getNextWeekServices } from "../../helpers/general";
 import { ROUTES } from "../../helpers/routePaths";
 import { useGetSupervisorStats, useGetSupServices } from "../../hooks/useBookingQuery";
 import SupervisorHomeSkeleton from "../../skeltons/SupervisorHomeLoadingSkelton";
@@ -17,9 +16,7 @@ const SupervisorHomePage = ({ userData }) => {
 
   // loading flag
   const { isLoading: fetchingSupervisorServices } = useGetSupServices();
-  const supervisorServices = useSupServicesStore((s) => s.services);
   const supStats = useSupServicesStore((s)=> s.stats);
-  const filtered = getNextWeekServices(supervisorServices);
 
   if (fetchingStats || fetchingSupervisorServices) return <SupervisorHomeSkeleton />;
   return (
@@ -69,7 +66,7 @@ const SupervisorHomePage = ({ userData }) => {
 
       {/* Week Services Section in a new row */}
       {/* filter out the ones for today + next 6 days */}
-      <WeekServicesSection services={filtered} />
+      <WeekServicesSection/>
     </View>
   );
 };

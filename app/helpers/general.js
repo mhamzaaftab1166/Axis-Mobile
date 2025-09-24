@@ -417,6 +417,7 @@ export const openPaymentHistoryReceipt = async (url) => {
 
 // get the next 6 days sub-services
 export const getNextWeekServices = (supervisorServices) => {
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -429,7 +430,7 @@ export const getNextWeekServices = (supervisorServices) => {
       const upcomingSubs = service.subServices
         .filter((sub) => {
           const subDate = new Date(sub.scheduledDate);
-          return subDate >= today && subDate <= sixDaysLater;
+          return subDate >= today && subDate <= sixDaysLater && (sub.status === "Pending" || sub.status === "InProgress");
         })
         .map((sub) => ({
           ...sub,
