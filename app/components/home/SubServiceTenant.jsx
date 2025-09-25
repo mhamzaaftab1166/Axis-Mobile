@@ -25,13 +25,7 @@ const DEFAULT_ITEMS_PER_PAGE = 5;
 
 const FILTERS = [
   { label: "All", value: "all", icon: "apps" },
-  {
-    label: "Upcoming / In Progress",
-    value: "upcomingInProgress",
-    icon: "calendar-clock",
-  },
   { label: "Pending", value: "pending", icon: "clock-outline" },
-  { label: "Missed", value: "missed", icon: "alert-circle-outline" },
   { label: "Cancelled", value: "cancelled", icon: "close-circle-outline" },
   { label: "Completed", value: "completed", icon: "check-circle-outline" },
 ];
@@ -47,13 +41,10 @@ export default function CustomSubServiceTenantList({
 
   // 🔹 Filter data
   const filteredData = data.filter((item) => {
-    if (filter === "upcomingInProgress")
-      return ["Upcoming", "InProgress"].includes(item.status);
-    if (filter === "missed") return item.status === "Missed";
-    if (filter === "cancelled") return item.status === "Cancelled";
-    if (filter === "pending") return item.status === "Pending";
     if (filter === "completed") return item.status === "Completed";
-    return true;
+    if (filter === "cancelled") return ["Cancelled", "Missed"].includes(item.status);
+    if (filter === "pending") return ["Pending", "InProgress"].includes(item.status);
+    return true; 
   });
 
   // 🔹 Pagination
