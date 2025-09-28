@@ -69,6 +69,15 @@ export default function BookedServiceDetail() {
     });
   };
 
+  const handlePayForPendingService = () => {
+    closeMenu();
+    if (!service) return;
+    router.push({
+      pathname: ROUTES.MAKE_PAYMENT,
+      params: { amount: service?.totalAmountAfterTax, serviceId: service?.id },
+    });
+  };
+
   const statusColor = getStatusColor(service?.status);
   const scheduleText = getScheduleTextDetail(service);
   const addressText = getAddressTextDetail(service);
@@ -103,6 +112,10 @@ export default function BookedServiceDetail() {
               />
             }
           >
+            {
+              service?.status === "pending" &&
+              <Menu.Item onPress={handlePayForPendingService} title="Pay" />
+            }
             <Menu.Item onPress={handleUpdate} title="Update" />
             <Menu.Item onPress={openDialog} title="Terminate" />
           </Menu>

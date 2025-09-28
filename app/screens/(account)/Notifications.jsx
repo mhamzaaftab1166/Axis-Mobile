@@ -16,6 +16,7 @@ import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
 import EmptyState from "../../components/common/EmptyState";
 import Ratings from "../../components/Ratings";
+import { getTimeDifference } from "../../helpers/general";
 import { useUserDetailQuery } from "../../hooks/useAuthQuery";
 import {
   useDeleteNotification,
@@ -106,8 +107,8 @@ export default function Notifications() {
     return (
       <TouchableOpacity
         onPress={()=>{
-          const {serviceId} = JSON.parse(dataItem.item?.pushData)
-          if(serviceId){
+          const {type, serviceId} = JSON.parse(dataItem.item?.pushData)
+          if(type === "review" && serviceId){
             setServiceIdToReview(serviceId);
             setOpenReview(true);
           }
@@ -137,14 +138,36 @@ export default function Notifications() {
             style={styles.image}
           />
           <View style={styles.textContainer}>
-            <Text
-              style={[
-                styles.title,
-                { color: textColor, fontFamily: fonts.medium },
-              ]}
-            >
-              {item.title}
-            </Text>
+            <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+              {/* Title */}
+              <Text
+                style={[
+                  styles.title,
+                  { 
+                    color: textColor, 
+                    fontFamily: fonts.medium, 
+                    flex: 0.7 // 70% width
+                  },
+                ]}
+                numberOfLines={1} // prevent overflow
+              >
+                {item.title}
+              </Text>
+
+              {/* Time */}
+              <Text
+                style={{
+                  color: textColor,
+                  fontFamily: fonts.regular,
+                  flex: 0.3, // 30% width
+                  textAlign: "right",
+                }}
+                numberOfLines={1}
+              >
+                {getTimeDifference(item.date)}
+              </Text>
+            </View>
+            {/* Message below */}
             <Text
               style={[
                 styles.description,

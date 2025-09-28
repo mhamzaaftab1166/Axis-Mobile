@@ -1,7 +1,11 @@
 import { FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import { Linking } from "react-native";
 import CryptoJS from "react-native-crypto-js";
 import { SUB_SERVICES_STATUS_MAP } from "./contantData";
+
+dayjs.extend(customParseFormat);
 
 export const getGreeting = () => {
   const hour = new Date().getHours();
@@ -506,4 +510,20 @@ export const buildUpdatePayload = (serviceTime, newServices, bookingId, selected
     addressId: selectedAddress?.id,
     noOfDays
   };
+};
+
+export const getTimeDifference = (dateString) => {
+  const now = dayjs();
+  const parsedDate = dayjs(dateString, "M-D-YYYY h:mma");
+  if (!parsedDate.isValid()) return "";
+
+  const diffMinutes = now.diff(parsedDate, "minute");
+  const diffHours = now.diff(parsedDate, "hour");
+  const diffDays = now.diff(parsedDate, "day");
+
+  if (diffMinutes < 1) return "Just now";
+  if (diffMinutes < 60) return `${diffMinutes}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+
+  return `${diffDays}d ago`;
 };

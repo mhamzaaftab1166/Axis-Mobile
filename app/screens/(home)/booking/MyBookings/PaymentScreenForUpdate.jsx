@@ -12,6 +12,7 @@ import AppErrorMessage from "../../../../components/forms/AppErrorMessage";
 import AppForm from "../../../../components/forms/AppForm";
 import AppFormDropdown from "../../../../components/forms/AppFormDropdown";
 import AppFormField from "../../../../components/forms/AppFormFeild";
+import LoadingOverlay from "../../../../components/LoadingOverlay";
 import { encryptCVV } from "../../../../helpers/general";
 import { ROUTES } from "../../../../helpers/routePaths";
 import { useCompletePayment } from "../../../../hooks/useBookingQuery";
@@ -103,8 +104,7 @@ export default function MakePayment() {
   };
 
   const onConfirmPayment = () => {
-    console.log("Confirming payment...");
-    // Add OTP verification logic here
+    confirmPayment({clientSecret,pmtMethodId: paymentMethodId, intentId});
   };
 
   return (
@@ -114,6 +114,7 @@ export default function MakePayment() {
         title={"Payment"}
         onBack={() => navigation.goBack()}
       />
+      <LoadingOverlay  visible={isLoading || cancellingIntent} />
       <View style={styles.content}>
         <AppForm
           initialValues={{
