@@ -184,7 +184,7 @@ export default function BookedServiceDetail() {
                     { color: colors.primary, fontFamily: fonts.bold },
                   ]}
                 >
-                  ${svc.price}
+                  AED {svc.price}
                 </Text>
               </View>
             ))}
@@ -222,7 +222,7 @@ export default function BookedServiceDetail() {
                   { color: colors.primary, fontFamily: fonts.bold },
                 ]}
               >
-                ${service?.tax}
+                AED {service?.tax}
               </Text>
             </View>
             <View style={styles.serviceRow}>
@@ -240,7 +240,7 @@ export default function BookedServiceDetail() {
                   { color: colors.primary, fontFamily: fonts.bold },
                 ]}
               >
-                ${service?.totalAmountAfterTax}
+                AED {service?.totalAmountAfterTax}
               </Text>
             </View>
           </View>

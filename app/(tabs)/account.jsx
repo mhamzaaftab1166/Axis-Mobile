@@ -1,5 +1,6 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { unregisterIndieDevice } from "native-notify";
 import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import {
@@ -16,6 +17,7 @@ import { useUserDetailQuery } from "../hooks/useAuthQuery";
 import { useFetchUnreadCount } from "../hooks/useNotificationQuery";
 import AccountSkeleton from "../skeltons/AccountSkelton";
 import useAuthStore from "../store/useAuthStore";
+import notificationData from "../utils/notificationData";
 
 export default function AccountScreen() {
   const { colors, fonts } = useTheme();
@@ -96,11 +98,11 @@ export default function AccountScreen() {
       icon: "logout",
       onPress: () => {
         clearAuth();
-        // unregisterIndieDevice(
-        //   String(indieId),
-        //   notificationData.appId,
-        //   notificationData.appToken
-        // );
+        unregisterIndieDevice(
+          String(indieId),
+          notificationData.appId,
+          notificationData.appToken
+        );
         router.replace(ROUTES.LOGIN);
       },
     },
