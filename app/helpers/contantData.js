@@ -37,6 +37,7 @@ export const SUB_SERVICES_STATUS_MAP = {
     icon: "check-circle-outline",
     label: "Completed",
   },
+  failed: { color: "#C62828", icon: "close-circle-outline", label: "Failed" },
   upcoming: { color: "#b4a90dff", icon: "close-circle-outline", label: "Upcoming" },
   missed: { color: "#C62828", icon: "close-circle-outline", label: "Missed" },
   cancelled: { color: "#9E9E9E", icon: "cancel", label: "Cancelled" },
