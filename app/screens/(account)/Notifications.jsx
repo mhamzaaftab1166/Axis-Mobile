@@ -38,19 +38,20 @@ export default function Notifications() {
   const [error, setError] = useState("");
   const [isError, setIsError] = useState(false);
 
-  const { mutate: submitReview, isPending: submittedReview } = useSubmitServiceReview({
-    onErrorCallback: (errMsg) => {
-      setError(errMsg);
-      setIsError(true);
-      setOpenReview(true);
-    },
-    onSuccessCallback: () => {
-      setError("");
-      setIsError(false);
-      setOpenReview(false);
-      setServiceIdToReview(null);
-    },
-  });
+  const { mutate: submitReview, isPending: submittedReview } =
+    useSubmitServiceReview({
+      onErrorCallback: (errMsg) => {
+        setError(errMsg);
+        setIsError(true);
+        setOpenReview(true);
+      },
+      onSuccessCallback: () => {
+        setError("");
+        setIsError(false);
+        setOpenReview(false);
+        setServiceIdToReview(null);
+      },
+    });
 
   const screenBg = colors.background;
   const textColor = colors.text;
@@ -92,23 +93,23 @@ export default function Notifications() {
     setSelectedId(null);
   };
 
-  const onSubmitReview = (values)=>{
-    if(!setServiceIdToReview){
+  const onSubmitReview = (values) => {
+    if (!setServiceIdToReview) {
       return;
     }
     submitReview({
       bookingId: serviceIdToReview,
-      values
+      values,
     });
-  }
+  };
 
   const renderItem = (dataItem) => {
     const item = dataItem.item;
     return (
       <TouchableOpacity
-        onPress={()=>{
-          const {type, serviceId} = JSON.parse(dataItem.item?.pushData)
-          if(type === "review" && serviceId){
+        onPress={() => {
+          const { type, serviceId } = JSON.parse(dataItem.item?.pushData);
+          if (type === "review" && serviceId) {
             setServiceIdToReview(serviceId);
             setOpenReview(true);
           }
@@ -129,7 +130,7 @@ export default function Notifications() {
             visible={openReview}
             onSubmit={onSubmitReview}
             isSubmitting={submittedReview}
-            onDismiss={()=>{
+            onDismiss={() => {
               setOpenReview(false);
             }}
           />
@@ -138,15 +139,17 @@ export default function Notifications() {
             style={styles.image}
           />
           <View style={styles.textContainer}>
-            <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-between" }}
+            >
               {/* Title */}
               <Text
                 style={[
                   styles.title,
-                  { 
-                    color: textColor, 
-                    fontFamily: fonts.medium, 
-                    flex: 0.7 // 70% width
+                  {
+                    color: textColor,
+                    fontFamily: fonts.medium,
+                    flex: 0.7, // 70% width
                   },
                 ]}
                 numberOfLines={1} // prevent overflow

@@ -117,12 +117,14 @@ export default forwardRef(function Step1({ onSubmit }, ref) {
                 </View>
               );
             })}
-            <AppFormBooleanPicker
-              name="materialRequired"
-              yesLabel="Yes"
-              noLabel="No"
-              label={"Material Required ?"}
-            />
+            {selectedServices.length > 0 && (
+              <AppFormBooleanPicker
+                name="materialRequired"
+                yesLabel="Yes"
+                noLabel="No"
+                label={"Material Required ?"}
+              />
+            )}
 
             {selectedServices.length > 0 && (
               <>
