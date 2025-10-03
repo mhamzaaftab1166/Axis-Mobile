@@ -1,5 +1,5 @@
 {
-  "apiUrl": "http://3.142.86.80:4000/api",
-  "pictureUrl": "http://3.142.86.80:4000",
-  "secretKeyForEncryption": "my32charpassword12345spiffyClean"
+  "apiUrl": "http://3.142.86.80/:4000/api",
+  "pictureUrl": "http://3.142.86.80/:4000",
+  "secretKeyForEncryption": "AI32SafePa$$wOrd12534AxisCleanEr"
 }
