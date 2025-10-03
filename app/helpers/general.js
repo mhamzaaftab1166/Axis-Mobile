@@ -20,7 +20,7 @@ export function getStatusColor(status) {
       return { bg: "#FFF3CD", text: "#856404", label: "Pending" }; // light yellow bg, brown text
     case "inprogress":
       return { bg: "#D1ECF1", text: "#00d18bff", label: "In Progress" }; // light blue bg, dark blue text
-    case "complete":
+    case "completed":
       return { bg: "#D4EDDA", text: "#155724", label: "Completed" }; // light green bg, green text
     case "terminated":
       return { bg: "#E0E0E0", text: "#333", label: "Terminated" }; // gray
@@ -339,7 +339,7 @@ export const filterBookings = (data, mode) => {
   ];
 
   const PREVIOUS_STATUSES = [
-    "complete",
+    "completed",
     "cancelled",
     "terminated",
     "rejected",

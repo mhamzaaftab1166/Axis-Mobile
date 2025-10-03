@@ -19,7 +19,7 @@ export default function BookingListing() {
 
   if (fetchingMyServices) return <BookingSkeleton />;
 
-  return (
+  return (  
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <CenteredAppbarHeader
         title="My Bookings"
