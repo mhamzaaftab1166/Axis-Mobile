@@ -11,6 +11,7 @@ import LoadingOveralay from "../../../components/LoadingOverlay";
 import LoyaltyPointsBottomSheet from "../../../components/LoyaltyPointsBottomSheet";
 import { calculateTotals } from "../../../helpers/general";
 import { ROUTES } from "../../../helpers/routePaths";
+import { useGetLoyaltyPoints } from "../../../hooks/useLoyaltyQuery";
 import { useGetPaymentMethods } from "../../../hooks/usePaymetMethodQuery";
 import useAddressStore from "../../../store/useAddressStore";
 import useBookingStore from "../../../store/useBookingStore";
@@ -23,6 +24,8 @@ const Step3 = forwardRef(function Step3(
     onConfirmPayment = () => {},
     isWorkingOnStripe,
     noOfDays,
+    loyaltyPointsSelection,
+    selectedLoyaltyPoints
   },
   ref
 ) {
@@ -30,7 +33,6 @@ const Step3 = forwardRef(function Step3(
   const { colors } = useTheme();
   const formikRef = useRef(null);
   const [loyaltySheetVisible, setLoyaltySheetVisible] = useState(false);
-  const [loyaltySelection, setLoyaltySelection] = useState(null);
   const selectedAddress = useAddressStore((s) => s.selectedAddress);
   const { totalAmountAfterTax } = calculateTotals(
     booking?.selectedServices,
@@ -39,8 +41,10 @@ const Step3 = forwardRef(function Step3(
     noOfDays
   );
 
+  const { data: loyaltyPointsData, isLoading: fetchingLoyaltyPointsData } = useGetLoyaltyPoints();
+
   const handleLoyaltySelect = ({ percentage, discountValue }) => {
-    setLoyaltySelection({ percentage, discountValue });
+    loyaltyPointsSelection({ percentage, discountValue });
     setLoyaltySheetVisible(false);
   };
 
@@ -87,8 +91,8 @@ const Step3 = forwardRef(function Step3(
         <Text
           style={{ color: colors.primary, fontSize: 16, fontWeight: "700" }}
         >
-          {loyaltySelection
-            ? `${loyaltySelection.percentage}% (-AED ${loyaltySelection.discountValue})`
+          {selectedLoyaltyPoints
+            ? `${selectedLoyaltyPoints?.percentage}% (-AED ${selectedLoyaltyPoints?.discountValue})`
             : "Select"}
         </Text>
       </Pressable>
@@ -101,7 +105,7 @@ const Step3 = forwardRef(function Step3(
       >
         {({ handleSubmit }) => (
           <ScrollView style={styles.inner} showsVerticalScrollIndicator={false}>
-            <LoadingOveralay visible={loadingCards} />
+            <LoadingOveralay visible={loadingCards || fetchingLoyaltyPointsData} />
 
             {Array.isArray(cards) && cards.length > 0 ? (
               <>
@@ -128,7 +132,11 @@ const Step3 = forwardRef(function Step3(
                     labelStyle={{ color: colors.onPrimary }}
                     loading={isBooking}
                   >
-                    Pay AED {totalAmountAfterTax} /-
+                    Pay AED{' '}
+                    {selectedLoyaltyPoints
+                      ? (totalAmountAfterTax - selectedLoyaltyPoints.discountValue).toFixed(2)
+                      : totalAmountAfterTax.toFixed(2)}{' '}
+                    /-
                   </Button>
                 )}
 
@@ -167,10 +175,10 @@ const Step3 = forwardRef(function Step3(
       <LoyaltyPointsBottomSheet
         visible={loyaltySheetVisible}
         onClose={() => setLoyaltySheetVisible(false)}
-        totalAmount={300}
-        availablePoints={90}
+        totalAmount={totalAmountAfterTax}
+        availablePoints={loyaltyPointsData?.data?.pointsBalance}
         onSelect={handleLoyaltySelect}
-        selectedPercentage={loyaltySelection?.percentage ?? null}
+        selectedPercentage={loyaltyPointsSelection?.percentage ?? null}
       />
     </>
   );

@@ -283,7 +283,7 @@ export const calculateTax = (amount, percentage) => {
 };
 
 // service payload
-export const formatPayload = (values, selectedAddress, encryptionKey, serviceId, noOfDays = 1) => {
+export const formatPayload = (values, selectedAddress, encryptionKey, serviceId, noOfDays = 1,loyaltyPoints = null) => {
   const unitCapacity = selectedAddress?.unitId?.unitCapacity || 1;
   
   const { amount } = calculateTotals(
@@ -300,7 +300,8 @@ export const formatPayload = (values, selectedAddress, encryptionKey, serviceId,
     address: selectedAddress._id,
     serviceId,
     noOfDays,
-    materialRequired: values?.materialRequired
+    materialRequired: values?.materialRequired,
+    redeemPoints: loyaltyPoints?.percentage ? loyaltyPoints?.percentage : null
   };
 };
 

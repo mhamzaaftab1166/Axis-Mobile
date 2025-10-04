@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { Card, Text, useTheme } from "react-native-paper";
 
-const LOYALTY_OPTIONS = [20, 30, 50];
+const LOYALTY_OPTIONS = [0, 20, 30, 50];
 
 const LoyaltyPointsBottomSheet = ({
   visible,
@@ -47,16 +47,16 @@ const LoyaltyPointsBottomSheet = ({
   );
 
   const handleSelect = (percentage) => {
-    if (!percentage) return;
     setSelectedPercentage(percentage);
     const discountValue = (totalAmount * percentage) / 100;
+    console.log(discountValue)
     onSelect?.({ percentage, discountValue });
     sheetRef.current?.close();
   };
 
   const renderItem = ({ item }) => {
     const discountValue = (totalAmount * item) / 100;
-    const pointsRequired = discountValue; // exact points, no rounding
+    const pointsRequired = discountValue;
     const isDisabled = availablePoints < pointsRequired;
     const isSelected = item === selectedPercentage && !isDisabled;
     const activeBg = dark ? ACTIVE_BG_DARK : ACTIVE_BG_LIGHT;

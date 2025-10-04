@@ -80,6 +80,7 @@ export default function AddPropertyWizard() {
   const [intentId, setIntentId] = useState(null);
   const [isWorkingOnStripe, setIsWorkingOnStripe] = useState(false);
   const [serviceId, setServiceId] = useState(null);
+  const [loyaltyPoints, setLoyaltyPoints] = useState(null);
 
   const [noOfDays, setNoOfDays] = useState(1);
 
@@ -161,7 +162,7 @@ export default function AddPropertyWizard() {
       return;
     }
     if (step === 2) {
-      const formatted = formatPayload(values,selectedAddress,config.secretKeyForEncryption,serviceId,noOfDays);
+      const formatted = formatPayload(values,selectedAddress,config.secretKeyForEncryption,serviceId,noOfDays,loyaltyPoints);
       bookMyService(formatted);
     }
   };
@@ -208,6 +209,8 @@ export default function AddPropertyWizard() {
           requireAction={showOtpStep}
           onConfirmPayment={handleConfirmation}
           isWorkingOnStripe={isWorkingOnStripe}
+          selectedLoyaltyPoints={loyaltyPoints}
+          loyaltyPointsSelection={setLoyaltyPoints}
         />}
       </Animated.View>
 
