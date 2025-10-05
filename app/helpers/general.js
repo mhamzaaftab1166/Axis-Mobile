@@ -291,6 +291,8 @@ export const formatPayload = (values, selectedAddress, encryptionKey, serviceId,
     unitCapacity
   );
 
+  console.log(values);
+
   return {
     cvv: encryptCVV(values?.cvv, encryptionKey) || null,
     selectedCard: values?.selectedCard ? { id: values.selectedCard.id } : null,

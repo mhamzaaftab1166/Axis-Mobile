@@ -74,6 +74,17 @@ const useAddressStore = create(
           set({ selectedAddress: addresses[0] });
         }
       },
+
+      // ✅ Clear persisted data when user logs out
+      resetStore: async () => {
+        await AsyncStorage.removeItem("address-storage");
+        set({
+          selectedAddress: null,
+          addresses: [],
+          hasHydrated: false,
+        });
+      },
+
     }),
     {
       name: "address-storage",

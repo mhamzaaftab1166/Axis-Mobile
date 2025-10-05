@@ -16,6 +16,7 @@ import { ROUTES } from "../helpers/routePaths";
 import { useUserDetailQuery } from "../hooks/useAuthQuery";
 import { useFetchUnreadCount } from "../hooks/useNotificationQuery";
 import AccountSkeleton from "../skeltons/AccountSkelton";
+import useAddressStore from "../store/useAddressStore";
 import useAuthStore from "../store/useAuthStore";
 import notificationData from "../utils/notificationData";
 
@@ -33,6 +34,8 @@ export default function AccountScreen() {
   const { count, isLoading: gettingCount } = useFetchUnreadCount(
     userData?.data?.user?._id
   );
+
+  const resetStore = useAddressStore((s) => s.resetStore);
 
   const role = useAuthStore((s) => s.role);
 
@@ -103,6 +106,7 @@ export default function AccountScreen() {
           notificationData.appId,
           notificationData.appToken
         );
+        resetStore();
         router.replace(ROUTES.LOGIN);
       },
     },
