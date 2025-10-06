@@ -74,7 +74,7 @@ export default function BookedServiceDetail() {
     if (!service) return;
     router.push({
       pathname: ROUTES.MAKE_PAYMENT,
-      params: { amount: service?.totalAmountAfterTax, serviceId: service?.id },
+      params: { amount: service?.amountPayable, serviceId: service?.id },
     });
   };
 
@@ -189,6 +189,48 @@ export default function BookedServiceDetail() {
               </View>
             ))}
             <Divider style={{ marginVertical: 8 }} />
+            {
+              service?.discountPercentage !== 0 &&
+              <>
+                <View style={styles.serviceRow}>
+                  <Text
+                    style={[
+                      styles.serviceName,
+                      { color: colors.text, fontFamily: fonts.medium },
+                    ]}
+                  >
+                    Discount Percentage
+                  </Text>
+                  <Text
+                    style={[
+                      styles.servicePrice,
+                      { color: colors.primary, fontFamily: fonts.bold },
+                    ]}
+                  >
+                    {service?.discountPercentage ? service?.discountPercentage : 0} %
+                  </Text>
+                </View>
+                <View style={styles.serviceRow}>
+                  <Text
+                    style={[
+                      styles.serviceName,
+                      { color: colors.text, fontFamily: fonts.medium },
+                    ]}
+                  >
+                    Discount Amount
+                  </Text>
+                  <Text
+                    style={[
+                      styles.servicePrice,
+                      { color: colors.primary, fontFamily: fonts.bold },
+                    ]}
+                  >
+                    AED {service?.discountValue ? service?.discountValue : 0}
+                  </Text>
+                </View>
+                <Divider style={{ marginVertical: 8 }} />
+              </>
+            }
             <View style={styles.serviceRow}>
               <Text
                 style={[
@@ -243,6 +285,27 @@ export default function BookedServiceDetail() {
                 AED {service?.totalAmountAfterTax}
               </Text>
             </View>
+            {
+              service.status === "pending"
+              && <View style={styles.serviceRow}>
+                <Text
+                  style={[
+                    styles.serviceName,
+                    { color: colors.text, fontFamily: fonts.medium },
+                  ]}
+                >
+                  Amount Payable
+                </Text>
+                <Text
+                  style={[
+                    styles.servicePrice,
+                    { color: colors.primary, fontFamily: fonts.bold },
+                  ]}
+                >
+                  AED {service?.amountPayable}
+                </Text>
+              </View>
+            }
           </View>
         ) : (
           <Text style={{ color: colors.placeholder }}>No services</Text>
@@ -257,7 +320,7 @@ export default function BookedServiceDetail() {
           icon="cube-outline"
           iconBg="#FF9800"
           label="Materials"
-          value={service?.materialRequired ? "Required" : "Not Required"}
+          value={service?.materialRequired === 1 ? "Required" : "Not Required"}
         />
 
         {/* Schedule */}
