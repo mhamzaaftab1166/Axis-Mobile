@@ -38,30 +38,29 @@ export default function AssignedJobs() {
   const { colors, dark, fonts } = theme;
 
   const [openDropdownFor, setOpenDropdownFor] = useState(null);
-  const [snackbar, setSnackbar] = useState({ visible: false, message: "" });
+  const [snackbar, setSnackbar] = useState({ visible: false, message: "", type: "" });
 
   const cardBackground = dark ? colors.surface : "#FFFFFF";
   const mutedText = dark ? "#AAB0B6" : "#6B7280";
   const surfaceElevation = Platform.OS === "android" ? 2 : 1;
-  const [error, setError] = useState("");
-  const [isError, setIsError] = useState(false);
 
   const toggleDropdown = (subId) =>
     setOpenDropdownFor((prev) => (prev === subId ? null : subId));
 
-  const { mutate: updateStatus, isPending: updatingStatus } =useUpdateSubServiceStatus({
+  const { mutate: updateStatus, isPending: updatingStatus } = useUpdateSubServiceStatus({
     onErrorCallback: (errMsg) => {
-      setError(errMsg);
-      setIsError(true);
+      setSnackbar({
+        visible: true,
+        message: errMsg,
+        type: "error"
+      });
     },
     onSuccessCallback: (data) => {
-      setError("");
-      setIsError(false);
-
       setOpenDropdownFor(null);
       setSnackbar({
         visible: true,
         message: `Status updated to ${data?.newStatus}`,
+        type: "success"
       });
 
       setServices((prev) =>
@@ -324,14 +323,25 @@ export default function AssignedJobs() {
 
       <Snackbar
         visible={snackbar.visible}
-        onDismiss={() => setSnackbar({ visible: false, message: "" })}
+        onDismiss={() => setSnackbar({ visible: false, message: "", type: "" })}
         duration={2500}
         action={{
           label: "OK",
-          onPress: () => setSnackbar({ visible: false, message: "" }),
+          onPress: () => setSnackbar({ visible: false, message: "", type: "" }),
         }}
       >
-        {snackbar.message}
+        <Text
+          style={{
+            color:
+              snackbar.type === "error"
+                ? "#D32F2F"
+                : snackbar.type === "success"
+                ? "#2E7D32"
+                : "#333",
+          }}
+        >
+          {snackbar.message}
+        </Text>
       </Snackbar>
     </View>
   );

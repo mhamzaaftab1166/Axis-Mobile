@@ -114,7 +114,6 @@ export default function MakePayment() {
       amount: params?.amount,
       discountPercentage: loyaltyPoints?.percentage ? loyaltyPoints?.percentage : 0 
     };
-    console.log(data);
     confirmPaymentForService(data);
   };
 
@@ -210,7 +209,7 @@ export default function MakePayment() {
                       >
                         Pay AED {loyaltyPoints
                           ? (params?.amount - loyaltyPoints.discountValue).toFixed(2)
-                          : params?.amount}{' '} /-
+                          : params?.amount}{''} /- {' '} (+5% Tax)
                       </Button>
                     )}
 

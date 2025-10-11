@@ -34,7 +34,7 @@ const Step3 = forwardRef(function Step3(
   const formikRef = useRef(null);
   const [loyaltySheetVisible, setLoyaltySheetVisible] = useState(false);
   const selectedAddress = useAddressStore((s) => s.selectedAddress);
-  const { totalAmountAfterTax } = calculateTotals(
+  const { amount } = calculateTotals(
     booking?.selectedServices,
     selectedAddress?.unitId?.unitCapacity || 1,
     5,
@@ -134,9 +134,9 @@ const Step3 = forwardRef(function Step3(
                   >
                     Pay AED{' '}
                     {selectedLoyaltyPoints
-                      ? (totalAmountAfterTax - selectedLoyaltyPoints.discountValue).toFixed(2)
-                      : totalAmountAfterTax.toFixed(2)}{' '}
-                    /-
+                      ? (amount - selectedLoyaltyPoints.discountValue).toFixed(2)
+                      : amount.toFixed(2)}{' '}
+                    /- {' '} (+5% Tax) 
                   </Button>
                 )}
 
@@ -175,7 +175,7 @@ const Step3 = forwardRef(function Step3(
       <LoyaltyPointsBottomSheet
         visible={loyaltySheetVisible}
         onClose={() => setLoyaltySheetVisible(false)}
-        totalAmount={totalAmountAfterTax}
+        totalAmount={amount}
         availablePoints={loyaltyPointsData?.data?.pointsBalance}
         onSelect={handleLoyaltySelect}
         selectedPercentage={loyaltyPointsSelection?.percentage ?? null}
