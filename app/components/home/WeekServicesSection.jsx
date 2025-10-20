@@ -22,7 +22,7 @@ export default function WeekServicesSection() {
   const toggleDropdown = (id) =>
     setOpenDropdownFor((prev) => (prev === id ? null : id));
 
-  const [snackbar, setSnackbar] = useState({ visible: false, message: "" });
+  const [snackbar, setSnackbar] = useState({ visible: false, message: "", type: "" });
   
   const handleChangeStatus = (serviceId, subId, newStatus) => {
     updateStatus({
@@ -37,17 +37,19 @@ export default function WeekServicesSection() {
 
   const { mutate: updateStatus, isPending: updatingStatus } = useUpdateSubServiceStatus({
     onErrorCallback: (errMsg) => {
-      setError(errMsg);
-      setIsError(true);
+      setSnackbar({
+        visible: true,
+        message: errMsg,
+        type: "error"
+      });
+      setOpenDropdownFor(null);
     },
     onSuccessCallback: (data) => {
-      setError("");
-      setIsError(false);
-
       setOpenDropdownFor(null);
       setSnackbar({
         visible: true,
         message: `Status updated to ${data?.newStatus}`,
+        type: "success"
       });
 
       useSupServicesStore
@@ -306,14 +308,19 @@ export default function WeekServicesSection() {
 
       <Snackbar
         visible={snackbar.visible}
-        onDismiss={() => setSnackbar({ visible: false, message: "" })}
+        onDismiss={() => setSnackbar({ visible: false, message: "", type: "success" })}
         duration={2500}
+        style={{
+          backgroundColor: snackbar.type === "error" ? "#f8d7da" : undefined, // light red background (optional)
+        }}
         action={{
           label: "OK",
-          onPress: () => setSnackbar({ visible: false, message: "" }),
+          onPress: () => setSnackbar({ visible: false, message: "", type: "success" }),
         }}
       >
-        {snackbar.message}
+        <Text style={{ color: snackbar.type === "error" ? "red" : "#fff" }}>
+          {snackbar.message}
+        </Text>
       </Snackbar>
     </View>
   );
