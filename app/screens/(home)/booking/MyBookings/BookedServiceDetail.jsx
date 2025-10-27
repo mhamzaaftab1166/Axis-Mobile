@@ -12,6 +12,7 @@ import {
   getAddressTextDetail,
   getScheduleTextDetail,
   getStatusColor,
+  isServiceEligibleForPayment,
 } from "../../../../helpers/general";
 import { ROUTES } from "../../../../helpers/routePaths";
 import {
@@ -113,8 +114,9 @@ export default function BookedServiceDetail() {
             }
           >
             {
-              service?.status === "pending" &&
-              <Menu.Item onPress={handlePayForPendingService} title="Pay" />
+              isServiceEligibleForPayment(service) && (
+                <Menu.Item onPress={handlePayForPendingService} title="Pay" />
+              )
             }
             <Menu.Item onPress={handleUpdate} title="Update" />
             <Menu.Item onPress={openDialog} title="Terminate" />

@@ -528,3 +528,29 @@ export const getTimeDifference = (dateString) => {
 
   return `${diffDays}d ago`;
 };
+
+// Utility to check date difference in days
+const getDateDifferenceInDays = (startDate) => {
+  const today = new Date();
+  const sDate = new Date(startDate);
+  const diffTime = sDate.getTime() - today.getTime();
+  return diffTime / (1000 * 60 * 60 * 24); // convert ms → days
+};
+
+export const isServiceEligibleForPayment = (service) => {
+  if (service?.status !== "pending") return false;
+
+  const mode = service?.serviceTime?.mode;
+  const startDate = service?.serviceTime?.regular?.startDate || service?.serviceTime?.oneTimeDate;
+  const daysDiff = getDateDifferenceInDays(startDate);
+
+  if (mode === "oneTime") {
+    return daysDiff >= 1; // must be at least 1 day ahead
+  }
+
+  if (mode === "regular") {
+    return daysDiff >= 3; // must be at least 3 days ahead
+  }
+
+  return false;
+};
