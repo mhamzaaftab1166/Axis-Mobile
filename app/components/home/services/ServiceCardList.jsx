@@ -18,13 +18,22 @@ export default function ServiceCardList({
   onToggleSelect,
   onlyView,
   capacity,
+  type = "direct_booking",
+  onBookInspection,
 }) {
   const bhkKey = `${capacity} BHK`;
-  let price = service.price?.[bhkKey];
 
-  if (price === undefined && service.price) {
-    const firstKey = Object.keys(service.price)[0];
-    price = service.price[firstKey];
+  let price;
+
+  if (type === "inspection_services") {
+    price = 25;
+  } else {
+    price = service.price?.[bhkKey];
+
+    if (price === undefined && service.price) {
+      const firstKey = Object.keys(service.price)[0];
+      price = service.price[firstKey];
+    }
   }
 
   const { colors, dark } = useTheme();
@@ -51,6 +60,22 @@ export default function ServiceCardList({
   };
 
   const badgeDetails = getBadgeDetails(service.badge);
+
+  const isInspection = type === "inspection_services";
+  const handlePress = () => {
+    if (isInspection) {
+      onBookInspection && onBookInspection(service);
+    } else {
+      onToggleSelect && onToggleSelect(service);
+    }
+  };
+
+  const buttonBg = isInspection ? "skyblue" : colors.tertiary;
+  const buttonText = isInspection
+    ? "Inspect Now"
+    : isSelected
+    ? "Remove Item"
+    : "Add Item";
 
   return (
     <Card
@@ -139,9 +164,11 @@ export default function ServiceCardList({
 
               {!onlyView && (
                 <Pressable
-                  onPress={() => onToggleSelect && onToggleSelect(service)}
+                  onPress={handlePress}
                   accessibilityLabel={
-                    isSelected
+                    isInspection
+                      ? "Book an inspection for this service"
+                      : isSelected
                       ? "Remove this service from your booking"
                       : "Add this service to your booking"
                   }
@@ -149,13 +176,11 @@ export default function ServiceCardList({
                     styles.bookButton,
                     {
                       opacity: pressed ? 0.8 : 1,
-                      backgroundColor: colors.tertiary,
+                      backgroundColor: buttonBg,
                     },
                   ]}
                 >
-                  <Text style={styles.bookButtonText}>
-                    {isSelected ? "Remove Item" : "Add Item"}
-                  </Text>
+                  <Text style={styles.bookButtonText}>{buttonText}</Text>
                 </Pressable>
               )}
             </View>

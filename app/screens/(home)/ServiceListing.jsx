@@ -3,6 +3,7 @@ import { useNavigation } from "expo-router";
 import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { useTheme } from "react-native-paper";
+import ButtonSegmented from "../../components/common/ButtonSegmented";
 import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
 import EmptyState from "../../components/common/EmptyState";
 import SearchBarWithToggle from "../../components/common/SearchBarWithToggle";
@@ -17,22 +18,39 @@ import useBookingStore from "../../store/useBookingStore";
 
 export default function ServiceListing() {
   const { allServices: services, isLoading } = useGetAllServices();
-  
   const navigation = useNavigation();
   const { colors } = useTheme();
 
   const [searchText, setSearchText] = useState("");
   const [viewMode, setViewMode] = useState("list");
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [mode, setMode] = useState("direct_booking");
 
   const toggleService = useBookingStore((state) => state.toggleService);
   const isSelected = useBookingStore((state) => state.isSelected);
   const booking = useBookingStore((state) => state.booking);
-  const selectedServices = booking.selectedServices;
 
   const selectedAddress = useAddressStore((s) => s.selectedAddress);
 
-  const filteredServices = filterServices(selectedCategories, services, searchText);
+  const filteredServices = filterServices(
+    selectedCategories,
+    services,
+    searchText
+  );
+
+  const handleBookInspection = (service) => {
+    console.log("====================================");
+    console.log(service);
+    console.log("====================================");
+  };
+
+  const handleToggle = (service) => {
+    if (mode === "inspection_services") {
+      handleBookInspection(service);
+      return;
+    }
+    toggleService(service);
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -40,6 +58,17 @@ export default function ServiceListing() {
         title="Service Listing"
         onBack={() => navigation.goBack()}
       />
+      <View style={{ paddingHorizontal: 14 }}>
+        <ButtonSegmented
+          options={[
+            { value: "direct_booking", label: "Direct Booking" },
+            { value: "inspection_services", label: "Inspection First" },
+          ]}
+          selected={mode}
+          onChange={(val) => setMode(val)}
+        />
+      </View>
+
       {services?.length !== 0 && (
         <View style={styles.controlsContainer}>
           <SelectableChips
@@ -55,12 +84,12 @@ export default function ServiceListing() {
           />
         </View>
       )}
-
       <LoadingOverlay visible={isLoading} />
-
       <ScrollView contentContainerStyle={styles.content}>
         {filteredServices?.length === 0 ? (
-          <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          >
             <EmptyState
               icon={MaterialIcons}
               iconSize={80}
@@ -76,8 +105,10 @@ export default function ServiceListing() {
                 key={service.id}
                 service={service}
                 isSelected={isSelected(service)}
-                onToggleSelect={toggleService}
+                onToggleSelect={handleToggle}
                 capacity={selectedAddress?.unitId?.unitCapacity}
+                type={mode}
+                onBookInspection={handleBookInspection}
               />
             ))}
           </View>
@@ -85,10 +116,12 @@ export default function ServiceListing() {
           filteredServices.map((service) => (
             <ServiceCardList
               key={service.id}
-              service={service} 
+              service={service}
               isSelected={isSelected(service)}
-              onToggleSelect={toggleService}
+              onToggleSelect={handleToggle}
               capacity={selectedAddress?.unitId?.unitCapacity}
+              type={mode}
+              onBookInspection={handleBookInspection}
             />
           ))
         )}

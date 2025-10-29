@@ -11,13 +11,21 @@ export default function ServiceCardGrid({
   isSelected = false,
   onToggleSelect,
   capacity,
+  type = "direct_booking",
+  onBookInspection,
 }) {
   const bhkKey = `${capacity} BHK`;
-  let price = service.price?.[bhkKey];
+  let price;
 
-  if (price === undefined && service.price) {
-    const firstKey = Object.keys(service.price)[0];
-    price = service.price[firstKey];
+  if (type === "inspection_services") {
+    price = 25;
+  } else {
+    price = service.price?.[bhkKey];
+
+    if (price === undefined && service.price) {
+      const firstKey = Object.keys(service.price)[0];
+      price = service.price[firstKey];
+    }
   }
 
   const { colors, dark } = useTheme();
@@ -45,9 +53,15 @@ export default function ServiceCardGrid({
   const showMoreButton = (service.description || "").length > TRUNCATE_LIMIT;
 
   const handleToggle = () => {
+    if (type === "inspection_services") {
+      onBookInspection && onBookInspection(service);
+      return;
+    }
     if (!onToggleSelect) return;
     onToggleSelect(service);
   };
+
+  const isInspection = type === "inspection_services";
 
   return (
     <Card
@@ -132,24 +146,36 @@ export default function ServiceCardGrid({
             onPress={handleToggle}
             style={({ pressed }) => [
               styles.bookButton,
-              isSelected ? styles.removeButton : styles.addButton,
+              isInspection
+                ? { backgroundColor: "skyblue" }
+                : isSelected
+                ? styles.removeButton
+                : styles.addButton,
               { opacity: pressed ? 0.85 : 1 },
             ]}
             accessibilityLabel={
-              isSelected
+              isInspection
+                ? "Book an inspection for this service"
+                : isSelected
                 ? "Remove this service from your booking"
                 : "Add this service to your booking"
             }
           >
             <View style={styles.buttonInner}>
               <MaterialIcons
-                name={isSelected ? "remove-shopping-cart" : "add-shopping-cart"}
+                name={
+                  isInspection
+                    ? "event"
+                    : isSelected
+                    ? "remove-shopping-cart"
+                    : "add-shopping-cart"
+                }
                 size={14}
                 color="#fff"
                 style={{ marginRight: 6 }}
               />
               <Text style={styles.bookButtonText}>
-                {isSelected ? "Remove" : "Add"}
+                {isInspection ? "Inspect Now" : isSelected ? "Remove" : "Add"}
               </Text>
             </View>
           </Pressable>

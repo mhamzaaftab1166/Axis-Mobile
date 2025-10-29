@@ -1,3 +1,5 @@
+import { MaterialIcons } from "@expo/vector-icons";
+import { useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "react-native-paper";
 import useBookingStore from "../../store/useBookingStore";
@@ -10,12 +12,24 @@ export default function HomeServiceSection({
   addressCapacity = 0,
 }) {
   const { colors } = useTheme();
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
   const toggleService = useBookingStore((state) => state.toggleService);
   const isSelected = useBookingStore((state) => state.isSelected);
   const selectedServices = useBookingStore(
     (state) => state.booking?.selectedServices || []
   );
+
+  const categories = [
+    { key: "All", label: "All", icon: "apps" },
+    { key: "Direct Booking", label: "Direct", icon: "add-shopping-cart" },
+    { key: "Inspection", label: "Inspect", icon: "search" },
+  ];
+
+  const handleCategoryChange = (category) => {
+    setSelectedCategory(category);
+    console.log("Selected category:", category);
+  };
 
   return (
     <View style={styles.sectionContainer}>
@@ -24,13 +38,80 @@ export default function HomeServiceSection({
         {onViewAll && (
           <Pressable
             onPress={onViewAll}
-            style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
+            accessibilityRole="button"
+            style={({ pressed }) => [{ opacity: pressed ? 0.75 : 1 }]}
           >
             <Text style={[styles.viewAll, { color: colors.primary }]}>
               View All
             </Text>
           </Pressable>
         )}
+      </View>
+
+      <View
+        style={[
+          styles.segmentWrap,
+          { borderColor: colors.outline ?? "rgba(0,0,0,0.12)" },
+        ]}
+      >
+        {categories.map((c, idx) => {
+          const active = selectedCategory === c.key;
+          const left = idx === 0;
+          const right = idx === categories.length - 1;
+          return (
+            <Pressable
+              key={c.key}
+              onPress={() => handleCategoryChange(c.key)}
+              accessibilityRole="button"
+              accessibilityState={{ selected: active }}
+              style={({ pressed }) => [
+                styles.segmentButton,
+                {
+                  flex: 1,
+                  backgroundColor: active ? colors.tertiary : colors.surface,
+                },
+                // subtle pressed scale/opacity
+                {
+                  opacity: pressed ? 0.9 : 1,
+                  transform: pressed ? [{ scale: 0.997 }] : [{ scale: 1 }],
+                },
+              ]}
+            >
+              <View style={styles.segmentInner}>
+                <MaterialIcons
+                  name={c.icon}
+                  size={14}
+                  color={active ? colors.onTertiary ?? "#fff" : colors.primary}
+                  style={{ marginRight: 8 }}
+                />
+                <Text
+                  numberOfLines={1}
+                  style={[
+                    styles.segmentText,
+                    {
+                      color: active ? colors.onTertiary ?? "#fff" : colors.text,
+                    },
+                  ]}
+                >
+                  {c.label}
+                </Text>
+              </View>
+              {/* Add left/right separators visually only for non-active neighboring buttons */}
+              {idx < categories.length - 1 && (
+                <View
+                  pointerEvents="none"
+                  style={[
+                    styles.separator,
+                    {
+                      backgroundColor: colors.outline ?? "rgba(0,0,0,0.08)",
+                      opacity: active ? 0.0 : 0.6,
+                    },
+                  ]}
+                />
+              )}
+            </Pressable>
+          );
+        })}
       </View>
 
       <FlatList
@@ -40,7 +121,7 @@ export default function HomeServiceSection({
         showsHorizontalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
         extraData={selectedServices}
-        contentContainerStyle={{ paddingLeft: 4, paddingTop: 4 }}
+        contentContainerStyle={{ paddingLeft: 4, paddingTop: 8 }}
         renderItem={({ item }) => (
           <ServiceCardGrid
             service={item}
@@ -63,7 +144,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: 8,
+    paddingHorizontal: 4,
   },
   title: {
     fontSize: 18,
@@ -73,5 +155,38 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     textDecorationLine: "underline",
+  },
+  segmentWrap: {
+    flexDirection: "row",
+    width: "100%",
+    borderRadius: 12,
+    overflow: "hidden",
+    borderWidth: 1,
+    height: 35,
+    marginBottom: 4,
+    backgroundColor: "transparent",
+  },
+  segmentButton: {
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 6,
+    position: "relative",
+  },
+  segmentInner: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 12,
+  },
+  segmentText: {
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  separator: {
+    position: "absolute",
+    right: 0,
+    top: 6,
+    bottom: 6,
+    width: 1,
   },
 });
