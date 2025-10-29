@@ -32,7 +32,7 @@ const categories = [
     icon: "chart-areaspline",
     label: "Statistics",
     color: "#FF7A00",
-    route: "/statistics",
+    route: "screens/(home)/booking/inspection/BookInspection",
   },
 ];
 
