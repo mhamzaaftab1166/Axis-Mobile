@@ -19,7 +19,7 @@ import AppErrorMessage from "./AppErrorMessage";
 
 export default function AppMultiMediaPicker({
   name,
-  mediaType = "image",
+  mediaType = "image", // "image" | "video" | "mixed"
   maxImageSize = 2 * 1024 * 1024,
   maxVideoSize = 8 * 1024 * 1024,
   maxItems = 10,
@@ -28,6 +28,7 @@ export default function AppMultiMediaPicker({
   const { values, setFieldValue, touched, errors } = useFormikContext();
   const mediaUris = Array.isArray(values?.[name]) ? values[name] : [];
 
+  // local alerts used for errors/permission etc (keeps your existing approach)
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [showPermissionAlert, setShowPermissionAlert] = useState(false);
@@ -150,8 +151,40 @@ export default function AppMultiMediaPicker({
     }
   };
 
+  // --- NEW: label + remaining count logic ---
+  const remaining = Math.max(0, maxItems - mediaUris.length);
+
+  const labelForType = () => {
+    if (mediaType === "image") {
+      return `Select images — up to ${maxItems}`;
+    }
+    if (mediaType === "video") {
+      return `Select videos — up to ${maxItems}`;
+    }
+    return `Select media — up to ${maxItems}`;
+  };
+
+  const subtitleForRemaining = () => {
+    if (remaining === 0) return `You reached the maximum (${maxItems})`;
+    if (remaining === 1) return `1 slot left`;
+    return `${remaining} slots left`;
+  };
+  // --- end new logic ---
+
   return (
     <View>
+      {/* Label area: instruction + remaining */}
+      <View style={styles.labelContainer}>
+        <Text style={[styles.labelText, { color: colors.onSurface }]}>
+          {labelForType()}
+        </Text>
+        <Text
+          style={[styles.remainingText, { color: colors.onSurfaceVariant }]}
+        >
+          {subtitleForRemaining()}
+        </Text>
+      </View>
+
       <View style={styles.grid}>
         {mediaUris.map((uri) => (
           <View style={styles.tileWrapper} key={uri}>
@@ -322,6 +355,19 @@ function MediaTile({ uri, onRemove, mediaType }) {
 }
 
 const styles = StyleSheet.create({
+  labelContainer: {
+    marginVertical: 5,
+    paddingHorizontal: 4,
+  },
+  labelText: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  remainingText: {
+    fontSize: 13,
+    marginTop: 2,
+  },
+
   grid: { flexDirection: "row", flexWrap: "wrap" },
   tileWrapper: { width: "33.33%", padding: 6, marginTop: 8 },
   tile: {

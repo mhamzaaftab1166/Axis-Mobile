@@ -1,15 +1,26 @@
-import { useState } from "react";
+// AddPropertyWizard.jsx
+import { useRef, useState } from "react";
 import WizardLayout from "../../../../components/common/WizardLayout";
 import InspectionStep1 from "./InspectionStep1";
 
 export default function AddPropertyWizard() {
   const [step, setStep] = useState(0);
+  const stepRef = useRef(null);
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    if (step === 0) {
+      stepRef.current?.submitForm();
+      return;
+    }
     setStep((s) => Math.min(s + 1, 1));
   };
 
   const handlePrev = () => setStep((s) => Math.max(s - 1, 0));
+
+  const onInspectionSubmit = (values) => {
+    console.log("Inspection step submitted:", values);
+    setStep(1);
+  };
 
   return (
     <WizardLayout
@@ -22,10 +33,16 @@ export default function AddPropertyWizard() {
       isBooking={false}
       showError={false}
       error=""
-      nextLabel="Next"
+      nextLabel={step === 0 ? "Submit" : "Next"}
       prevLabel="Previous"
     >
-      {[<InspectionStep1 key="s1" />]}
+      {[
+        <InspectionStep1
+          key="s1"
+          ref={stepRef}
+          onSubmit={onInspectionSubmit}
+        />,
+      ]}
     </WizardLayout>
   );
 }
