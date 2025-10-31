@@ -139,3 +139,33 @@ export const addressValidationSchema = Yup.object().shape({
       return !!val?.id;
     }),
 });
+
+export const inspectionBookingSchema = Yup.object().shape({
+  bookingDate: Yup.string().required("Preferred date is required"),
+  time: Yup.string().required("Preferred time is required"),
+  inspectionType: Yup.string()
+    .oneOf(["online", "physical"])
+    .required("Select inspection type"),
+  images: Yup.array()
+    .of(Yup.mixed())
+    .when("inspectionType", {
+      is: "online",
+      then: (schema) =>
+        schema
+          .min(3, "Please upload at least 3 images")
+          .max(10, "Too many images")
+          .required("Images are required"),
+      otherwise: (schema) => schema.nullable(),
+    }),
+  videos: Yup.array()
+    .of(Yup.mixed())
+    .when("inspectionType", {
+      is: "online",
+      then: (schema) =>
+        schema
+          .min(1, "Please upload at least 1 video")
+          .max(3, "Too many videos")
+          .required("Video is required"),
+      otherwise: (schema) => schema.nullable(),
+    }),
+});

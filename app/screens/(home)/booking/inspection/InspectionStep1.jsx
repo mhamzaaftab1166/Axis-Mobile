@@ -1,3 +1,4 @@
+import { useLocalSearchParams } from "expo-router";
 import { Formik } from "formik";
 import { forwardRef, useImperativeHandle, useRef } from "react";
 import {
@@ -8,13 +9,17 @@ import {
   View,
 } from "react-native";
 import { Checkbox, useTheme } from "react-native-paper";
-import * as Yup from "yup";
 import AppErrorMessage from "../../../../components/forms/AppErrorMessage";
 import AppFormDateInput from "../../../../components/forms/AppFormDatePicker";
 import AppMultiMediaPicker from "../../../../components/forms/AppFormMultiMediaPicker";
 import AppFormTimeInput from "../../../../components/forms/AppFormTimePicker";
+import ServiceCardList from "../../../../components/home/services/ServiceCardList";
+import { inspectionBookingSchema } from "../../../../helpers/validations";
 
 export default forwardRef(function InspectionStep1({ onSubmit }, ref) {
+  const { service } = useLocalSearchParams();
+  const parsedSelectedService = service ? JSON.parse(service) : null;
+
   const { colors } = useTheme();
   const formikRef = useRef(null);
 
@@ -23,54 +28,30 @@ export default forwardRef(function InspectionStep1({ onSubmit }, ref) {
     validate: () => formikRef.current?.validateForm(),
   }));
 
-  const validationSchema = Yup.object().shape({
-    bookingDate: Yup.string().required("Preferred date is required"),
-    time: Yup.string().required("Preferred time is required"),
-    inspectionType: Yup.string()
-      .oneOf(["online", "physical"])
-      .required("Select inspection type"),
-    images: Yup.array()
-      .of(Yup.mixed())
-      .when("inspectionType", {
-        is: "online",
-        then: (schema) =>
-          schema
-            .min(3, "Please upload at least 3 images")
-            .max(10, "Too many images")
-            .required("Images are required"),
-        otherwise: (schema) => schema.nullable(),
-      }),
-    videos: Yup.array()
-      .of(Yup.mixed())
-      .when("inspectionType", {
-        is: "online",
-        then: (schema) =>
-          schema
-            .min(1, "Please upload at least 1 video")
-            .max(3, "Too many videos")
-            .required("Video is required"),
-        otherwise: (schema) => schema.nullable(),
-      }),
-  });
-
   const initialValues = {
     bookingDate: "",
     time: "",
     inspectionType: "physical",
-    images: [],
-    videos: [],
+    images: null,
+    videos: null,
   };
 
   return (
     <Formik
       innerRef={formikRef}
       initialValues={initialValues}
-      validationSchema={validationSchema}
+      validationSchema={inspectionBookingSchema}
       onSubmit={(values) => {
-        const payload =
+        const basePayload =
           values.inspectionType === "physical"
-            ? { ...values, images: [], videos: [] }
+            ? { ...values, images: null, videos: null }
             : values;
+
+        const payload = {
+          selectedService: parsedSelectedService,
+          ...basePayload,
+        };
+
         onSubmit && onSubmit(payload);
       }}
       validateOnMount={false}
@@ -79,8 +60,8 @@ export default forwardRef(function InspectionStep1({ onSubmit }, ref) {
         const onInspectionTypeChange = (val) => {
           setFieldValue("inspectionType", val);
           if (val === "physical") {
-            setFieldValue("images", []);
-            setFieldValue("videos", []);
+            setFieldValue("images", null);
+            setFieldValue("videos", null);
           }
         };
 
@@ -92,26 +73,53 @@ export default forwardRef(function InspectionStep1({ onSubmit }, ref) {
               contentContainerStyle={styles.scrollContent}
               showsVerticalScrollIndicator={false}
             >
-              {/* Date & Time Row */}
+              <Text
+                style={[
+                  styles.heading,
+                  {
+                    color: colors.onBackground,
+                    marginVertical: 0,
+                    marginBottom: 8,
+                  },
+                ]}
+              >
+                Selected Service
+              </Text>
+
+              <View style={styles.serviceCardWrap}>
+                <ServiceCardList
+                  service={parsedSelectedService}
+                  type="inspection_services"
+                  onlyView={true}
+                  onBookInspection={(selected) =>
+                    console.log("Booking:", selected)
+                  }
+                />
+              </View>
+
+              <Text style={[styles.subHeading, { color: colors.onBackground }]}>
+                Schedule
+              </Text>
+
               <View style={styles.row}>
-                <View style={[styles.flexItem, { marginRight: 8 }]}>
+                <View style={[styles.flexItem, { marginRight: 10 }]}>
                   <AppFormDateInput
                     name="bookingDate"
                     label="Preferred Date"
                     minDaysOffset={3}
                   />
                 </View>
-                <View style={styles.flexItem}>
+
+                <View style={[styles.flexItem, { marginLeft: 10 }]}>
                   <AppFormTimeInput name="time" label="Preferred Time" />
                 </View>
               </View>
 
-              {/* Inspection Type */}
               <Text style={[styles.heading, { color: colors.onBackground }]}>
                 Inspection Type
               </Text>
 
-              <View style={[styles.optionsRow, { marginBottom: 8 }]}>
+              <View style={[styles.optionsRow]}>
                 <TouchableOpacity
                   activeOpacity={0.8}
                   onPress={() => onInspectionTypeChange("physical")}
@@ -136,7 +144,7 @@ export default forwardRef(function InspectionStep1({ onSubmit }, ref) {
                 <TouchableOpacity
                   activeOpacity={0.8}
                   onPress={() => onInspectionTypeChange("online")}
-                  style={[styles.option, { marginLeft: 8 }]}
+                  style={styles.option}
                 >
                   <Checkbox.Android
                     status={
@@ -157,10 +165,9 @@ export default forwardRef(function InspectionStep1({ onSubmit }, ref) {
 
               <AppErrorMessage
                 error={errors?.inspectionType}
-                visible={touched?.inspectionType}
+                visible={Boolean(touched?.inspectionType)}
               />
 
-              {/* Conditional Sections */}
               {values.inspectionType === "physical" ? (
                 <View
                   style={[styles.physicalBox, { borderColor: colors.outline }]}
@@ -212,9 +219,21 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
 
+  subHeading: {
+    fontSize: 16,
+    marginTop: 10,
+    marginBottom: 6,
+    fontWeight: "600",
+  },
+
+  serviceCardWrap: {
+    marginBottom: 14,
+  },
+
   row: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 8,
   },
 
   flexItem: {
@@ -224,13 +243,16 @@ const styles = StyleSheet.create({
   optionsRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 4,
+    marginTop: 8,
+    marginBottom: 6,
   },
 
   option: {
     flexDirection: "row",
     alignItems: "center",
-    flex: 1,
+    paddingVertical: 6,
+    paddingRight: 12,
+    marginRight: 8,
   },
 
   optionLabel: {

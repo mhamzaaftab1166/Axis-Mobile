@@ -25,7 +25,7 @@ export default function WizardLayout({
   progressColor,
   statusBarStyle = "light-content",
   headerTitlePrefix = "Step",
-  requireFullWidthPrev = false,
+  showNext = true,
 }) {
   const { colors, dark } = useTheme();
 
@@ -109,23 +109,16 @@ export default function WizardLayout({
 
       <View style={styles.footer}>
         <Button
-          mode={
-            requireFullWidthPrev && step === totalSteps - 1
-              ? "outlined"
-              : "outlined"
-          }
+          mode="outlined"
           onPress={onPrevious}
           disabled={footerDisabledPrev || step === 0 || isBooking}
           style={[
-            step === totalSteps - 1 && requireFullWidthPrev
-              ? [styles.fullWidthBtn, { borderColor: colors.tertiary }]
-              : [
-                  styles.prevBtn,
-                  {
-                    borderColor:
-                      step === 0 ? colors.surfaceDisabled : colors.tertiary,
-                  },
-                ],
+            styles.prevBtn,
+            {
+              flex: showNext ? 0.45 : 1,
+              borderColor:
+                step === 0 ? colors.surfaceDisabled : colors.tertiary,
+            },
           ]}
           labelStyle={{
             color: step === 0 ? colors.onSurfaceDisabled : colors.tertiary,
@@ -134,7 +127,7 @@ export default function WizardLayout({
           {prevLabel}
         </Button>
 
-        {step < totalSteps - 1 && (
+        {showNext && (
           <Button
             mode="contained"
             onPress={onNext}
@@ -168,7 +161,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 16,
   },
-  prevBtn: { flex: 0.45, borderWidth: 1 },
+  prevBtn: { borderWidth: 1 },
   nextBtn: { flex: 0.45, justifyContent: "center" },
-  fullWidthBtn: { flex: 1, borderWidth: 1 },
 });

@@ -1,5 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { useNavigation } from "expo-router";
+import { router, useNavigation } from "expo-router";
 import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { useTheme } from "react-native-paper";
@@ -12,6 +12,7 @@ import ServiceCardGrid from "../../components/home/services/ServiceCardGrid";
 import ServiceCardList from "../../components/home/services/ServiceCardList";
 import LoadingOverlay from "../../components/LoadingOverlay";
 import { buildServiceOptions, filterServices } from "../../helpers/general";
+import { ROUTES } from "../../helpers/routePaths";
 import { useGetAllServices } from "../../hooks/useServiceQuery";
 import useAddressStore from "../../store/useAddressStore";
 import useBookingStore from "../../store/useBookingStore";
@@ -39,9 +40,12 @@ export default function ServiceListing() {
   );
 
   const handleBookInspection = (service) => {
-    console.log("====================================");
-    console.log(service);
-    console.log("====================================");
+    router.push({
+      pathname: ROUTES.BOOK_SERVICE_INSPECTION,
+      params: {
+        service: JSON.stringify(service),
+      },
+    });
   };
 
   const handleToggle = (service) => {

@@ -23,6 +23,7 @@ export const ROUTES = {
   OTP: "screens/(auth)/OTP",
   THEME_TOGGLE: "screens/(account)/ThemeToggle",
   BOOK_SERVICE: "screens/(home)/booking/BookService",
+  BOOK_SERVICE_INSPECTION: "screens/(home)/booking/inspection/BookInspection",
   MY_BOOKINGS: "screens/(home)/booking/MyBookings/Bookings",
   BOOKED_SERVIICE_DETAIL:
     "screens/(home)/booking/MyBookings/BookedServiceDetail",
