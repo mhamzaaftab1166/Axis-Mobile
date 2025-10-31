@@ -1,15 +1,19 @@
 import { router } from "expo-router";
 import { Formik } from "formik";
-import { forwardRef, useImperativeHandle } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Button, useTheme } from "react-native-paper";
 import * as Yup from "yup";
 import EmptyState from "../../../../components/common/EmptyState";
 import AppFormDropdown from "../../../../components/forms/AppFormDropdown";
 import AppFormField from "../../../../components/forms/AppFormFeild";
+import AddressBottomSheet from "../../../../components/home/AddressBottomSheet";
 import LoadingOveralay from "../../../../components/LoadingOverlay";
 import { ROUTES } from "../../../../helpers/routePaths";
+import { useGetAllAddress } from "../../../../hooks/useAddressQuery";
 import { useGetPaymentMethods } from "../../../../hooks/usePaymetMethodQuery";
+import useAddressStore from "../../../../store/useAddressStore";
+import BookingSummary from "./SummaryDetails";
 
 const InspectionStep2 = forwardRef(
   (
@@ -17,7 +21,6 @@ const InspectionStep2 = forwardRef(
       onSubmit,
       requireAction,
       amount,
-      selectedLoyaltyPoints,
       isBooking,
       onConfirmPayment,
       isWorkingOnStripe,
@@ -26,6 +29,12 @@ const InspectionStep2 = forwardRef(
     ref
   ) => {
     const { colors } = useTheme();
+    const selectedAddress = useAddressStore((s) => s.selectedAddress);
+    const setAddress = useAddressStore((s) => s.setAddress);
+    const ensureDefault = useAddressStore((s) => s.ensureDefault);
+    const [showAddrSheet, setShowAddrSheet] = useState(false);
+
+    const { allAddresses, isLoading: loadingAddress } = useGetAllAddress();
     const { data: cards, isLoading: loadingCards } = useGetPaymentMethods();
 
     let formikRef;
@@ -48,109 +57,130 @@ const InspectionStep2 = forwardRef(
       }
     };
 
+    useEffect(() => {
+      ensureDefault(allAddresses ? allAddresses[0] : undefined);
+    }, [allAddresses]);
+
+    const handleOpenAddressSheet = () => setShowAddrSheet(true);
+    const handleCloseAddressSheet = () => setShowAddrSheet(false);
+
+    const handleSelectAddress = (addr) => {
+      setAddress(addr);
+      setShowAddrSheet(false);
+    };
+
     return (
-      <ScrollView contentContainerStyle={styles.container}>
-        {inspectionType === "physical" ? (
-          <Formik
-            innerRef={(r) => (formikRef = r)}
-            initialValues={{
-              selectedCard: null,
-              cvv: "",
-            }}
-            validationSchema={paymentValidationSchema}
-            onSubmit={handleLocalSubmit}
-          >
-            {({ handleSubmit }) => (
-              <>
-                <Text>Payment Details</Text>
-                <LoadingOveralay visible={loadingCards} />
+      <>
+        <ScrollView contentContainerStyle={styles.container}>
+          {inspectionType === "physical" ? (
+            <Formik
+              innerRef={(r) => (formikRef = r)}
+              initialValues={{
+                selectedCard: null,
+                cvv: "",
+              }}
+              validationSchema={paymentValidationSchema}
+              onSubmit={handleLocalSubmit}
+            >
+              {({ handleSubmit }) => (
+                <>
+                  <BookingSummary onChangeAddress={handleOpenAddressSheet} />
 
-                {Array.isArray(cards) && cards.length > 0 ? (
-                  <>
-                    <AppFormDropdown
-                      key="id"
-                      name="selectedCard"
-                      placeholder="Select Card"
-                      items={cards}
-                      labelKey="name_on_card"
-                      valueKey="id"
-                    />
+                  <LoadingOveralay visible={loadingCards} />
 
-                    <AppFormField
-                      name="cvv"
-                      placeholder="CVV"
-                      keyboardType="numeric"
-                      maxLength={3}
-                    />
+                  {Array.isArray(cards) && cards.length > 0 ? (
+                    <>
+                      <AppFormDropdown
+                        key="id"
+                        name="selectedCard"
+                        placeholder="Select Payment Card"
+                        items={cards}
+                        labelKey="name_on_card"
+                        valueKey="id"
+                      />
 
-                    {!requireAction && (
-                      <Button
-                        mode="contained"
-                        onPress={handleSubmit}
-                        style={[
-                          styles.btn,
-                          { backgroundColor: colors.primary },
-                        ]}
-                        labelStyle={{ color: colors.onPrimary }}
-                        loading={isBooking}
-                      >
-                        Pay AED 999 /- (+5% Tax)
-                      </Button>
-                    )}
+                      <AppFormField
+                        name="cvv"
+                        placeholder="CVV"
+                        keyboardType="numeric"
+                        maxLength={3}
+                      />
 
-                    {requireAction && (
-                      <View style={styles.otpWrapper}>
-                        <Text
-                          style={[styles.desc, { color: colors.onSurface }]}
-                        >
-                          This payment requires 3D Secure verification. An OTP
-                          will be sent to your registered mobile/email.
-                        </Text>
+                      {!requireAction && (
                         <Button
                           mode="contained"
-                          onPress={onConfirmPayment}
+                          onPress={handleSubmit}
                           style={[
                             styles.btn,
-                            { backgroundColor: colors.tertiary },
+                            { backgroundColor: colors.primary },
                           ]}
                           labelStyle={{ color: colors.onPrimary }}
-                          loading={isWorkingOnStripe}
+                          loading={isBooking}
                         >
-                          Confirm Payment
+                          Pay AED 999 /- (+5% Tax)
                         </Button>
-                      </View>
-                    )}
-                  </>
-                ) : (
-                  <EmptyState
-                    iconName="credit-card-off"
-                    title="No Saved Cards"
-                    description="You don’t have any saved payment methods. Please add one to continue."
-                    buttonLabel="Add Payment Method"
-                    onButtonPress={() => router.push(ROUTES.PAYMENT_METHODS)}
-                    style={{ marginTop: 60 }}
-                  />
-                )}
-              </>
-            )}
-          </Formik>
-        ) : (
-          // online inspection summary placeholder
-          <Formik
-            innerRef={(r) => (formikRef = r)}
-            initialValues={{ summaryConfirmed: false }}
-            onSubmit={handleLocalSubmit}
-          >
-            {({ handleSubmit }) => (
-              <View>
-                <Text style={{ marginBottom: 20 }}>
-                  Online Inspection Summary
-                </Text>
-              </View>
-            )}
-          </Formik>
-        )}
-      </ScrollView>
+                      )}
+
+                      {requireAction && (
+                        <View style={styles.otpWrapper}>
+                          <Text
+                            style={[styles.desc, { color: colors.onSurface }]}
+                          >
+                            This payment requires 3D Secure verification. An OTP
+                            will be sent to your registered mobile/email.
+                          </Text>
+                          <Button
+                            mode="contained"
+                            onPress={onConfirmPayment}
+                            style={[
+                              styles.btn,
+                              { backgroundColor: colors.tertiary },
+                            ]}
+                            labelStyle={{ color: colors.onPrimary }}
+                            loading={isWorkingOnStripe}
+                          >
+                            Confirm Payment
+                          </Button>
+                        </View>
+                      )}
+                    </>
+                  ) : (
+                    <EmptyState
+                      iconName="credit-card-off"
+                      title="No Saved Cards"
+                      description="You don’t have any saved payment methods. Please add one to continue."
+                      buttonLabel="Add Payment Method"
+                      onButtonPress={() => router.push(ROUTES.PAYMENT_METHODS)}
+                      style={{ marginTop: 60 }}
+                    />
+                  )}
+                </>
+              )}
+            </Formik>
+          ) : (
+            <Formik
+              innerRef={(r) => (formikRef = r)}
+              initialValues={{ summaryConfirmed: false }}
+              onSubmit={handleLocalSubmit}
+            >
+              {({ handleSubmit }) => (
+                <>
+                  <BookingSummary onChangeAddress={handleOpenAddressSheet} />
+                </>
+              )}
+            </Formik>
+          )}
+        </ScrollView>
+
+        <AddressBottomSheet
+          addresses={allAddresses}
+          visible={showAddrSheet}
+          selectedId={selectedAddress?._id}
+          onClose={handleCloseAddressSheet}
+          onSelect={handleSelectAddress}
+          onAdd={() => router.push(ROUTES.ADD_ADDRESS)}
+        />
+      </>
     );
   }
 );
