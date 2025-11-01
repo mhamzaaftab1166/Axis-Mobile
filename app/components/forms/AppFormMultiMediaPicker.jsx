@@ -105,10 +105,10 @@ export default function AppMultiMediaPicker({
     try {
       const mediaOption =
         mediaType === "video"
-          ? ImagePicker.MediaTypeOptions.Videos
+          ? ["videos"]
           : mediaType === "image"
-          ? ImagePicker.MediaTypeOptions.Images
-          : ImagePicker.MediaTypeOptions.All;
+          ? ["images"]
+          : ["images", "videos"];
 
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: mediaOption,
