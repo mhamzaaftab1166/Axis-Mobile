@@ -22,12 +22,15 @@ export default function AddPropertyWizard() {
     console.log(`Step ${step + 1} submitted:`, values);
 
     if (step === 0) {
+      // Step 1 data (booking details)
       setFormData(values);
       setInspectionType(values.inspectionType);
       setStep(1);
     } else if (step === 1) {
+      // Combine Step 1 + Step 2 data
       const finalPayload = { ...formData, ...values };
       console.log("Final submission payload:", finalPayload);
+      // You can send finalPayload to API here
     }
   };
 
@@ -55,6 +58,7 @@ export default function AddPropertyWizard() {
           ref={stepRef}
           onSubmit={handleSubmit}
           inspectionType={inspectionType}
+          bookingData={formData}
         />
       )}
     </WizardLayout>

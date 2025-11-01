@@ -4,6 +4,7 @@ import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Button, useTheme } from "react-native-paper";
 import * as Yup from "yup";
+
 import EmptyState from "../../../../components/common/EmptyState";
 import AppFormDropdown from "../../../../components/forms/AppFormDropdown";
 import AppFormField from "../../../../components/forms/AppFormFeild";
@@ -18,6 +19,7 @@ import BookingSummary from "./SummaryDetails";
 const InspectionStep2 = forwardRef(
   (
     {
+      bookingData,
       onSubmit,
       requireAction,
       amount,
@@ -28,10 +30,11 @@ const InspectionStep2 = forwardRef(
     },
     ref
   ) => {
-    const { colors } = useTheme();
+    const { colors, fonts } = useTheme(); // <-- added fonts
     const selectedAddress = useAddressStore((s) => s.selectedAddress);
     const setAddress = useAddressStore((s) => s.setAddress);
     const ensureDefault = useAddressStore((s) => s.ensureDefault);
+
     const [showAddrSheet, setShowAddrSheet] = useState(false);
 
     const { allAddresses, isLoading: loadingAddress } = useGetAllAddress();
@@ -43,7 +46,6 @@ const InspectionStep2 = forwardRef(
       submitForm: () => formikRef?.handleSubmit(),
     }));
 
-    // Validation for physical payments
     const paymentValidationSchema = Yup.object({
       selectedCard: Yup.object().required("Please select a card"),
       cvv: Yup.string()
@@ -84,9 +86,28 @@ const InspectionStep2 = forwardRef(
             >
               {({ handleSubmit }) => (
                 <>
-                  <BookingSummary onChangeAddress={handleOpenAddressSheet} />
+                  {/* Booking Summary */}
+                  <BookingSummary
+                    bookingData={bookingData}
+                    onChangeAddress={handleOpenAddressSheet}
+                  />
 
-                  <LoadingOveralay visible={loadingCards} />
+                  {/* Loading overlay for cards */}
+                  <LoadingOveralay visible={loadingCards || loadingAddress} />
+
+                  {/* Payment Section Label */}
+                  <Text
+                    style={[
+                      styles.sectionLabel,
+                      {
+                        color: colors.onSurface,
+                        fontFamily: fonts?.medium?.fontFamily,
+                        marginTop: 25,
+                      },
+                    ]}
+                  >
+                    Payment Details
+                  </Text>
 
                   {Array.isArray(cards) && cards.length > 0 ? (
                     <>
@@ -117,7 +138,7 @@ const InspectionStep2 = forwardRef(
                           labelStyle={{ color: colors.onPrimary }}
                           loading={isBooking}
                         >
-                          Pay AED 999 /- (+5% Tax)
+                          Pay AED {amount || 999} /- (+5% Tax)
                         </Button>
                       )}
 
@@ -165,13 +186,18 @@ const InspectionStep2 = forwardRef(
             >
               {({ handleSubmit }) => (
                 <>
-                  <BookingSummary onChangeAddress={handleOpenAddressSheet} />
+                  {/* Booking Summary for online inspection */}
+                  <BookingSummary
+                    bookingData={bookingData}
+                    onChangeAddress={handleOpenAddressSheet}
+                  />
                 </>
               )}
             </Formik>
           )}
         </ScrollView>
 
+        {/* Address Bottom Sheet */}
         <AddressBottomSheet
           addresses={allAddresses}
           visible={showAddrSheet}
@@ -199,6 +225,12 @@ const styles = StyleSheet.create({
   desc: {
     textAlign: "center",
     marginBottom: 12,
+  },
+  sectionLabel: {
+    fontSize: 16,
+    fontWeight: "700",
+    marginTop: 12,
+    marginBottom: 8,
   },
 });
 
