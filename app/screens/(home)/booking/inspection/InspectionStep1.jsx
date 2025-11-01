@@ -16,10 +16,12 @@ import AppFormTimeInput from "../../../../components/forms/AppFormTimePicker";
 import ServiceCardList from "../../../../components/home/services/ServiceCardList";
 import { inspectionBookingSchema } from "../../../../helpers/validations";
 
-export default forwardRef(function InspectionStep1({ onSubmit }, ref) {
+export default forwardRef(function InspectionStep1(
+  { onSubmit, initialData = {} },
+  ref
+) {
   const { service } = useLocalSearchParams();
   const parsedSelectedService = service ? JSON.parse(service) : null;
-
   const { colors } = useTheme();
   const formikRef = useRef(null);
 
@@ -28,7 +30,7 @@ export default forwardRef(function InspectionStep1({ onSubmit }, ref) {
     validate: () => formikRef.current?.validateForm(),
   }));
 
-  const initialValues = {
+  const defaultInitialValues = {
     bookingDate: "",
     time: "",
     inspectionType: "physical",
@@ -36,10 +38,13 @@ export default forwardRef(function InspectionStep1({ onSubmit }, ref) {
     videos: null,
   };
 
+  const mergedInitialValues = { ...defaultInitialValues, ...initialData };
+
   return (
     <Formik
       innerRef={formikRef}
-      initialValues={initialValues}
+      initialValues={mergedInitialValues}
+      enableReinitialize
       validationSchema={inspectionBookingSchema}
       onSubmit={(values) => {
         const basePayload =
@@ -76,11 +81,7 @@ export default forwardRef(function InspectionStep1({ onSubmit }, ref) {
               <Text
                 style={[
                   styles.heading,
-                  {
-                    color: colors.onBackground,
-                    marginVertical: 0,
-                    marginBottom: 8,
-                  },
+                  { color: colors.onBackground, marginBottom: 8 },
                 ]}
               >
                 Selected Service
@@ -90,7 +91,7 @@ export default forwardRef(function InspectionStep1({ onSubmit }, ref) {
                 <ServiceCardList
                   service={parsedSelectedService}
                   type="inspection_services"
-                  onlyView={true}
+                  onlyView
                   onBookInspection={(selected) =>
                     console.log("Booking:", selected)
                   }
@@ -109,7 +110,6 @@ export default forwardRef(function InspectionStep1({ onSubmit }, ref) {
                     minDaysOffset={3}
                   />
                 </View>
-
                 <View style={[styles.flexItem, { marginLeft: 10 }]}>
                   <AppFormTimeInput name="time" label="Preferred Time" />
                 </View>
@@ -119,7 +119,7 @@ export default forwardRef(function InspectionStep1({ onSubmit }, ref) {
                 Inspection Type
               </Text>
 
-              <View style={[styles.optionsRow]}>
+              <View style={styles.optionsRow}>
                 <TouchableOpacity
                   activeOpacity={0.8}
                   onPress={() => onInspectionTypeChange("physical")}
@@ -212,41 +212,22 @@ export default forwardRef(function InspectionStep1({ onSubmit }, ref) {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   scrollContent: { padding: 16, paddingBottom: 32 },
-
-  heading: {
-    fontSize: 18,
-    marginVertical: 12,
-    fontWeight: "700",
-  },
-
+  heading: { fontSize: 18, marginVertical: 12, fontWeight: "700" },
   subHeading: {
     fontSize: 16,
     marginTop: 10,
     marginBottom: 6,
     fontWeight: "600",
   },
-
-  serviceCardWrap: {
-    marginBottom: 14,
-  },
-
-  row: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: 8,
-  },
-
-  flexItem: {
-    flex: 1,
-  },
-
+  serviceCardWrap: { marginBottom: 14 },
+  row: { flexDirection: "row", alignItems: "flex-start", marginBottom: 8 },
+  flexItem: { flex: 1 },
   optionsRow: {
     flexDirection: "row",
     alignItems: "center",
     marginTop: 8,
     marginBottom: 6,
   },
-
   option: {
     flexDirection: "row",
     alignItems: "center",
@@ -254,18 +235,12 @@ const styles = StyleSheet.create({
     paddingRight: 12,
     marginRight: 8,
   },
-
-  optionLabel: {
-    fontSize: 15,
-    fontWeight: "600",
-  },
-
+  optionLabel: { fontSize: 15, fontWeight: "600" },
   physicalBox: {
     borderWidth: 1,
     padding: 12,
     borderRadius: 10,
     marginVertical: 10,
   },
-
   section: { marginTop: 12 },
 });

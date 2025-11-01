@@ -86,16 +86,13 @@ const InspectionStep2 = forwardRef(
             >
               {({ handleSubmit }) => (
                 <>
-                  {/* Booking Summary */}
                   <BookingSummary
                     bookingData={bookingData}
                     onChangeAddress={handleOpenAddressSheet}
                   />
 
-                  {/* Loading overlay for cards */}
                   <LoadingOveralay visible={loadingCards || loadingAddress} />
 
-                  {/* Payment Section Label */}
                   <Text
                     style={[
                       styles.sectionLabel,
@@ -186,7 +183,6 @@ const InspectionStep2 = forwardRef(
             >
               {({ handleSubmit }) => (
                 <>
-                  {/* Booking Summary for online inspection */}
                   <BookingSummary
                     bookingData={bookingData}
                     onChangeAddress={handleOpenAddressSheet}
@@ -197,7 +193,6 @@ const InspectionStep2 = forwardRef(
           )}
         </ScrollView>
 
-        {/* Address Bottom Sheet */}
         <AddressBottomSheet
           addresses={allAddresses}
           visible={showAddrSheet}

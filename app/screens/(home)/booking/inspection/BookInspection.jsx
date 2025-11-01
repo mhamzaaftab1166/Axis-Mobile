@@ -1,5 +1,5 @@
 // AddPropertyWizard.jsx
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import WizardLayout from "../../../../components/common/WizardLayout";
 import InspectionStep1 from "./InspectionStep1";
 import InspectionStep2 from "./InspectionStep2";
@@ -9,6 +9,15 @@ export default function AddPropertyWizard() {
   const [formData, setFormData] = useState({});
   const [inspectionType, setInspectionType] = useState(null);
   const stepRef = useRef(null);
+
+  useEffect(() => {
+    // Cleanup when the user navigates away (unmount)
+    return () => {
+      setFormData({});
+      setInspectionType(null);
+      setStep(0);
+    };
+  }, []);
 
   const handleNext = () => {
     stepRef.current?.submitForm();
@@ -22,15 +31,12 @@ export default function AddPropertyWizard() {
     console.log(`Step ${step + 1} submitted:`, values);
 
     if (step === 0) {
-      // Step 1 data (booking details)
       setFormData(values);
       setInspectionType(values.inspectionType);
       setStep(1);
     } else if (step === 1) {
-      // Combine Step 1 + Step 2 data
       const finalPayload = { ...formData, ...values };
       console.log("Final submission payload:", finalPayload);
-      // You can send finalPayload to API here
     }
   };
 
@@ -52,7 +58,11 @@ export default function AddPropertyWizard() {
       showNext={showNextButton}
     >
       {step === 0 ? (
-        <InspectionStep1 ref={stepRef} onSubmit={handleSubmit} />
+        <InspectionStep1
+          ref={stepRef}
+          onSubmit={handleSubmit}
+          initialData={formData}
+        />
       ) : (
         <InspectionStep2
           ref={stepRef}
