@@ -50,6 +50,8 @@ export const useCreateBooking = ({
     mutationFn: (data) => bookService(data),
     onSuccess: (response) => {
       if (response?.status === HttpStatusCode.Ok) {
+
+        console.log(response);
         const outcome = response?.data?.case;
 
         if (outcome === "success") {

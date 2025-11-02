@@ -18,14 +18,13 @@ export default function ServiceCardList({
   onToggleSelect,
   onlyView,
   capacity,
-  type = "direct_booking",
   onBookInspection,
 }) {
   const bhkKey = `${capacity} BHK`;
 
   let price;
 
-  if (type === "inspection_services") {
+  if (service?.isInspection === true) {
     price = 25;
   } else {
     price = service.price?.[bhkKey];
@@ -58,10 +57,10 @@ export default function ServiceCardList({
         return { color: "tomato", icon: "label" };
     }
   };
-
+  
   const badgeDetails = getBadgeDetails(service.badge);
 
-  const isInspection = type === "inspection_services";
+  const isInspection = service?.isInspection === true;
   const handlePress = () => {
     if (isInspection) {
       onBookInspection && onBookInspection(service);
