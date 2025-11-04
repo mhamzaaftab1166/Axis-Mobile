@@ -33,7 +33,7 @@ export default forwardRef(function InspectionStep1(
   const defaultInitialValues = {
     bookingDate: "",
     time: "",
-    inspectionType: service?.physicalInspection === true ? "physical" : "online",
+    inspectionType: parsedSelectedService?.physicalInspection === true ? "physical" : "online",
     images: null,
     videos: null,
   };
@@ -120,47 +120,53 @@ export default forwardRef(function InspectionStep1(
               </Text>
 
               <View style={styles.optionsRow}>
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  onPress={() => onInspectionTypeChange("physical")}
-                  style={styles.option}
-                >
-                  <Checkbox.Android
-                    status={
-                      values.inspectionType === "physical"
-                        ? "checked"
-                        : "unchecked"
-                    }
+                {
+                  parsedSelectedService?.physicalInspection &&
+                  <TouchableOpacity
+                    activeOpacity={0.8}
                     onPress={() => onInspectionTypeChange("physical")}
-                    color={colors.primary}
-                  />
-                  <Text
-                    style={[styles.optionLabel, { color: colors.onBackground }]}
+                    style={styles.option}
                   >
-                    Physical Inspection
-                  </Text>
-                </TouchableOpacity>
+                    <Checkbox.Android
+                      status={
+                        values.inspectionType === "physical"
+                          ? "checked"
+                          : "unchecked"
+                      }
+                      onPress={() => onInspectionTypeChange("physical")}
+                      color={colors.primary}
+                    />
+                    <Text
+                      style={[styles.optionLabel, { color: colors.onBackground }]}
+                    >
+                      Physical Inspection
+                    </Text>
+                  </TouchableOpacity>
+                }
 
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  onPress={() => onInspectionTypeChange("online")}
-                  style={styles.option}
-                >
-                  <Checkbox.Android
-                    status={
-                      values.inspectionType === "online"
-                        ? "checked"
-                        : "unchecked"
-                    }
+                {
+                  parsedSelectedService?.onlineInspection &&
+                  <TouchableOpacity
+                    activeOpacity={0.8}
                     onPress={() => onInspectionTypeChange("online")}
-                    color={colors.primary}
-                  />
-                  <Text
-                    style={[styles.optionLabel, { color: colors.onBackground }]}
+                    style={styles.option}
                   >
-                    Online Inspection
-                  </Text>
-                </TouchableOpacity>
+                    <Checkbox.Android
+                      status={
+                        values.inspectionType === "online"
+                          ? "checked"
+                          : "unchecked"
+                      }
+                      onPress={() => onInspectionTypeChange("online")}
+                      color={colors.primary}
+                    />
+                    <Text
+                      style={[styles.optionLabel, { color: colors.onBackground }]}
+                    >
+                      Online Inspection
+                    </Text>
+                  </TouchableOpacity>
+                }
               </View>
 
               <AppErrorMessage

@@ -1,6 +1,6 @@
 import { StyleSheet, View } from "react-native";
+import { PhoneNumberInput } from 'react-native-international-phone-number';
 import { useTheme } from "react-native-paper";
-import PhoneInput from "react-native-phone-number-input";
 
 const AppPhoneInput = ({
   value,
@@ -30,7 +30,7 @@ const AppPhoneInput = ({
 
   return (
     <View style={styles.wrapper}>
-      <PhoneInput
+      <PhoneNumberInput
         ref={phoneInputRef}
         value={displayValue}
         defaultCode={defaultCode}

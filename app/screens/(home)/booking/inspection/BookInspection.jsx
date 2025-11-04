@@ -57,7 +57,6 @@ export default function AddPropertyWizard() {
       navigation.replace(ROUTES.HOME);
     },
     onRequireAction: (clientSecret, methodId, intentId)=>{
-      console.log(clientSecret, methodId, intentId);
       setShowOtpStep(true);
       setClientSecret(clientSecret);
       setPaymentMethodId(methodId);

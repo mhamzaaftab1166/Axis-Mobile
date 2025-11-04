@@ -1,3 +1,4 @@
+import { HttpStatusCode } from "axios";
 import { Redirect } from "expo-router";
 import LoadingOverlay from "./components/LoadingOverlay";
 import { ROUTES } from "./helpers/routePaths";
@@ -26,6 +27,9 @@ export default function Index() {
 
   // Case 3: valid data → go home
   if (userData) {
+    if(userData?.status === HttpStatusCode.Unauthorized){
+      return <Redirect href={ROUTES.LOGIN} />;
+    }
     return <Redirect href={ROUTES.HOME} />;
   }
 

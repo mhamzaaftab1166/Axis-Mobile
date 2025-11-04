@@ -44,21 +44,20 @@ export const useBookInspectionService = ({ onSuccessCallback, onErrorCallback, o
   return useMutation({
     mutationFn: (data) => bookInspectionService(data),
     onSuccess: (response) => {
-      console.log(response);
       if (response?.status === HttpStatusCode.Ok) {
         const outcome = response?.data?.case;
         if (outcome === "success") {
-          // ✅ successful payment
+          // successful payment
           onSuccessCallback?.();
         } else if (outcome === "requires_action") {
-          // ⚠️ requires OTP / 3DS
+          // requires OTP / 3DS
           onRequireAction?.(
             response?.data?.clientSecret,
             response?.data?.paymentMethod,
             response?.data?.intentId
           );
         } else if (outcome === "failed") {
-          // ❌ failed
+          // failed
           onErrorCallback?.(response?.data?.message || "Payment failed!");
         } else {
           // fallback
