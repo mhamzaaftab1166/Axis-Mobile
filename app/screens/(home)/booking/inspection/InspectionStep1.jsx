@@ -33,7 +33,7 @@ export default forwardRef(function InspectionStep1(
   const defaultInitialValues = {
     bookingDate: "",
     time: "",
-    inspectionType: "physical",
+    inspectionType: service?.physicalInspection === true ? "physical" : "online",
     images: null,
     videos: null,
   };

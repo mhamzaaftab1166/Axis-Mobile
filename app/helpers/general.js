@@ -235,7 +235,7 @@ export const formatAddressLabel = (addr) => {
   return { main: prop, meta };
 };
 
-export const buildServiceOptions = (services) => {
+export const buildServiceOptions = (services = []) => {
   return Object.values(
     services.reduce((acc, service) => {
       const cat = service.category?.toLowerCase() || "unknown";
@@ -553,4 +553,84 @@ export const isServiceEligibleForPayment = (service) => {
   }
 
   return false;
+};
+
+// create form data for inspection service booking form
+export const buildInspectionFormData = (formDataStep1, valuesStep2,selectedAddress,encryptionKey, serviceId = null) => {
+  const formData = new FormData();
+
+  const {
+    bookingDate,
+    inspectionType,
+    time,
+    selectedService,
+    images,
+    videos,
+  } = formDataStep1;
+
+  // Basic fields
+  formData.append("bookingDate", bookingDate);
+  formData.append("inspectionType", inspectionType);
+  formData.append("time", time);
+
+  // Append selectedService (stringified)
+  formData.append("selectedService", selectedService.id);
+  formData.append("address", selectedAddress._id);
+
+  if(serviceId){
+    formData.append("serviceId", serviceId);
+  }
+
+  // Merge summaryConfirmed or any extra fields from step 2
+  if (valuesStep2?.summaryConfirmed !== undefined) {
+    formData.append("summaryConfirmed", valuesStep2.summaryConfirmed);
+  }
+
+  // ✅ Physical inspection (with card & CVV)
+  if (inspectionType === "physical") {
+    if (valuesStep2?.selectedCard) {
+      formData.append("selectedCard", valuesStep2?.selectedCard?.id);
+    }
+    if (valuesStep2?.cvv) {
+      formData.append("cvv", encryptCVV(valuesStep2.cvv,encryptionKey));
+    }
+
+    // Fixed cost — explicitly sent
+    formData.append("amount", "25");
+  }
+
+  // ✅ Online inspection (with images/videos)
+  if (inspectionType === "online") {
+    if (Array.isArray(images)) {
+      images.forEach((uri) => {
+        const filename = uri.split("/").pop();
+        const ext = filename.split(".").pop().toLowerCase();
+        const type =
+          ext === "png"
+            ? "image/png"
+            : ext === "jpg" || ext === "jpeg"
+            ? "image/jpeg"
+            : "image/*";
+
+        formData.append("images", {
+          uri,
+          name: filename,
+          type,
+        });
+      });
+    }
+
+    if (Array.isArray(videos)) {
+      videos.forEach((uri) => {
+        const filename = uri.split("/").pop();
+        formData.append("videos", {
+          uri,
+          name: filename,
+          type: "video/mp4",
+        });
+      });
+    }
+  }
+
+  return formData;
 };

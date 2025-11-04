@@ -13,12 +13,19 @@ import ServiceCardList from "../../components/home/services/ServiceCardList";
 import LoadingOverlay from "../../components/LoadingOverlay";
 import { buildServiceOptions, filterServices } from "../../helpers/general";
 import { ROUTES } from "../../helpers/routePaths";
+import { useUserDetailQuery } from "../../hooks/useAuthQuery";
+import { useGetAllInspectionServices } from "../../hooks/useInspectionServices";
 import { useGetAllServices } from "../../hooks/useServiceQuery";
 import useAddressStore from "../../store/useAddressStore";
 import useBookingStore from "../../store/useBookingStore";
 
 export default function ServiceListing() {
-  const { allServices: services, isLoading } = useGetAllServices();
+
+  const { userData, isLoading: fetchingUserData } = useUserDetailQuery();
+
+  const { allServices: services, isLoading } = useGetAllServices(
+    userData?.data?.user?.role
+  );
   const navigation = useNavigation();
   const { colors } = useTheme();
 
@@ -29,13 +36,16 @@ export default function ServiceListing() {
 
   const toggleService = useBookingStore((state) => state.toggleService);
   const isSelected = useBookingStore((state) => state.isSelected);
-  const booking = useBookingStore((state) => state.booking);
 
   const selectedAddress = useAddressStore((s) => s.selectedAddress);
 
+  const { services: inspectionServices, isLoading: fetchingIspectionServices} = useGetAllInspectionServices(
+    userData?.data?.user?.role
+  );
+
   const filteredServices = filterServices(
     selectedCategories,
-    services,
+    mode === "direct_booking" ? services : inspectionServices,
     searchText
   );
 
@@ -73,10 +83,10 @@ export default function ServiceListing() {
         />
       </View>
 
-      {services?.length !== 0 && (
+      {(services?.length !== 0 && inspectionServices?.length !== 0) && (
         <View style={styles.controlsContainer}>
           <SelectableChips
-            options={buildServiceOptions(services ? services : [])}
+            options={buildServiceOptions(mode === "direct_booking" ? services : inspectionServices)}
             selectedOptions={selectedCategories}
             onChange={setSelectedCategories}
           />
@@ -88,7 +98,7 @@ export default function ServiceListing() {
           />
         </View>
       )}
-      <LoadingOverlay visible={isLoading} />
+      <LoadingOverlay visible={isLoading || fetchingUserData || fetchingIspectionServices} />
       <ScrollView contentContainerStyle={styles.content}>
         {filteredServices?.length === 0 ? (
           <View
@@ -111,7 +121,6 @@ export default function ServiceListing() {
                 isSelected={isSelected(service)}
                 onToggleSelect={handleToggle}
                 capacity={selectedAddress?.unitId?.unitCapacity}
-                type={mode}
                 onBookInspection={handleBookInspection}
               />
             ))}
@@ -124,7 +133,6 @@ export default function ServiceListing() {
               isSelected={isSelected(service)}
               onToggleSelect={handleToggle}
               capacity={selectedAddress?.unitId?.unitCapacity}
-              type={mode}
               onBookInspection={handleBookInspection}
             />
           ))

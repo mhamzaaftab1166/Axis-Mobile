@@ -1,18 +1,22 @@
 import { MaterialIcons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import { useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "react-native-paper";
+import { ROUTES } from "../../helpers/routePaths";
 import useBookingStore from "../../store/useBookingStore";
 import ServiceCardGrid from "./services/ServiceCardGrid";
 
 export default function HomeServiceSection({
   title,
   homePageServices = [],
+  inspectionServices = [],
   onViewAll,
   addressCapacity = 0,
 }) {
   const { colors } = useTheme();
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [servicesList, setServicesList] = useState([...homePageServices, ...inspectionServices]);
 
   const toggleService = useBookingStore((state) => state.toggleService);
   const isSelected = useBookingStore((state) => state.isSelected);
@@ -28,7 +32,24 @@ export default function HomeServiceSection({
 
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
-    console.log("Selected category:", category);
+    if(category === "All"){
+      setServicesList([...homePageServices, ...inspectionServices]);
+    }else if(category === "Direct Booking"){
+      setServicesList(homePageServices)
+    }else if(category === "Inspection"){
+      setServicesList(inspectionServices)
+    }else{
+      setServicesList([]);
+    }
+  };
+
+  const handleBookInspection = (service) => {
+    router.push({
+      pathname: ROUTES.BOOK_SERVICE_INSPECTION,
+      params: {
+        service: JSON.stringify(service),
+      },
+    });
   };
 
   return (
@@ -70,7 +91,6 @@ export default function HomeServiceSection({
                   flex: 1,
                   backgroundColor: active ? colors.tertiary : colors.surface,
                 },
-                // subtle pressed scale/opacity
                 {
                   opacity: pressed ? 0.9 : 1,
                   transform: pressed ? [{ scale: 0.997 }] : [{ scale: 1 }],
@@ -116,7 +136,7 @@ export default function HomeServiceSection({
 
       <FlatList
         horizontal
-        data={homePageServices}
+        data={servicesList}
         keyExtractor={(item) => item.id}
         showsHorizontalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
@@ -129,6 +149,7 @@ export default function HomeServiceSection({
             horizontalMode
             isSelected={isSelected(item)}
             onToggleSelect={toggleService}
+            onBookInspection={handleBookInspection}
           />
         )}
       />

@@ -11,13 +11,12 @@ export default function ServiceCardGrid({
   isSelected = false,
   onToggleSelect,
   capacity,
-  type = "direct_booking",
   onBookInspection,
 }) {
   const bhkKey = `${capacity} BHK`;
   let price;
 
-  if (type === "inspection_services") {
+  if (service?.isInspection === true) {
     price = 25;
   } else {
     price = service.price?.[bhkKey];
@@ -53,7 +52,7 @@ export default function ServiceCardGrid({
   const showMoreButton = (service.description || "").length > TRUNCATE_LIMIT;
 
   const handleToggle = () => {
-    if (type === "inspection_services") {
+    if (service?.isInspection === true) {
       onBookInspection && onBookInspection(service);
       return;
     }
@@ -61,7 +60,7 @@ export default function ServiceCardGrid({
     onToggleSelect(service);
   };
 
-  const isInspection = type === "inspection_services";
+  const isInspection = service?.isInspection === true;
 
   return (
     <Card

@@ -25,12 +25,9 @@ import CustomSubServiceTenantList from "../components/home/SubServiceTenant";
 import { ROUTES } from "../helpers/routePaths";
 import { useGetAllAddress } from "../hooks/useAddressQuery";
 import { useUserDetailQuery } from "../hooks/useAuthQuery";
+import { useGetInspectionServices } from "../hooks/useInspectionServices";
 import { useFetchUnreadCount } from "../hooks/useNotificationQuery";
-import {
-  useGetAllServices,
-  useGetTopServices,
-  useGetUpcomingSubServices,
-} from "../hooks/useServiceQuery";
+import { useGetAllServices, useGetTopServices, useGetUpcomingSubServices } from "../hooks/useServiceQuery";
 import SupervisorHomePage from "../screens/(home)/SupervisorHomePage";
 import HomeSkeleton from "../skeltons/HomeLoadingSkelton";
 import useAddressStore from "../store/useAddressStore";
@@ -61,7 +58,11 @@ export default function Home() {
   const { allSubs, isLoading: fetchingSubs } = useGetUpcomingSubServices(
     userData?.data?.user?.role
   );
-  const addresses = useAddressStore((s) => s.addresses);
+
+  const { services: inspectionServices, isLoading: fetchingIspectionServices} = useGetInspectionServices(
+    userData?.data?.user?.role
+  );
+
   const selectedAddress = useAddressStore((s) => s.selectedAddress);
 
   const setAddress = useAddressStore((s) => s.setAddress);
@@ -83,7 +84,7 @@ export default function Home() {
       gettingCount ||
       fetchingUserData ||
       fetchingTopServices ||
-      loadingAddress ||
+      loadingAddress || fetchingIspectionServices || 
       fetchingSubs) &&
     role === "tenant"
   )
@@ -164,6 +165,7 @@ export default function Home() {
                 title="Popular Services"
                 addressCapacity={selectedAddress?.unitId?.unitCapacity}
                 homePageServices={topServices?.data}
+                inspectionServices={inspectionServices?.data}
                 onViewAll={() => router.push(ROUTES.SERVICE_LISTING)}
               />
               {allSubs?.length > 0 && (

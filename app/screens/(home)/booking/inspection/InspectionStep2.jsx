@@ -22,7 +22,6 @@ const InspectionStep2 = forwardRef(
       bookingData,
       onSubmit,
       requireAction,
-      amount,
       isBooking,
       onConfirmPayment,
       isWorkingOnStripe,
@@ -30,7 +29,7 @@ const InspectionStep2 = forwardRef(
     },
     ref
   ) => {
-    const { colors, fonts } = useTheme(); // <-- added fonts
+    const { colors, fonts } = useTheme(); 
     const selectedAddress = useAddressStore((s) => s.selectedAddress);
     const setAddress = useAddressStore((s) => s.setAddress);
     const ensureDefault = useAddressStore((s) => s.ensureDefault);
@@ -135,7 +134,7 @@ const InspectionStep2 = forwardRef(
                           labelStyle={{ color: colors.onPrimary }}
                           loading={isBooking}
                         >
-                          Pay AED {amount || 999} /- (+5% Tax)
+                          Pay AED {25} /-
                         </Button>
                       )}
 
