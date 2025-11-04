@@ -19,10 +19,10 @@ export default function BookingListing() {
 
   if (fetchingMyServices) return <BookingSkeleton />;
 
-  return (  
+  return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <CenteredAppbarHeader
-        title="My Bookings"
+        title="Standard Bookings"
         onBack={() => navigation.goBack()}
       />
       <FlatList
@@ -59,5 +59,5 @@ export default function BookingListing() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   list: { padding: 16 },
-  header: { marginBottom: 16 },
+  header: { marginBottom: 0 },
 });

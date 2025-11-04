@@ -41,17 +41,18 @@ export default function BookedServiceDetail() {
   };
   const closeDialog = () => setDialogVisible(false);
 
-  const { mutate: terminateService, isPending: isTerminating } = useTerminateService({
-    onErrorCallback: (errMsg) => {
-      setError(errMsg);
-      setIsError(true);
-    },
-    onSuccessCallback: () => {
-      setError("");
-      setIsError(false);
-      router.dismissTo(ROUTES.HOME);
-    },
-  });
+  const { mutate: terminateService, isPending: isTerminating } =
+    useTerminateService({
+      onErrorCallback: (errMsg) => {
+        setError(errMsg);
+        setIsError(true);
+      },
+      onSuccessCallback: () => {
+        setError("");
+        setIsError(false);
+        router.dismissTo(ROUTES.HOME);
+      },
+    });
 
   const confirmTerminate = () => {
     terminateService(service?.id, {
@@ -98,7 +99,7 @@ export default function BookedServiceDetail() {
           color={colors.onPrimary}
         />
         <Appbar.Content
-          title="Service Detail"
+          title="Booking Service Detail"
           titleStyle={{ color: colors.onPrimary, fontFamily: fonts.medium }}
         />
         {service?.status !== "complete" && (
@@ -113,11 +114,9 @@ export default function BookedServiceDetail() {
               />
             }
           >
-            {
-              isServiceEligibleForPayment(service) && (
-                <Menu.Item onPress={handlePayForPendingService} title="Pay" />
-              )
-            }
+            {isServiceEligibleForPayment(service) && (
+              <Menu.Item onPress={handlePayForPendingService} title="Pay" />
+            )}
             <Menu.Item onPress={handleUpdate} title="Update" />
             <Menu.Item onPress={openDialog} title="Terminate" />
           </Menu>
@@ -191,8 +190,7 @@ export default function BookedServiceDetail() {
               </View>
             ))}
             <Divider style={{ marginVertical: 8 }} />
-            {
-              service?.discountPercentage !== 0 &&
+            {service?.discountPercentage !== 0 && (
               <>
                 <View style={styles.serviceRow}>
                   <Text
@@ -209,7 +207,10 @@ export default function BookedServiceDetail() {
                       { color: colors.primary, fontFamily: fonts.bold },
                     ]}
                   >
-                    {service?.discountPercentage ? service?.discountPercentage : 0} %
+                    {service?.discountPercentage
+                      ? service?.discountPercentage
+                      : 0}{" "}
+                    %
                   </Text>
                 </View>
                 <View style={styles.serviceRow}>
@@ -232,7 +233,7 @@ export default function BookedServiceDetail() {
                 </View>
                 <Divider style={{ marginVertical: 8 }} />
               </>
-            }
+            )}
             <View style={styles.serviceRow}>
               <Text
                 style={[
@@ -287,9 +288,8 @@ export default function BookedServiceDetail() {
                 AED {service?.totalAmountAfterTax}
               </Text>
             </View>
-            {
-              service.status === "pending"
-              && <View style={styles.serviceRow}>
+            {service.status === "pending" && (
+              <View style={styles.serviceRow}>
                 <Text
                   style={[
                     styles.serviceName,
@@ -307,7 +307,7 @@ export default function BookedServiceDetail() {
                   AED {service?.amountPayable}
                 </Text>
               </View>
-            }
+            )}
           </View>
         ) : (
           <Text style={{ color: colors.placeholder }}>No services</Text>

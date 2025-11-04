@@ -2,48 +2,48 @@ import { MaterialCommunityIcons as Icon } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useCallback } from "react";
 import {
-  Dimensions,
   FlatList,
   StyleSheet,
   Text,
-  TouchableOpacity,
+  useWindowDimensions,
   View,
 } from "react-native";
-import { Card, useTheme } from "react-native-paper";
+import { Card, TouchableRipple, useTheme } from "react-native-paper";
 import { ROUTES } from "../../helpers/routePaths";
 
 const categories = [
   {
     id: "1",
     icon: "playlist-check",
-    label: "Services",
+    label: "Avalable Services",
     color: "#0A84FF",
     route: ROUTES.SERVICE_LISTING,
   },
   {
     id: "2",
-    icon: "calendar-plus",
-    label: "Bookings",
+    icon: "calendar-check",
+    label: "Standard Bookings",
     color: "#34C759",
     route: ROUTES.MY_BOOKINGS,
   },
   {
     id: "3",
-    icon: "chart-areaspline",
-    label: "Statistics",
+    icon: "clipboard-text-search",
+    label: "Inspection Bookings",
     color: "#FF7A00",
-    route: "screens/(home)/booking/inspection/BookInspection",
+    route: ROUTES.MY_INSPECTION_BOOKING,
   },
 ];
 
 const NUM_COLS = 3;
-const SCREEN_WIDTH = Dimensions.get("window").width;
 const SPACING = 16;
-const CARD_WIDTH = (SCREEN_WIDTH - SPACING * (NUM_COLS + 1)) / NUM_COLS;
 
 export default function CategoryListing({ allowScroll = false }) {
   const { colors, dark } = useTheme();
+  const { width: SCREEN_WIDTH } = useWindowDimensions();
   const router = useRouter();
+
+  const CARD_WIDTH = (SCREEN_WIDTH - SPACING * (NUM_COLS + 1)) / NUM_COLS;
 
   const onPressItem = useCallback(
     (route) => {
@@ -54,33 +54,50 @@ export default function CategoryListing({ allowScroll = false }) {
 
   const renderItem = useCallback(
     ({ item }) => (
-      <View style={{ width: CARD_WIDTH, marginBottom: 10 }}>
-        <TouchableOpacity
-          activeOpacity={0.7}
+      <View style={[styles.wrapper, { width: CARD_WIDTH }]}>
+        <TouchableRipple
           onPress={() => onPressItem(item.route)}
+          rippleColor={dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)"}
+          borderless
+          style={{ borderRadius: 16 }}
         >
           <Card
-            style={[styles.card, { backgroundColor: colors.background }]}
             mode="contained"
+            style={[
+              styles.card,
+              {
+                backgroundColor: colors.surface,
+                elevation: 2,
+                shadowColor: dark ? "#000" : "#000",
+              },
+            ]}
           >
             <View style={styles.cardContent}>
               <View
                 style={[
                   styles.iconCircle,
-                  { backgroundColor: `${item.color}33` },
+                  {
+                    backgroundColor: `${item.color}20`,
+                    shadowColor: item.color,
+                  },
                 ]}
               >
-                <Icon name={item.icon} size={28} color={item.color} />
+                <Icon name={item.icon} size={26} color={item.color} />
               </View>
-              <Text style={[styles.label, { color: colors.text }]}>
+
+              <Text
+                style={[styles.label, { color: colors.text }]}
+                numberOfLines={2}
+                ellipsizeMode="tail"
+              >
                 {item.label}
               </Text>
             </View>
           </Card>
-        </TouchableOpacity>
+        </TouchableRipple>
       </View>
     ),
-    [colors.text, dark, onPressItem]
+    [CARD_WIDTH, colors.surface, colors.text, dark, onPressItem]
   );
 
   return (
@@ -91,28 +108,41 @@ export default function CategoryListing({ allowScroll = false }) {
       numColumns={NUM_COLS}
       scrollEnabled={allowScroll}
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ padding: SPACING / 2 }}
+      contentContainerStyle={{ padding: SPACING / 2, paddingBottom: SPACING }}
       columnWrapperStyle={{ justifyContent: "space-between" }}
     />
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderRadius: 16,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 12,
-    aspectRatio: 1,
-  },
-  cardContent: { alignItems: "center", justifyContent: "center" },
-  iconCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    alignItems: "center",
-    justifyContent: "center",
+  wrapper: {
     marginBottom: 12,
   },
-  label: { fontSize: 15, fontWeight: "600", textAlign: "center" },
+  card: {
+    borderRadius: 14,
+    paddingVertical: 14,
+    paddingHorizontal: 10,
+    minHeight: 110,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  cardContent: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  iconCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
+  },
+  label: {
+    fontSize: 13,
+    fontWeight: "600",
+    textAlign: "center",
+    lineHeight: 17,
+    paddingHorizontal: 6,
+  },
 });
