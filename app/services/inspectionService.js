@@ -13,5 +13,9 @@ const bookInspectionService = async (data) => {
   return await _axios('post', 'v1/tenant/inspection-services/book-inspection',data,"multipart/form-data");
 };
 
-export { bookInspectionService, fetchAllServices, fetchTopInspectionServices };
+const fetchMyInspectionService = async () => {
+  return await _axios('get', 'v1/tenant/inspection-services/fetch-inspection-bookings');
+};
+
+export { bookInspectionService, fetchAllServices, fetchMyInspectionService, fetchTopInspectionServices };
 

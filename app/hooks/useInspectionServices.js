@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { HttpStatusCode } from "axios";
-import { bookInspectionService, fetchAllServices, fetchTopInspectionServices } from "../services/inspectionService";
+import { bookInspectionService, fetchAllServices, fetchMyInspectionService, fetchTopInspectionServices } from "../services/inspectionService";
 import useAuthStore from "../store/useAuthStore";
 
 // fetch top (popular) services
@@ -10,7 +10,7 @@ export const useGetInspectionServices = (role) => {
   const query = useQuery({
     queryKey: ["inspection-services"],
     queryFn: () => fetchTopInspectionServices(),
-    staleTime: () => {},
+    staleTime: 1000 * 5,
     enabled: !!token && hasHydrated && role === "tenant",
   });
 
@@ -80,4 +80,23 @@ export const useBookInspectionService = ({ onSuccessCallback, onErrorCallback, o
       onErrorCallback?.(msg);
     },
   });
+};
+
+// fetch top (popular) services
+export const useGetMyInspectionBookings = () => {
+  const { token, hasHydrated } = useAuthStore();
+
+  const query = useQuery({
+    queryKey: ["my-inspection-bookings"],
+    queryFn: () => fetchMyInspectionService(),
+    staleTime: 1000 * 5,
+    enabled: !!token && hasHydrated
+  });
+
+  return {
+    services: query?.data?.data,
+    isLoading: query.isLoading,
+    isError: query.isError,
+    error: query.error,
+  };
 };

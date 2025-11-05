@@ -9,6 +9,7 @@ import {
   View,
 } from "react-native";
 import { Surface } from "react-native-paper";
+import config from "../../../../../config.json";
 
 export default function InspectionBookingItem({
   item,
@@ -21,7 +22,7 @@ export default function InspectionBookingItem({
 
   // ✅ Define all status options with label + value
   const statusOptions = [
-    { label: "Pending", value: "pending", color: "#f39c12" },
+    { label: "Pending", value: "pending", color: "#9c978eff" },
     { label: "Confirmed", value: "confirmed", color: "#3498db" },
     { label: "Ongoing", value: "ongoing", color: "#3498db" },
     { label: "Completed", value: "completed", color: "#95a5a6" },
@@ -85,7 +86,7 @@ export default function InspectionBookingItem({
             >
               {m.type === "image" ? (
                 <Image
-                  source={{ uri: m.uri }}
+                  source={{ uri: `${config.pictureUrl}/${m.uri}` }}
                   style={localStyles.mediaThumb}
                   resizeMode="cover"
                 />
@@ -93,7 +94,7 @@ export default function InspectionBookingItem({
                 <View style={localStyles.videoPlaceholder}>
                   <Image
                     source={{
-                      uri: `https://picsum.photos/seed/video${i}/400/300`,
+                      uri: `${config.pictureUrl}/${m.uri}`,
                     }}
                     style={localStyles.mediaThumb}
                     resizeMode="cover"
@@ -111,7 +112,7 @@ export default function InspectionBookingItem({
   };
 
   const showMediaOnRight = width > 720;
-  const statusOption = getStatusOption(item.serviceStatus);
+  const statusOption = getStatusOption(item.status);
 
   return (
     <Surface

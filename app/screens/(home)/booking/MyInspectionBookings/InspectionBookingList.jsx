@@ -6,42 +6,11 @@ import { useTheme } from "react-native-paper";
 
 import ButtonSegmented from "../../../../components/common/ButtonSegmented";
 import CenteredAppbarHeader from "../../../../components/common/CenteredAppBar";
+import EmptyComponent from "../../../../components/common/EmptyState";
+import LoadingOverlay from "../../../../components/LoadingOverlay";
+import { filterBookings } from "../../../../helpers/general";
+import { useGetMyInspectionBookings } from "../../../../hooks/useInspectionServices";
 import InspectionBookingItem from "./InspectionBookingItem";
-
-const data = [
-  {
-    id: 1,
-    uniqueNumber: "ASD1234",
-    serviceName: "Home Cleaning",
-    serviceCategory: "Cleaning",
-    bookingDate: "15 March, 2020",
-    bookingTime: "10:00 AM",
-    inspectionType: "Physical",
-    images: null,
-    videos: null,
-    address: "Al Barsha, Dubai, UAE",
-    paymentStatus: "success",
-    serviceStatus: "terminated",
-  },
-  {
-    id: 2,
-    uniqueNumber: "ASD5678",
-    serviceName: "AC Maintenance",
-    serviceCategory: "Maintenance",
-    bookingDate: "20 November, 2025",
-    bookingTime: "2:30 PM",
-    inspectionType: "Online",
-    images: [
-      "https://picsum.photos/seed/1/800/600",
-      "https://picsum.photos/seed/2/800/600",
-      "https://picsum.photos/seed/3/800/600",
-    ],
-    videos: ["https://www.w3schools.com/html/mov_bbb.mp4"],
-    address: "Business Bay, Dubai, UAE",
-    paymentStatus: "paymentCancelled",
-    serviceStatus: "confirmed",
-  },
-];
 
 const segmentedOptions = [
   { value: "upcoming", label: "Upcoming" },
@@ -53,6 +22,9 @@ export default function InspectionBookingListing() {
   const { colors, dark } = useTheme();
   const navigation = useNavigation();
   const { width } = useWindowDimensions();
+
+  // fetch the bookings
+  const { services: servicesRecords, isLoading: fetchingServices } = useGetMyInspectionBookings();
 
   const onSegmentChange = useCallback(
     (value) => {
@@ -80,12 +52,15 @@ export default function InspectionBookingListing() {
         cartDisplay={false}
       />
 
+      <LoadingOverlay visible={fetchingServices}/>
+
       <View style={styles.content}>
         <FlatList
-          data={data}
+          data={filterBookings(servicesRecords,mode)}
           keyExtractor={(i) => `${i.id}`}
           renderItem={renderItem}
           contentContainerStyle={styles.list}
+          ListEmptyComponent={EmptyComponent}
           ListHeaderComponent={
             <View style={styles.segmentWrap}>
               <ButtonSegmented
