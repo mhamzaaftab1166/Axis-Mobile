@@ -24,6 +24,7 @@ export default function InspectionBookingItem({
   const statusOptions = [
     { label: "Pending", value: "pending", color: "#9c978eff" },
     { label: "Confirmed", value: "confirmed", color: "#3498db" },
+    { label: "In Progress", value: "inProgress", color: "#8be0a8ff" },
     { label: "Ongoing", value: "ongoing", color: "#3498db" },
     { label: "Completed", value: "completed", color: "#95a5a6" },
     { label: "Terminated", value: "terminated", color: "#95a5a6" },

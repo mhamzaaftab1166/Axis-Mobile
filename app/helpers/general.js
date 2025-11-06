@@ -349,7 +349,6 @@ export const filterBookings = (data, mode) => {
   ];
 
   return data?.filter((item) => {
-    console.log(item.status);
     if (mode === "upcoming") {
       return UPCOMING_STATUSES.includes(item.status);
     } else if (mode === "previous") {
