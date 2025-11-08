@@ -5,6 +5,7 @@ import { useState } from "react";
 import {
   Dimensions,
   Image,
+  Platform,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -195,7 +196,6 @@ export default function InspectJobDetailsView() {
                   style={[styles.addressText, { color: colors.placeholder }]}
                   numberOfLines={2}
                 >
-                  {"  "}
                   {item.address}
                 </Text>
               </View>
@@ -417,13 +417,20 @@ const styles = StyleSheet.create({
   statusText: { color: "#fff", fontWeight: "700", fontSize: 13 },
   dropdown: {
     position: "absolute",
-    top: 64,
+    top: 180,
     left: 16,
     borderRadius: 10,
     paddingVertical: 6,
     minWidth: 160,
     zIndex: 999,
-    elevation: 4,
+    ...Platform.select({
+      ios: {
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.12,
+        shadowRadius: 12,
+      },
+      android: { elevation: 4 },
+    }),
   },
   dropdownItem: {
     flexDirection: "row",
