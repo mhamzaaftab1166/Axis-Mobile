@@ -27,6 +27,8 @@ export const ROUTES = {
   MY_BOOKINGS: "screens/(home)/booking/MyBookings/Bookings",
   MY_INSPECTION_BOOKING:
     "screens/(home)/booking/MyInspectionBookings/InspectionBookingList",
+  INSPECT_JOB_DETAILS_VIEW:
+    "screens/(home)/supervisor/assign-jobs/InspectJobDetailsView",
   BOOKED_SERVIICE_DETAIL:
     "screens/(home)/booking/MyBookings/BookedServiceDetail",
   BOOKED_SERVIICE_UPDATE:
@@ -35,9 +37,8 @@ export const ROUTES = {
   SERVICE_LISTING_BY_CATEGORY: "screens/(home)/ServiceListingByCategory",
   SERVICE_LISTING_BY_CATEGORY_UPDATE:
     "screens/(home)/ServiceListingByCategoryUpdate",
-
   MAKE_PAYMENT: "screens/(home)/booking/MyBookings/PaymentScreenForUpdate",
   SUPERVSOR_COMPLETED_JOBS: "screens/(home)/supervisor/PreviousJobs",
-  SUPERVSOR_ASSIGNED_JOBS: "screens/(home)/supervisor/AsignedJobs",
+  SUPERVSOR_ASSIGNED_JOBS: "screens/(home)/supervisor/assign-jobs/AsignedJobs",
   PAYMENT_HISTORY: "screens/(account)/PaymentsHistory",
 };

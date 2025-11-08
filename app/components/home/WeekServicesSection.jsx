@@ -3,7 +3,10 @@ import { useState } from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Avatar, Snackbar, Text, useTheme } from "react-native-paper";
 import { SUB_SERVICES_AVAILABLE_STATUSES } from "../../helpers/contantData";
-import { getNextWeekServices, getSubServiceStatusConfig } from "../../helpers/general";
+import {
+  getNextWeekServices,
+  getSubServiceStatusConfig,
+} from "../../helpers/general";
 import { useUpdateSubServiceStatus } from "../../hooks/useBookingQuery";
 import { useSupServicesStore } from "../../store/useSupServicesStore";
 import EmptyState from "../common/EmptyState";
@@ -22,8 +25,12 @@ export default function WeekServicesSection() {
   const toggleDropdown = (id) =>
     setOpenDropdownFor((prev) => (prev === id ? null : id));
 
-  const [snackbar, setSnackbar] = useState({ visible: false, message: "", type: "" });
-  
+  const [snackbar, setSnackbar] = useState({
+    visible: false,
+    message: "",
+    type: "",
+  });
+
   const handleChangeStatus = (serviceId, subId, newStatus) => {
     updateStatus({
       serviceId,
@@ -35,30 +42,31 @@ export default function WeekServicesSection() {
   const supervisorServices = useSupServicesStore((s) => s.services);
   const services = getNextWeekServices(supervisorServices);
 
-  const { mutate: updateStatus, isPending: updatingStatus } = useUpdateSubServiceStatus({
-    onErrorCallback: (errMsg) => {
-      setSnackbar({
-        visible: true,
-        message: errMsg,
-        type: "error"
-      });
-      setOpenDropdownFor(null);
-    },
-    onSuccessCallback: (data) => {
-      setOpenDropdownFor(null);
-      setSnackbar({
-        visible: true,
-        message: `Status updated to ${data?.newStatus}`,
-        type: "success"
-      });
+  const { mutate: updateStatus, isPending: updatingStatus } =
+    useUpdateSubServiceStatus({
+      onErrorCallback: (errMsg) => {
+        setSnackbar({
+          visible: true,
+          message: errMsg,
+          type: "error",
+        });
+        setOpenDropdownFor(null);
+      },
+      onSuccessCallback: (data) => {
+        setOpenDropdownFor(null);
+        setSnackbar({
+          visible: true,
+          message: `Status updated to ${data?.newStatus}`,
+          type: "success",
+        });
 
-      useSupServicesStore
-        .getState()
-        .updateServiceStatus(data?.serviceId, data?.subId, data?.newStatus);
-      
-      useSupServicesStore.getState().moveFromAssignedToPrevious();
-    },
-  });
+        useSupServicesStore
+          .getState()
+          .updateServiceStatus(data?.serviceId, data?.subId, data?.newStatus);
+
+        useSupServicesStore.getState().moveFromAssignedToPrevious();
+      },
+    });
 
   const filteredServices = services?.map((svc) => ({
     ...svc,
@@ -71,8 +79,7 @@ export default function WeekServicesSection() {
   return (
     <View style={{ flex: 1 }}>
       <LoadingOverlay visible={updatingStatus} />
-      {
-        filteredServices?.length > 0 &&
+      {filteredServices?.length > 0 && (
         <View style={styles.headerRow}>
           <Text
             style={[
@@ -80,7 +87,7 @@ export default function WeekServicesSection() {
               { color: colors.text, fontFamily: fonts.medium?.fontFamily },
             ]}
           >
-            This Week Services
+            This Week Direct Services
           </Text>
           <View style={styles.filterWrapper}>
             <TouchableOpacity
@@ -108,7 +115,10 @@ export default function WeekServicesSection() {
             </TouchableOpacity>
             {openDropdownFor === "filter" && (
               <View
-                style={[styles.dropdownMenu, { backgroundColor: cardBackground }]}
+                style={[
+                  styles.dropdownMenu,
+                  { backgroundColor: cardBackground },
+                ]}
               >
                 {["All", ...SUB_SERVICES_AVAILABLE_STATUSES].map((st) => (
                   <TouchableOpacity
@@ -144,178 +154,189 @@ export default function WeekServicesSection() {
             )}
           </View>
         </View>
-      }
+      )}
 
-      <ScrollView
-        contentContainerStyle={[styles.servicesList, { paddingBottom: 200 }]}
-      >
-        {
-          filteredServices?.length === 0 ?
+      <ScrollView contentContainerStyle={[styles.servicesList]}>
+        {filteredServices?.length === 0 ? (
           <EmptyState
             iconName="home"
             title="No Upcoming Jobs!"
             description="You have 0 upcoming jobs."
-          /> 
-          : filteredServices?.map((service) =>
-          service.subServices.map((sub) => {
-            const statusCfg = getSubServiceStatusConfig(sub.status);
-            const isOpen = openDropdownFor === sub.id;
+          />
+        ) : (
+          filteredServices?.map((service) =>
+            service.subServices.map((sub) => {
+              const statusCfg = getSubServiceStatusConfig(sub.status);
+              const isOpen = openDropdownFor === sub.id;
 
-            return (
-              <View
-                key={sub.id}
-                style={{ marginBottom: 12, overflow: "visible" }}
-              >
+              return (
                 <View
-                  style={[
-                    styles.card,
-                    { backgroundColor: cardBackground, borderColor },
-                  ]}
+                  key={sub.id}
+                  style={{ marginBottom: 12, overflow: "visible" }}
                 >
-                  <View style={{ borderRadius: 14, overflow: "visible" }}>
-                    <View style={styles.cardInner}>
-                      <View style={styles.rowSpace}>
-                        <View style={styles.idLeft}>
-                          <Avatar.Text
-                            size={36}
-                            label={sub.id.replace(/[^A-Z0-9]/gi, "").slice(-2)}
-                            style={{
-                              backgroundColor: dark ? "#0F1720" : "#EEF2FF",
-                              marginRight: 12,
-                            }}
-                            labelStyle={{
-                              color: dark ? "#E6EDF3" : "#3730A3",
-                              fontSize: 12,
-                            }}
-                          />
-                          <View style={{ flexShrink: 1 }}>
-                            <Text
-                              style={[
-                                styles.idText,
-                                {
-                                  color: colors.text,
-                                  fontFamily: fonts.medium?.fontFamily,
-                                },
-                              ]}
+                  <View
+                    style={[
+                      styles.card,
+                      { backgroundColor: cardBackground, borderColor },
+                    ]}
+                  >
+                    <View style={{ borderRadius: 14, overflow: "visible" }}>
+                      <View style={styles.cardInner}>
+                        <View style={styles.rowSpace}>
+                          <View style={styles.idLeft}>
+                            <Avatar.Text
+                              size={36}
+                              label={sub.id
+                                .replace(/[^A-Z0-9]/gi, "")
+                                .slice(-2)}
+                              style={{
+                                backgroundColor: dark ? "#0F1720" : "#EEF2FF",
+                                marginRight: 12,
+                              }}
+                              labelStyle={{
+                                color: dark ? "#E6EDF3" : "#3730A3",
+                                fontSize: 12,
+                              }}
+                            />
+                            <View style={{ flexShrink: 1 }}>
+                              <Text
+                                style={[
+                                  styles.idText,
+                                  {
+                                    color: colors.text,
+                                    fontFamily: fonts.medium?.fontFamily,
+                                  },
+                                ]}
+                              >
+                                {sub?.uniqueNumber}
+                              </Text>
+                              <Text
+                                style={[
+                                  styles.subtleText,
+                                  { color: mutedText },
+                                ]}
+                              >
+                                {service.requestedService}
+                              </Text>
+                            </View>
+                          </View>
+                          <View style={styles.statusWrap}>
+                            <TouchableOpacity
+                              onPress={() => toggleDropdown(sub.id)}
+                              activeOpacity={0.85}
                             >
-                              {sub?.uniqueNumber}
-                            </Text>
-                            <Text
-                              style={[styles.subtleText, { color: mutedText }]}
-                            >
-                              {service.requestedService}
-                            </Text>
+                              <View
+                                style={[
+                                  styles.statusPill,
+                                  { backgroundColor: statusCfg.color },
+                                ]}
+                              >
+                                <MaterialCommunityIcons
+                                  name={statusCfg.icon}
+                                  size={14}
+                                  color="#fff"
+                                  style={{ marginRight: 6 }}
+                                />
+                                <Text style={styles.statusText}>
+                                  {statusCfg.label}
+                                </Text>
+                                <MaterialCommunityIcons
+                                  name={isOpen ? "chevron-up" : "chevron-down"}
+                                  size={14}
+                                  color="#fff"
+                                  style={{ marginLeft: 6 }}
+                                />
+                              </View>
+                            </TouchableOpacity>
                           </View>
                         </View>
-                        <View style={styles.statusWrap}>
-                          <TouchableOpacity
-                            onPress={() => toggleDropdown(sub.id)}
-                            activeOpacity={0.85}
-                          >
-                            <View
-                              style={[
-                                styles.statusPill,
-                                { backgroundColor: statusCfg.color },
-                              ]}
+                        <View style={[styles.rowSpace, { marginTop: 12 }]}>
+                          <View style={styles.infoLeft}>
+                            <MaterialCommunityIcons
+                              name="calendar-outline"
+                              size={16}
+                              color={mutedText}
+                            />
+                            <Text
+                              style={[styles.infoText, { color: mutedText }]}
                             >
-                              <MaterialCommunityIcons
-                                name={statusCfg.icon}
-                                size={14}
-                                color="#fff"
-                                style={{ marginRight: 6 }}
-                              />
-                              <Text style={styles.statusText}>
-                                {statusCfg.label}
-                              </Text>
-                              <MaterialCommunityIcons
-                                name={isOpen ? "chevron-up" : "chevron-down"}
-                                size={14}
-                                color="#fff"
-                                style={{ marginLeft: 6 }}
-                              />
-                            </View>
-                          </TouchableOpacity>
-                        </View>
-                      </View>
-                      <View style={[styles.rowSpace, { marginTop: 12 }]}>
-                        <View style={styles.infoLeft}>
-                          <MaterialCommunityIcons
-                            name="calendar-outline"
-                            size={16}
-                            color={mutedText}
-                          />
-                          <Text style={[styles.infoText, { color: mutedText }]}>
-                            {sub.scheduledDate}
-                          </Text>
-                        </View>
-                        <View style={styles.infoRight}>
-                          <MaterialCommunityIcons
-                            name="clock-outline"
-                            size={16}
-                            color={mutedText}
-                          />
-                          <Text style={[styles.infoText, { color: mutedText }]}>
-                            {sub.time}
-                          </Text>
+                              {sub.scheduledDate}
+                            </Text>
+                          </View>
+                          <View style={styles.infoRight}>
+                            <MaterialCommunityIcons
+                              name="clock-outline"
+                              size={16}
+                              color={mutedText}
+                            />
+                            <Text
+                              style={[styles.infoText, { color: mutedText }]}
+                            >
+                              {sub.time}
+                            </Text>
+                          </View>
                         </View>
                       </View>
                     </View>
                   </View>
-                </View>
 
-                {isOpen && (
-                  <View
-                    style={[
-                      styles.dropdownMenu,
-                      { backgroundColor: cardBackground },
-                    ]}
-                  >
-                    {SUB_SERVICES_AVAILABLE_STATUSES.map((st) => {
-                      const cfg = getSubServiceStatusConfig(st);
-                      return (
-                        <TouchableOpacity
-                          key={st}
-                          style={styles.dropdownItem}
-                          activeOpacity={0.7}
-                          onPress={() =>
-                            handleChangeStatus(service.id, sub.id, st)
-                          }
-                        >
-                          <MaterialCommunityIcons
-                            name={cfg.icon}
-                            size={16}
-                            color={cfg.color}
-                            style={{ width: 22 }}
-                          />
-                          <Text
-                            style={[
-                              styles.dropdownItemText,
-                              { color: colors.text },
-                            ]}
+                  {isOpen && (
+                    <View
+                      style={[
+                        styles.dropdownMenu,
+                        { backgroundColor: cardBackground },
+                      ]}
+                    >
+                      {SUB_SERVICES_AVAILABLE_STATUSES.map((st) => {
+                        const cfg = getSubServiceStatusConfig(st);
+                        return (
+                          <TouchableOpacity
+                            key={st}
+                            style={styles.dropdownItem}
+                            activeOpacity={0.7}
+                            onPress={() =>
+                              handleChangeStatus(service.id, sub.id, st)
+                            }
                           >
-                            {cfg.label}
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                )}
-              </View>
-            );
-          })
+                            <MaterialCommunityIcons
+                              name={cfg.icon}
+                              size={16}
+                              color={cfg.color}
+                              style={{ width: 22 }}
+                            />
+                            <Text
+                              style={[
+                                styles.dropdownItemText,
+                                { color: colors.text },
+                              ]}
+                            >
+                              {cfg.label}
+                            </Text>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                  )}
+                </View>
+              );
+            })
+          )
         )}
       </ScrollView>
 
       <Snackbar
         visible={snackbar.visible}
-        onDismiss={() => setSnackbar({ visible: false, message: "", type: "success" })}
+        onDismiss={() =>
+          setSnackbar({ visible: false, message: "", type: "success" })
+        }
         duration={2500}
         style={{
           backgroundColor: snackbar.type === "error" ? "#f8d7da" : undefined, // light red background (optional)
         }}
         action={{
           label: "OK",
-          onPress: () => setSnackbar({ visible: false, message: "", type: "success" }),
+          onPress: () =>
+            setSnackbar({ visible: false, message: "", type: "success" }),
         }}
       >
         <Text style={{ color: snackbar.type === "error" ? "red" : "#fff" }}>

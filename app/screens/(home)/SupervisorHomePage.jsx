@@ -6,7 +6,10 @@ import StatCard from "../../components/common/StatCard";
 import Greetings from "../../components/home/Greetings";
 import WeekServicesSection from "../../components/home/WeekServicesSection";
 import { ROUTES } from "../../helpers/routePaths";
-import { useGetSupervisorStats, useGetSupServices } from "../../hooks/useBookingQuery";
+import {
+  useGetSupervisorStats,
+  useGetSupServices,
+} from "../../hooks/useBookingQuery";
 import SupervisorHomeSkeleton from "../../skeltons/SupervisorHomeLoadingSkelton";
 import { useSupServicesStore } from "../../store/useSupServicesStore";
 
@@ -16,9 +19,10 @@ const SupervisorHomePage = ({ userData }) => {
 
   // loading flag
   const { isLoading: fetchingSupervisorServices } = useGetSupServices();
-  const supStats = useSupServicesStore((s)=> s.stats);
+  const supStats = useSupServicesStore((s) => s.stats);
 
-  if (fetchingStats || fetchingSupervisorServices) return <SupervisorHomeSkeleton />;
+  if (fetchingStats || fetchingSupervisorServices)
+    return <SupervisorHomeSkeleton />;
   return (
     <View style={{ flex: 1 }}>
       <Greetings
@@ -61,12 +65,9 @@ const SupervisorHomePage = ({ userData }) => {
         />
       </View>
 
-      {/* Add some spacing before the next row */}
       <View style={{ height: 24 }} />
 
-      {/* Week Services Section in a new row */}
-      {/* filter out the ones for today + next 6 days */}
-      <WeekServicesSection/>
+      <WeekServicesSection />
     </View>
   );
 };
