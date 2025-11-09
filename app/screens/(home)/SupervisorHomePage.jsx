@@ -4,6 +4,7 @@ import { View } from "react-native";
 import config from "../../../config.json";
 import StatCard from "../../components/common/StatCard";
 import Greetings from "../../components/home/Greetings";
+import WeekInspection from "../../components/home/WeekInspectServiceSection";
 import WeekServicesSection from "../../components/home/WeekServicesSection";
 import { ROUTES } from "../../helpers/routePaths";
 import {
@@ -68,6 +69,7 @@ const SupervisorHomePage = ({ userData }) => {
       <View style={{ height: 24 }} />
 
       <WeekServicesSection />
+      <WeekInspection />
     </View>
   );
 };

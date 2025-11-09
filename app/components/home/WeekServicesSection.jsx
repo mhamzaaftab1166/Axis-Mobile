@@ -1,7 +1,21 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useState } from "react";
-import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
-import { Avatar, Snackbar, Text, useTheme } from "react-native-paper";
+import { useRef, useState } from "react";
+import {
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  UIManager,
+  View,
+  findNodeHandle,
+} from "react-native";
+import {
+  Avatar,
+  Menu,
+  Portal,
+  Snackbar,
+  Text,
+  useTheme,
+} from "react-native-paper";
 import { SUB_SERVICES_AVAILABLE_STATUSES } from "../../helpers/contantData";
 import {
   getNextWeekServices,
@@ -17,53 +31,31 @@ export default function WeekServicesSection() {
   const { colors, dark, fonts } = theme;
   const [filterStatus, setFilterStatus] = useState("All");
   const [openDropdownFor, setOpenDropdownFor] = useState(null);
-
   const cardBackground = dark ? "#1F2937" : "#fff";
   const mutedText = dark ? "#AAB0B6" : "#6B7280";
   const borderColor = dark ? "#374151" : "#E5E7EB";
-
-  const toggleDropdown = (id) =>
-    setOpenDropdownFor((prev) => (prev === id ? null : id));
-
   const [snackbar, setSnackbar] = useState({
     visible: false,
     message: "",
     type: "",
   });
 
-  const handleChangeStatus = (serviceId, subId, newStatus) => {
-    updateStatus({
-      serviceId,
-      subId,
-      newStatus: newStatus.trim(),
-    });
-  };
-
   const supervisorServices = useSupServicesStore((s) => s.services);
   const services = getNextWeekServices(supervisorServices);
 
   const { mutate: updateStatus, isPending: updatingStatus } =
     useUpdateSubServiceStatus({
-      onErrorCallback: (errMsg) => {
-        setSnackbar({
-          visible: true,
-          message: errMsg,
-          type: "error",
-        });
-        setOpenDropdownFor(null);
-      },
+      onErrorCallback: (errMsg) =>
+        setSnackbar({ visible: true, message: errMsg, type: "error" }),
       onSuccessCallback: (data) => {
-        setOpenDropdownFor(null);
         setSnackbar({
           visible: true,
           message: `Status updated to ${data?.newStatus}`,
           type: "success",
         });
-
         useSupServicesStore
           .getState()
           .updateServiceStatus(data?.serviceId, data?.subId, data?.newStatus);
-
         useSupServicesStore.getState().moveFromAssignedToPrevious();
       },
     });
@@ -75,6 +67,100 @@ export default function WeekServicesSection() {
         ? svc.subServices
         : svc.subServices.filter((s) => s.status === filterStatus),
   }));
+
+  const anchorRefs = useRef({});
+  const [anchorLayouts, setAnchorLayouts] = useState({});
+  const [menuKeys, setMenuKeys] = useState({});
+  const filterAnchorRef = useRef(null);
+  const [filterAnchorLayout, setFilterAnchorLayout] = useState(null);
+  const [filterMenuKey, setFilterMenuKey] = useState(null);
+
+  const measureInWindowAsync = (node) =>
+    new Promise((resolve, reject) => {
+      const handle = findNodeHandle(node);
+      if (!handle) return reject(new Error("no handle"));
+      if (UIManager && UIManager.measureInWindow) {
+        UIManager.measureInWindow(handle, (x, y, w, h) =>
+          resolve({ x, y, width: w, height: h })
+        );
+      } else if (node && node.measureInWindow) {
+        node.measureInWindow((x, y, w, h) =>
+          resolve({ x, y, width: w, height: h })
+        );
+      } else reject(new Error("no measure method"));
+    });
+
+  const toggleDropdown = async (id) => {
+    if (openDropdownFor === id) {
+      setOpenDropdownFor(null);
+      setAnchorLayouts((s) => {
+        const n = { ...s };
+        delete n[id];
+        return n;
+      });
+      setMenuKeys((s) => {
+        const n = { ...s };
+        delete n[id];
+        return n;
+      });
+      return;
+    }
+    try {
+      const node = anchorRefs.current[id];
+      const layout = await measureInWindowAsync(node);
+      setAnchorLayouts((s) => ({ ...s, [id]: layout }));
+      setMenuKeys((s) => ({ ...s, [id]: String(Date.now()) }));
+      setTimeout(() => setOpenDropdownFor(id), 30);
+    } catch {
+      setMenuKeys((s) => ({ ...s, [id]: String(Date.now()) }));
+      setTimeout(() => setOpenDropdownFor(id), 30);
+    }
+  };
+
+  const toggleFilterDropdown = async () => {
+    if (openDropdownFor === "filter") {
+      setOpenDropdownFor(null);
+      setFilterAnchorLayout(null);
+      setFilterMenuKey(null);
+      return;
+    }
+    try {
+      const node = filterAnchorRef.current;
+      const layout = await measureInWindowAsync(node);
+      setFilterAnchorLayout(layout);
+      setFilterMenuKey(String(Date.now()));
+      setTimeout(() => setOpenDropdownFor("filter"), 30);
+    } catch {
+      setFilterMenuKey(String(Date.now()));
+      setTimeout(() => setOpenDropdownFor("filter"), 30);
+    }
+  };
+
+  const handleChangeStatus = (serviceId, subId, newStatus) => {
+    updateStatus({ serviceId, subId, newStatus: newStatus.trim() });
+  };
+
+  const handleSelectStatus = (serviceId, subId, st) => {
+    handleChangeStatus(serviceId, subId, st);
+    setOpenDropdownFor(null);
+    setAnchorLayouts((s) => {
+      const n = { ...s };
+      delete n[subId];
+      return n;
+    });
+    setMenuKeys((s) => {
+      const n = { ...s };
+      delete n[subId];
+      return n;
+    });
+  };
+
+  const handleFilterSelect = (st) => {
+    setFilterStatus(st);
+    setOpenDropdownFor(null);
+    setFilterAnchorLayout(null);
+    setFilterMenuKey(null);
+  };
 
   return (
     <View style={{ flex: 1 }}>
@@ -90,68 +176,79 @@ export default function WeekServicesSection() {
             This Week Direct Services
           </Text>
           <View style={styles.filterWrapper}>
-            <TouchableOpacity
-              onPress={() => toggleDropdown("filter")}
-              activeOpacity={0.8}
-            >
-              <View
-                style={[
-                  styles.filterPill,
-                  { backgroundColor: dark ? colors.outlineVariant : "#EEF2FF" },
-                ]}
+            <View ref={filterAnchorRef}>
+              <TouchableOpacity
+                onPress={toggleFilterDropdown}
+                activeOpacity={0.8}
               >
-                <Text style={{ color: dark ? "#fff" : "#3730A3" }}>
-                  {filterStatus}
-                </Text>
-                <MaterialCommunityIcons
-                  name={
-                    openDropdownFor === "filter" ? "chevron-up" : "chevron-down"
-                  }
-                  size={16}
-                  color={dark ? "#fff" : "#3730A3"}
-                  style={{ marginLeft: 6 }}
-                />
-              </View>
-            </TouchableOpacity>
-            {openDropdownFor === "filter" && (
-              <View
-                style={[
-                  styles.dropdownMenu,
-                  { backgroundColor: cardBackground },
-                ]}
+                <View
+                  style={[
+                    styles.filterPill,
+                    {
+                      backgroundColor: dark ? colors.outlineVariant : "#EEF2FF",
+                    },
+                  ]}
+                >
+                  <Text style={{ color: dark ? "#fff" : "#3730A3" }}>
+                    {filterStatus}
+                  </Text>
+                  <MaterialCommunityIcons
+                    name={
+                      openDropdownFor === "filter"
+                        ? "chevron-up"
+                        : "chevron-down"
+                    }
+                    size={16}
+                    color={dark ? "#fff" : "#3730A3"}
+                    style={{ marginLeft: 6 }}
+                  />
+                </View>
+              </TouchableOpacity>
+            </View>
+            <Portal>
+              <Menu
+                key={filterMenuKey || "filter-menu"}
+                visible={openDropdownFor === "filter"}
+                onDismiss={() => {
+                  setOpenDropdownFor(null);
+                  setFilterAnchorLayout(null);
+                  setFilterMenuKey(null);
+                }}
+                anchor={
+                  filterAnchorLayout
+                    ? {
+                        x: filterAnchorLayout.x,
+                        y: filterAnchorLayout.y + filterAnchorLayout.height,
+                        width: filterAnchorLayout.width,
+                      }
+                    : undefined
+                }
+                contentStyle={{ paddingVertical: 4 }}
               >
                 {["All", ...SUB_SERVICES_AVAILABLE_STATUSES].map((st) => (
-                  <TouchableOpacity
+                  <Menu.Item
                     key={st}
-                    style={styles.dropdownItem}
-                    onPress={() => {
-                      setFilterStatus(st);
-                      setOpenDropdownFor(null);
-                    }}
-                  >
-                    <MaterialCommunityIcons
-                      name={
-                        st === "All"
-                          ? "format-list-bulleted"
-                          : getSubServiceStatusConfig(st).icon
-                      }
-                      size={16}
-                      color={
-                        st === "All"
-                          ? mutedText
-                          : getSubServiceStatusConfig(st).color
-                      }
-                      style={{ width: 22 }}
-                    />
-                    <Text
-                      style={[styles.dropdownItemText, { color: colors.text }]}
-                    >
-                      {st}
-                    </Text>
-                  </TouchableOpacity>
+                    onPress={() => handleFilterSelect(st)}
+                    title={st}
+                    icon={() =>
+                      st === "All" ? (
+                        <MaterialCommunityIcons
+                          name="format-list-bulleted"
+                          size={16}
+                          color={mutedText}
+                        />
+                      ) : (
+                        <MaterialCommunityIcons
+                          name={getSubServiceStatusConfig(st).icon}
+                          size={16}
+                          color={getSubServiceStatusConfig(st).color}
+                        />
+                      )
+                    }
+                  />
                 ))}
-              </View>
-            )}
+              </Menu>
+            </Portal>
           </View>
         </View>
       )}
@@ -168,7 +265,6 @@ export default function WeekServicesSection() {
             service.subServices.map((sub) => {
               const statusCfg = getSubServiceStatusConfig(sub.status);
               const isOpen = openDropdownFor === sub.id;
-
               return (
                 <View
                   key={sub.id}
@@ -221,35 +317,43 @@ export default function WeekServicesSection() {
                             </View>
                           </View>
                           <View style={styles.statusWrap}>
-                            <TouchableOpacity
-                              onPress={() => toggleDropdown(sub.id)}
-                              activeOpacity={0.85}
+                            <View
+                              ref={(r) => (anchorRefs.current[sub.id] = r)}
+                              style={{ alignSelf: "flex-end" }}
                             >
-                              <View
-                                style={[
-                                  styles.statusPill,
-                                  { backgroundColor: statusCfg.color },
-                                ]}
+                              <TouchableOpacity
+                                onPress={() => toggleDropdown(sub.id)}
+                                activeOpacity={0.85}
                               >
-                                <MaterialCommunityIcons
-                                  name={statusCfg.icon}
-                                  size={14}
-                                  color="#fff"
-                                  style={{ marginRight: 6 }}
-                                />
-                                <Text style={styles.statusText}>
-                                  {statusCfg.label}
-                                </Text>
-                                <MaterialCommunityIcons
-                                  name={isOpen ? "chevron-up" : "chevron-down"}
-                                  size={14}
-                                  color="#fff"
-                                  style={{ marginLeft: 6 }}
-                                />
-                              </View>
-                            </TouchableOpacity>
+                                <View
+                                  style={[
+                                    styles.statusPill,
+                                    { backgroundColor: statusCfg.color },
+                                  ]}
+                                >
+                                  <MaterialCommunityIcons
+                                    name={statusCfg.icon}
+                                    size={14}
+                                    color="#fff"
+                                    style={{ marginRight: 6 }}
+                                  />
+                                  <Text style={styles.statusText}>
+                                    {statusCfg.label}
+                                  </Text>
+                                  <MaterialCommunityIcons
+                                    name={
+                                      isOpen ? "chevron-up" : "chevron-down"
+                                    }
+                                    size={14}
+                                    color="#fff"
+                                    style={{ marginLeft: 6 }}
+                                  />
+                                </View>
+                              </TouchableOpacity>
+                            </View>
                           </View>
                         </View>
+
                         <View style={[styles.rowSpace, { marginTop: 12 }]}>
                           <View style={styles.infoLeft}>
                             <MaterialCommunityIcons
@@ -280,43 +384,57 @@ export default function WeekServicesSection() {
                     </View>
                   </View>
 
-                  {isOpen && (
-                    <View
-                      style={[
-                        styles.dropdownMenu,
-                        { backgroundColor: cardBackground },
-                      ]}
+                  <Portal>
+                    <Menu
+                      key={menuKeys[sub.id] || `menu-${sub.id}`}
+                      visible={isOpen}
+                      onDismiss={() => {
+                        setOpenDropdownFor(null);
+                        setAnchorLayouts((s) => {
+                          const n = { ...s };
+                          delete n[sub.id];
+                          return n;
+                        });
+                        setMenuKeys((s) => {
+                          const n = { ...s };
+                          delete n[sub.id];
+                          return n;
+                        });
+                      }}
+                      anchor={
+                        anchorLayouts[sub.id]
+                          ? {
+                              x: anchorLayouts[sub.id].x,
+                              y:
+                                anchorLayouts[sub.id].y +
+                                anchorLayouts[sub.id].height,
+                              width: anchorLayouts[sub.id].width,
+                            }
+                          : undefined
+                      }
+                      contentStyle={{ paddingVertical: 4 }}
                     >
                       {SUB_SERVICES_AVAILABLE_STATUSES.map((st) => {
                         const cfg = getSubServiceStatusConfig(st);
                         return (
-                          <TouchableOpacity
+                          <Menu.Item
                             key={st}
-                            style={styles.dropdownItem}
-                            activeOpacity={0.7}
                             onPress={() =>
-                              handleChangeStatus(service.id, sub.id, st)
+                              handleSelectStatus(service.id, sub.id, st)
                             }
-                          >
-                            <MaterialCommunityIcons
-                              name={cfg.icon}
-                              size={16}
-                              color={cfg.color}
-                              style={{ width: 22 }}
-                            />
-                            <Text
-                              style={[
-                                styles.dropdownItemText,
-                                { color: colors.text },
-                              ]}
-                            >
-                              {cfg.label}
-                            </Text>
-                          </TouchableOpacity>
+                            title={cfg.label}
+                            icon={() => (
+                              <MaterialCommunityIcons
+                                name={cfg.icon}
+                                size={16}
+                                color={cfg.color}
+                              />
+                            )}
+                          />
                         );
                       })}
-                    </View>
-                  )}
+                    </Menu>
+                  </Portal>
                 </View>
               );
             })
@@ -324,25 +442,24 @@ export default function WeekServicesSection() {
         )}
       </ScrollView>
 
-      <Snackbar
-        visible={snackbar.visible}
-        onDismiss={() =>
-          setSnackbar({ visible: false, message: "", type: "success" })
-        }
-        duration={2500}
-        style={{
-          backgroundColor: snackbar.type === "error" ? "#f8d7da" : undefined, // light red background (optional)
-        }}
-        action={{
-          label: "OK",
-          onPress: () =>
-            setSnackbar({ visible: false, message: "", type: "success" }),
-        }}
-      >
-        <Text style={{ color: snackbar.type === "error" ? "red" : "#fff" }}>
-          {snackbar.message}
-        </Text>
-      </Snackbar>
+      <Portal>
+        <Snackbar
+          visible={snackbar.visible}
+          onDismiss={() =>
+            setSnackbar({ visible: false, message: "", type: "success" })
+          }
+          duration={2500}
+          action={{
+            label: "OK",
+            onPress: () =>
+              setSnackbar({ visible: false, message: "", type: "success" }),
+          }}
+        >
+          <Text style={{ color: snackbar.type === "error" ? "red" : "#fff" }}>
+            {snackbar.message}
+          </Text>
+        </Snackbar>
+      </Portal>
     </View>
   );
 }
@@ -363,27 +480,6 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 20,
   },
-  dropdownMenu: {
-    position: "absolute",
-    top: 60,
-    right: 16,
-    borderRadius: 10,
-    paddingVertical: 6,
-    minWidth: 160,
-    zIndex: 999,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 8,
-  },
-  dropdownItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-  },
-  dropdownItemText: { marginLeft: 10, fontSize: 14 },
   servicesList: { paddingBottom: 16 },
   card: { borderRadius: 14, marginBottom: 12, borderWidth: 1 },
   cardInner: { padding: 14 },

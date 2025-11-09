@@ -2,57 +2,51 @@ import { MaterialCommunityIcons as Icon } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useRef, useState } from "react";
 import {
-  Platform,
+  findNodeHandle,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   UIManager,
   View,
-  findNodeHandle,
 } from "react-native";
 import {
   Avatar,
   Card,
-  Divider,
   Menu,
   Portal,
   Snackbar,
   Text,
   useTheme,
 } from "react-native-paper";
-import { ROUTES } from "../../../../helpers/routePaths";
-import SendQuotationPopup from "./SendQuotationPopup";
+import { ROUTES } from "../../helpers/routePaths";
+import SendQuotationPopup from "../../screens/(home)/supervisor/assign-jobs/SendQuotationPopup";
 
-const SAMPLE = [
+const SAMPLE_WEEK = [
   {
-    id: "ASD-1001",
-    serviceName: "Home Deep Cleaning",
+    id: "WKP-1001",
+    serviceName: "Home Sanitization",
     serviceCategory: "Cleaning",
     inspectionType: "Physical",
     images: null,
     video: null,
-    bookingDate: "2025-11-12",
-    bookingTime: "10:00 AM",
-    address: "Al Barsha, Dubai, UAE",
+    bookingDate: "2025-11-11",
+    bookingTime: "09:00 AM",
+    address: "Downtown, Dubai, UAE",
     quotationSent: false,
     status: "pending",
   },
   {
-    id: "ASD-1002",
-    serviceName: "AC Filter Replacement",
+    id: "WKP-1002",
+    serviceName: "Pool Maintenance",
     serviceCategory: "Maintenance",
     inspectionType: "Online",
-    images: [
-      "https://picsum.photos/200/300",
-      "https://picsum.photos/200/300",
-      "https://picsum.photos/200/300",
-    ],
+    images: ["https://picsum.photos/200/300", "https://picsum.photos/200/300"],
     video: [
       "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
     ],
-    bookingDate: "2025-11-15",
-    bookingTime: "02:30 PM",
-    address: "Business Bay, Dubai, UAE",
+    bookingDate: "2025-11-16",
+    bookingTime: "01:00 PM",
+    address: "Jumeirah, Dubai, UAE",
     quotationSent: true,
     status: "confirmed",
   },
@@ -92,15 +86,23 @@ const STATUS_OPTIONS = [
   { label: "Cancelled", value: "cancelled", color: "#e74c3c", icon: "cancel" },
 ];
 
-export default function AssignedJobsInspect() {
+const INSPECTION_FILTERS = ["All", "Online", "Physical"];
+
+export default function WeekInspection() {
   const { colors, dark } = useTheme();
   const [openDropdownFor, setOpenDropdownFor] = useState(null);
-  const [items] = useState(SAMPLE);
+  const [items, setItems] = useState(SAMPLE_WEEK);
   const [snack, setSnack] = useState({ visible: false, msg: "" });
   const [quotationItem, setQuotationItem] = useState(null);
+
   const anchorRef = useRef(null);
   const [anchorLayout, setAnchorLayout] = useState(null);
   const [menuKey, setMenuKey] = useState(null);
+
+  const filterAnchorRef = useRef(null);
+  const [filterAnchorLayout, setFilterAnchorLayout] = useState(null);
+  const [filterMenuKey, setFilterMenuKey] = useState(null);
+  const [filterType, setFilterType] = useState("All");
 
   const measureInWindowAsync = (node) =>
     new Promise((resolve, reject) => {
@@ -114,9 +116,7 @@ export default function AssignedJobsInspect() {
         node.measureInWindow((x, y, w, h) =>
           resolve({ x, y, width: w, height: h })
         );
-      } else {
-        reject(new Error("no measure method"));
-      }
+      } else reject(new Error("no measure method"));
     });
 
   const toggleDropdown = async (id, node) => {
@@ -137,6 +137,37 @@ export default function AssignedJobsInspect() {
     }
   };
 
+  const toggleFilterDropdown = async () => {
+    if (openDropdownFor === "filter") {
+      setOpenDropdownFor(null);
+      setFilterAnchorLayout(null);
+      setFilterMenuKey(null);
+      return;
+    }
+    try {
+      const layout = await measureInWindowAsync(filterAnchorRef.current);
+      setFilterAnchorLayout(layout);
+      setFilterMenuKey(String(Date.now()));
+      setTimeout(() => setOpenDropdownFor("filter"), 30);
+    } catch {
+      setFilterMenuKey(String(Date.now()));
+      setTimeout(() => setOpenDropdownFor("filter"), 30);
+    }
+  };
+
+  const handleFilterSelect = (type) => {
+    setFilterType(type);
+    setOpenDropdownFor(null);
+    setFilterAnchorLayout(null);
+    setFilterMenuKey(null);
+  };
+
+  const filteredItems = items.filter((item) =>
+    filterType === "All"
+      ? true
+      : item.inspectionType.toLowerCase() === filterType.toLowerCase()
+  );
+
   const onViewDetails = (item) => {
     router.push({
       pathname: ROUTES.INSPECT_JOB_DETAILS_VIEW,
@@ -151,14 +182,8 @@ export default function AssignedJobsInspect() {
       STATUS_OPTIONS.find((s) => s.value === newStatus) || STATUS_OPTIONS[0];
     setSnack({
       visible: true,
-      msg: `Status change (simulated) to ${cfg.label} for ${item.id}`,
+      msg: `Status changed to ${cfg.label} for ${item.id}`,
     });
-    setOpenDropdownFor(null);
-    setAnchorLayout(null);
-    setMenuKey(null);
-  };
-
-  const handleMenuDismiss = () => {
     setOpenDropdownFor(null);
     setAnchorLayout(null);
     setMenuKey(null);
@@ -166,6 +191,68 @@ export default function AssignedJobsInspect() {
 
   return (
     <>
+      <View style={[styles.headerRow, { marginBottom: 12 }]}>
+        <Text style={[styles.title, { color: colors.text }]}>
+          This Week Inspections
+        </Text>
+        <View style={styles.filterWrapper}>
+          <View ref={filterAnchorRef}>
+            <TouchableOpacity
+              onPress={toggleFilterDropdown}
+              activeOpacity={0.8}
+            >
+              <View
+                style={[
+                  styles.filterPill,
+                  { backgroundColor: dark ? colors.outlineVariant : "#EEF2FF" },
+                ]}
+              >
+                <Text style={{ color: dark ? "#fff" : "#3730A3" }}>
+                  {filterType}
+                </Text>
+                <Icon
+                  name={
+                    openDropdownFor === "filter" ? "chevron-up" : "chevron-down"
+                  }
+                  size={16}
+                  color={dark ? "#fff" : "#3730A3"}
+                  style={{ marginLeft: 6 }}
+                />
+              </View>
+            </TouchableOpacity>
+          </View>
+          <Portal>
+            <Menu
+              key={filterMenuKey || "filter-menu"}
+              visible={openDropdownFor === "filter"}
+              onDismiss={() => {
+                setOpenDropdownFor(null);
+                setFilterAnchorLayout(null);
+                setFilterMenuKey(null);
+              }}
+              anchor={
+                filterAnchorLayout
+                  ? {
+                      x: filterAnchorLayout.x,
+                      y: filterAnchorLayout.y + filterAnchorLayout.height,
+                      width: filterAnchorLayout.width,
+                    }
+                  : undefined
+              }
+              contentStyle={{ paddingVertical: 4 }}
+            >
+              {INSPECTION_FILTERS.map((type) => (
+                <Menu.Item
+                  key={type}
+                  title={type}
+                  onPress={() => handleFilterSelect(type)}
+                />
+              ))}
+            </Menu>
+          </Portal>
+        </View>
+      </View>
+
       <ScrollView
         contentContainerStyle={[
           styles.container,
@@ -173,7 +260,7 @@ export default function AssignedJobsInspect() {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        {items.map((item) => {
+        {filteredItems.map((item) => {
           const statusCfg =
             STATUS_OPTIONS.find(
               (s) => s.value === (item.status || "").toLowerCase()
@@ -184,11 +271,15 @@ export default function AssignedJobsInspect() {
               key={item.id}
               style={{ marginBottom: 12, position: "relative" }}
             >
-              <Card
-                style={[
-                  styles.card,
-                  { backgroundColor: dark ? colors.surface : "#fff" },
-                ]}
+              <View
+                style={{
+                  borderRadius: 12,
+                  backgroundColor: dark ? "#1F2937" : "#fff",
+                  borderWidth: 1,
+                  borderColor: dark ? "#374151" : "#E5E7EB",
+                  elevation: 0,
+                  overflow: "hidden",
+                }}
               >
                 <Card.Content style={styles.cardInner}>
                   <View style={styles.rowTop}>
@@ -215,7 +306,6 @@ export default function AssignedJobsInspect() {
                         </Text>
                       </View>
                     </View>
-
                     <View style={styles.badgeWrap}>
                       <View
                         style={[
@@ -289,63 +379,58 @@ export default function AssignedJobsInspect() {
 
                   <View style={styles.actionsRow}>
                     <View style={styles.leftAction}>
-                      <View style={styles.pillWrapper}>
-                        {!item.quotationSent ? (
+                      {!item.quotationSent ? (
+                        <TouchableOpacity
+                          activeOpacity={0.85}
+                          onPress={() => onSendQuotation(item)}
+                          style={[
+                            styles.statusPill,
+                            { backgroundColor: "#0B79D0" },
+                          ]}
+                        >
+                          <Icon
+                            name="send"
+                            size={14}
+                            color="#fff"
+                            style={{ marginRight: 6 }}
+                          />
+                          <Text style={styles.statusText}>Send Quotation</Text>
+                        </TouchableOpacity>
+                      ) : (
+                        <View
+                          ref={(r) => (anchorRef.current = r)}
+                          style={{ alignSelf: "flex-start" }}
+                        >
                           <TouchableOpacity
+                            onPress={() =>
+                              toggleDropdown(item.id, anchorRef.current)
+                            }
                             activeOpacity={0.85}
-                            onPress={() => onSendQuotation(item)}
                             style={[
                               styles.statusPill,
-                              { backgroundColor: "#0B79D0" },
+                              { backgroundColor: statusCfg.color },
                             ]}
+                            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                           >
                             <Icon
-                              name="send"
+                              name={statusCfg.icon}
                               size={14}
                               color="#fff"
                               style={{ marginRight: 6 }}
                             />
                             <Text style={styles.statusText}>
-                              Send Quotation
+                              {statusCfg.label}
                             </Text>
+                            <Icon
+                              name={isOpen ? "chevron-up" : "chevron-down"}
+                              size={14}
+                              color="#fff"
+                              style={{ marginLeft: 6 }}
+                            />
                           </TouchableOpacity>
-                        ) : (
-                          <View
-                            ref={(r) => (anchorRef.current = r)}
-                            style={{ alignSelf: "flex-start" }}
-                          >
-                            <TouchableOpacity
-                              onPress={() =>
-                                toggleDropdown(item.id, anchorRef.current)
-                              }
-                              activeOpacity={0.85}
-                              style={[
-                                styles.statusPill,
-                                { backgroundColor: statusCfg.color },
-                              ]}
-                              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                            >
-                              <Icon
-                                name={statusCfg.icon}
-                                size={14}
-                                color="#fff"
-                                style={{ marginRight: 6 }}
-                              />
-                              <Text style={styles.statusText}>
-                                {statusCfg.label}
-                              </Text>
-                              <Icon
-                                name={isOpen ? "chevron-up" : "chevron-down"}
-                                size={14}
-                                color="#fff"
-                                style={{ marginLeft: 6 }}
-                              />
-                            </TouchableOpacity>
-                          </View>
-                        )}
-                      </View>
+                        </View>
+                      )}
                     </View>
-
                     <View style={styles.rightAction}>
                       <TouchableOpacity
                         onPress={() => onViewDetails(item)}
@@ -370,14 +455,13 @@ export default function AssignedJobsInspect() {
                     </View>
                   </View>
                 </Card.Content>
-                <Divider />
-              </Card>
+              </View>
 
               <Portal>
                 <Menu
                   key={menuKey || `menu-${item.id}`}
                   visible={isOpen}
-                  onDismiss={handleMenuDismiss}
+                  onDismiss={() => setOpenDropdownFor(null)}
                   anchor={
                     anchorLayout
                       ? {
@@ -406,17 +490,19 @@ export default function AssignedJobsInspect() {
         })}
       </ScrollView>
 
-      <Snackbar
-        visible={snack.visible}
-        onDismiss={() => setSnack({ visible: false, msg: "" })}
-        duration={2200}
-        action={{
-          label: "OK",
-          onPress: () => setSnack({ visible: false, msg: "" }),
-        }}
-      >
-        {snack.msg}
-      </Snackbar>
+      <Portal>
+        <Snackbar
+          visible={snack.visible}
+          onDismiss={() => setSnack({ visible: false, msg: "" })}
+          duration={2200}
+          action={{
+            label: "OK",
+            onPress: () => setSnack({ visible: false, msg: "" }),
+          }}
+        >
+          {snack.msg}
+        </Snackbar>
+      </Portal>
 
       {quotationItem && (
         <SendQuotationPopup
@@ -430,8 +516,21 @@ export default function AssignedJobsInspect() {
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16, paddingBottom: 40 },
-  card: { borderRadius: 12 },
+  container: { paddingBottom: 40 },
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  title: { fontSize: 18, fontWeight: "700" },
+  filterWrapper: { position: "relative" },
+  filterPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
   cardInner: { paddingVertical: 12 },
   rowTop: {
     flexDirection: "row",
@@ -465,47 +564,14 @@ const styles = StyleSheet.create({
   },
   leftAction: { flex: 1, alignItems: "flex-start" },
   rightAction: { marginLeft: 12 },
-  pillWrapper: { position: "relative", alignSelf: "flex-start" },
   statusPill: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
-    ...Platform.select({
-      ios: {
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.14,
-        shadowRadius: 8,
-      },
-      android: { elevation: 2 },
-    }),
   },
   statusText: { color: "#fff", fontWeight: "700", fontSize: 13 },
-  dropdown: {
-    position: "absolute",
-    top: "100%",
-    left: 0,
-    borderRadius: 10,
-    paddingVertical: 6,
-    minWidth: 160,
-    zIndex: 999,
-    ...Platform.select({
-      ios: {
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.12,
-        shadowRadius: 12,
-      },
-      android: { elevation: 4 },
-    }),
-  },
-  dropdownItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-  },
-  dropdownItemText: { marginLeft: 10, fontSize: 14 },
   viewDetailsPill: {
     flexDirection: "row",
     alignItems: "center",

@@ -8,16 +8,15 @@ import {
   View,
 } from "react-native";
 import { Avatar, List, Surface, Text, useTheme } from "react-native-paper";
-import CenteredAppbarHeader from "../../../components/common/CenteredAppBar";
-import EmptyState from "../../../components/common/EmptyState";
-import { subServicesStatusGroups } from "../../../helpers/contantData";
+import EmptyState from "../../../../components/common/EmptyState";
+import { subServicesStatusGroups } from "../../../../helpers/contantData";
 import {
   filterByStatus,
   getSubServiceStatusConfig,
-} from "../../../helpers/general";
-import { useSupServicesStore } from "../../../store/useSupServicesStore";
+} from "../../../../helpers/general";
+import { useSupServicesStore } from "../../../../store/useSupServicesStore";
 
-export default function CompletedJobs() {
+export default function CompletedJobsDirect() {
   const navigation = useNavigation();
   const theme = useTheme();
   const { colors, dark, fonts } = theme;
@@ -34,12 +33,6 @@ export default function CompletedJobs() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <CenteredAppbarHeader
-        title="Previous Jobs"
-        onBack={() => navigation.goBack()}
-        cartDisplay={false}
-      />
-
       <ScrollView
         contentContainerStyle={[
           styles.content,
@@ -78,7 +71,7 @@ export default function CompletedJobs() {
                   {service.subServices.map((sub) => {
                     const statusCfg = getSubServiceStatusConfig(sub.status);
 
-                    console.log(statusCfg,sub.status);
+                    console.log(statusCfg, sub.status);
 
                     return (
                       <Surface
