@@ -71,8 +71,6 @@ export default function CompletedJobsDirect() {
                   {service.subServices.map((sub) => {
                     const statusCfg = getSubServiceStatusConfig(sub.status);
 
-                    console.log(statusCfg, sub.status);
-
                     return (
                       <Surface
                         key={sub.id}
