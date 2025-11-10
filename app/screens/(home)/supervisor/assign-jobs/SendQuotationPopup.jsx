@@ -1,16 +1,11 @@
-import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { useTheme } from "react-native-paper";
 import * as Yup from "yup";
 import PopupDialog from "../../../../components/common/PopupDialogue";
 import AppForm from "../../../../components/forms/AppForm";
 import AppFormField from "../../../../components/forms/AppFormFeild";
 import SubmitButton from "../../../../components/forms/AppSubmitButton";
 
-export default function SendQuotationPopup({ visible, onDismiss, item }) {
-  const { colors } = useTheme();
-  const [loading, setLoading] = useState(false);
-
+export default function SendQuotationPopup({ visible, onDismiss, item, onSubmit, isLoading }) {
   const validationSchema = Yup.object().shape({
     amount: Yup.number()
       .typeError("Amount must be a number")
@@ -18,14 +13,9 @@ export default function SendQuotationPopup({ visible, onDismiss, item }) {
     remarks: Yup.string(),
   });
 
-  const handleSubmit = (values) => {
-    console.log("Quotation submitted:", item.id, values);
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      onDismiss();
-    }, 1200);
-  };
+  const submitQuotationItem = (values)=>{
+    onSubmit(item.id,values);
+  }
 
   return (
     <PopupDialog
@@ -41,7 +31,7 @@ export default function SendQuotationPopup({ visible, onDismiss, item }) {
           remarks:
             "Your inspection is completed. Please pay the amount to proceed with the completion.",
         }}
-        onSubmit={handleSubmit}
+        onSubmit={submitQuotationItem}
         validationSchema={validationSchema}
       >
         <View>
@@ -59,7 +49,7 @@ export default function SendQuotationPopup({ visible, onDismiss, item }) {
             multiline
             mode="outlined"
           />
-          <SubmitButton title={"Send Quotation"} isLoading={loading} />
+          <SubmitButton title={"Send Quotation"} isLoading={isLoading} />
         </View>
       </AppForm>
     </PopupDialog>

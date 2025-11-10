@@ -1,41 +1,13 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useRef, useState } from "react";
-import {
-  Platform,
-  StyleSheet,
-  TouchableOpacity,
-  UIManager,
-  View,
-  findNodeHandle,
-} from "react-native";
-import {
-  Avatar,
-  List,
-  Menu,
-  Portal,
-  Snackbar,
-  Surface,
-  Text,
-  useTheme,
-} from "react-native-paper";
+import { Platform, StyleSheet, TouchableOpacity, UIManager, View, findNodeHandle } from "react-native";
+import { Avatar, List, Menu, Portal, Snackbar, Surface, Text } from "react-native-paper";
 import EmptyState from "../../../../components/common/EmptyState";
 
 export default function AssignedJobsDirect({
-  services,
-  setServices,
-  openDropdownFor,
-  toggleDropdown: parentToggleDropdown,
-  handleChangeStatus,
-  getSubServiceStatusConfig,
-  SUB_SERVICES_AVAILABLE_STATUSES,
-  navigation,
-  colors,
-  dark,
-  fonts,
-  mutedText,
-  surfaceElevation,
+  services, openDropdownFor, toggleDropdown: parentToggleDropdown, handleChangeStatus, 
+  getSubServiceStatusConfig, SUB_SERVICES_AVAILABLE_STATUSES, colors, dark, fonts, mutedText, surfaceElevation,
 }) {
-  const { colors: themeColors } = useTheme();
   const anchorRefs = useRef({});
   const [anchorLayouts, setAnchorLayouts] = useState({});
   const [menuKeys, setMenuKeys] = useState({});

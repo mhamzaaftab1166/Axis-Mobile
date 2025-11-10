@@ -1,56 +1,11 @@
 import { MaterialCommunityIcons as Icon } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useRef, useState } from "react";
-import {
-  findNodeHandle,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  UIManager,
-  View,
-} from "react-native";
-import {
-  Avatar,
-  Card,
-  Menu,
-  Portal,
-  Snackbar,
-  Text,
-  useTheme,
-} from "react-native-paper";
+import { useMemo, useRef, useState } from "react";
+import { findNodeHandle, ScrollView, StyleSheet, TouchableOpacity, UIManager, View } from "react-native";
+import { Avatar, Card, Menu, Portal, Snackbar, Text, useTheme } from "react-native-paper";
 import { ROUTES } from "../../helpers/routePaths";
+import { useGetMyInspeServices, useSubmitQuotation } from "../../hooks/useInspectionServices";
 import SendQuotationPopup from "../../screens/(home)/supervisor/assign-jobs/SendQuotationPopup";
-
-const SAMPLE_WEEK = [
-  {
-    id: "WKP-1001",
-    serviceName: "Home Sanitization",
-    serviceCategory: "Cleaning",
-    inspectionType: "Physical",
-    images: null,
-    video: null,
-    bookingDate: "2025-11-11",
-    bookingTime: "09:00 AM",
-    address: "Downtown, Dubai, UAE",
-    quotationSent: false,
-    status: "pending",
-  },
-  {
-    id: "WKP-1002",
-    serviceName: "Pool Maintenance",
-    serviceCategory: "Maintenance",
-    inspectionType: "Online",
-    images: ["https://picsum.photos/200/300", "https://picsum.photos/200/300"],
-    video: [
-      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-    ],
-    bookingDate: "2025-11-16",
-    bookingTime: "01:00 PM",
-    address: "Jumeirah, Dubai, UAE",
-    quotationSent: true,
-    status: "confirmed",
-  },
-];
 
 const STATUS_OPTIONS = [
   {
@@ -89,10 +44,13 @@ const STATUS_OPTIONS = [
 const INSPECTION_FILTERS = ["All", "Online", "Physical"];
 
 export default function WeekInspection() {
+
+  // fetch inspection assigned servics
+  const { services = [], isLoading: fetchingInspectionServices } = useGetMyInspeServices();
+
   const { colors, dark } = useTheme();
   const [openDropdownFor, setOpenDropdownFor] = useState(null);
-  const [items, setItems] = useState(SAMPLE_WEEK);
-  const [snack, setSnack] = useState({ visible: false, msg: "" });
+  const [snack, setSnack] = useState({ visible: false, msg: "", type: "" });
   const [quotationItem, setQuotationItem] = useState(null);
 
   const anchorRef = useRef(null);
@@ -162,12 +120,6 @@ export default function WeekInspection() {
     setFilterMenuKey(null);
   };
 
-  const filteredItems = items.filter((item) =>
-    filterType === "All"
-      ? true
-      : item.inspectionType.toLowerCase() === filterType.toLowerCase()
-  );
-
   const onViewDetails = (item) => {
     router.push({
       pathname: ROUTES.INSPECT_JOB_DETAILS_VIEW,
@@ -188,6 +140,28 @@ export default function WeekInspection() {
     setAnchorLayout(null);
     setMenuKey(null);
   };
+
+  const filteredItems = useMemo(() => {
+    return services.filter((svc) =>
+      filterType === "All"
+        ? svc
+        : svc.filter((item) => item.status === filterType),
+    );
+  }, [services, filterType]);
+
+  const { mutate: submitQuotation, isPending: isSubmittingQuotation } = useSubmitQuotation({
+    onErrorCallback: (errMsg) => {
+      setSnack({ visible: true, message: errMsg, type: "error" })
+    },
+    onSuccessCallback: () => {
+      setQuotationItem(null);
+      setSnack({
+        visible: true,
+        msg: `Quotation Submitted`,
+        type: "success",
+      });
+    },
+  });
 
   return (
     <>
@@ -261,10 +235,7 @@ export default function WeekInspection() {
         showsVerticalScrollIndicator={false}
       >
         {filteredItems.map((item) => {
-          const statusCfg =
-            STATUS_OPTIONS.find(
-              (s) => s.value === (item.status || "").toLowerCase()
-            ) || STATUS_OPTIONS[0];
+          const statusCfg = STATUS_OPTIONS.find((s) => s.value === (item.serviceStatus || "").toLowerCase() ) || STATUS_OPTIONS[0];
           const isOpen = openDropdownFor === item.id;
           return (
             <View
@@ -379,7 +350,7 @@ export default function WeekInspection() {
 
                   <View style={styles.actionsRow}>
                     <View style={styles.leftAction}>
-                      {!item.quotationSent ? (
+                      {!item.quotation ? (
                         <TouchableOpacity
                           activeOpacity={0.85}
                           onPress={() => onSendQuotation(item)}
@@ -493,14 +464,16 @@ export default function WeekInspection() {
       <Portal>
         <Snackbar
           visible={snack.visible}
-          onDismiss={() => setSnack({ visible: false, msg: "" })}
+          onDismiss={() => setSnack({ visible: false, msg: "", type: "" })}
           duration={2200}
           action={{
             label: "OK",
-            onPress: () => setSnack({ visible: false, msg: "" }),
+            onPress: () => setSnack({ visible: false, msg: "", type: "" }),
           }}
         >
-          {snack.msg}
+          <Text style={{ color: snack.type === "error" ? "red" : "#0fdd08ff" }}>
+            {snack.msg}
+          </Text>
         </Snackbar>
       </Portal>
 
@@ -509,6 +482,14 @@ export default function WeekInspection() {
           visible={!!quotationItem}
           item={quotationItem}
           onDismiss={() => setQuotationItem(null)}
+          isLoading={isSubmittingQuotation}
+          onSubmit={(id,values)=>{
+            submitQuotation({
+              serviceId: id,
+              quotation: values?.amount,
+              remarks: values?.remarks
+            });
+          }}
         />
       )}
     </>

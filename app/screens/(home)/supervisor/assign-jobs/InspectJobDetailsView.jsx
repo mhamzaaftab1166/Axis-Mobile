@@ -2,26 +2,9 @@ import { MaterialCommunityIcons as Icon } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { useVideoPlayer, VideoView } from "expo-video";
 import { useRef, useState } from "react";
-import {
-  Dimensions,
-  findNodeHandle,
-  Image,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  UIManager,
-  View,
-} from "react-native";
-import {
-  Avatar,
-  Card,
-  Divider,
-  Menu,
-  Portal,
-  Snackbar,
-  Text,
-  useTheme,
-} from "react-native-paper";
+import { Dimensions, findNodeHandle, Image, ScrollView, StyleSheet, TouchableOpacity, UIManager, View } from "react-native";
+import { Avatar, Card, Divider, Menu, Portal, Snackbar, Text, useTheme } from "react-native-paper";
+import config from "../../../../../config.json";
 import CenteredAppbarHeader from "../../../../components/common/CenteredAppBar";
 import SendQuotationPopup from "./SendQuotationPopup";
 
@@ -74,7 +57,12 @@ export default function InspectJobDetailsView() {
   const [anchorLayout, setAnchorLayout] = useState(null);
   const [menuKey, setMenuKey] = useState(null);
 
-  const videoPlayers = (item?.video || []).map((vid) => useVideoPlayer(vid));
+  const firstVideo = item?.videos?.[0] || null;
+  const player = useVideoPlayer(
+    firstVideo ? `${config.pictureUrl}/${firstVideo}` : null
+  );
+
+  // const videoPlayers = (item?.videos || []).map((vid) => useVideoPlayer(`${config.pictureUrl}/${vid}`));
 
   if (!item) {
     return (
@@ -348,7 +336,7 @@ export default function InspectJobDetailsView() {
                 {item.images.map((img, idx) => (
                   <Image
                     key={String(idx)}
-                    source={{ uri: img }}
+                    source={{ uri: `${config.pictureUrl}/${img}` }}
                     style={styles.image}
                     resizeMode="cover"
                   />
@@ -357,7 +345,7 @@ export default function InspectJobDetailsView() {
             </View>
           )}
 
-          {item.video?.length > 0 && (
+          {item.videos?.length > 0 && (
             <View style={{ marginTop: 16 }}>
               <Text style={[styles.sectionTitle, { color: colors.text }]}>
                 Video
@@ -374,8 +362,11 @@ export default function InspectJobDetailsView() {
               >
                 <VideoView
                   style={{ width: "100%", height: "100%" }}
-                  player={videoPlayers[0]}
-                  fullscreenOptions={true}
+                  player={player}
+                  fullscreenOptions={{
+                    presentationStyle: "fullScreen",
+                    rotateToLandscape: true,
+                  }}
                   allowsPictureInPicture
                   contentFit="contain"
                 />

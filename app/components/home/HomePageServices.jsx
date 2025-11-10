@@ -116,7 +116,6 @@ export default function HomeServiceSection({
                   {c.label}
                 </Text>
               </View>
-              {/* Add left/right separators visually only for non-active neighboring buttons */}
               {idx < categories.length - 1 && (
                 <View
                   pointerEvents="none"

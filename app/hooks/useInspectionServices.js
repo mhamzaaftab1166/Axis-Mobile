@@ -1,6 +1,6 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { HttpStatusCode } from "axios";
-import { bookInspectionService, fetchAllServices, fetchMyInspectionService, fetchTopInspectionServices } from "../services/inspectionService";
+import { bookInspectionService, fetchAllServices, fetchAssignedServices, fetchMyInspectionService, fetchTopInspectionServices, submitQuotation } from "../services/inspectionService";
 import useAuthStore from "../store/useAuthStore";
 
 // fetch top (popular) services
@@ -99,4 +99,47 @@ export const useGetMyInspectionBookings = () => {
     isError: query.isError,
     error: query.error,
   };
+};
+
+// Supervisor fetch and update inspection services
+export const useGetMyInspeServices = () => {
+  const { token, hasHydrated } = useAuthStore();
+
+  const query = useQuery({
+    queryKey: ["assigned-inspection-services"],
+    queryFn: () => fetchAssignedServices(),
+    staleTime: 1000 * 5,
+    enabled: !!token && hasHydrated
+  });
+
+  return {
+    services: query?.data?.data,
+    isLoading: query.isLoading,
+    isError: query.isError,
+    error: query.error,
+  };
+};
+
+// Supervisor fetch and update inspection services
+export const useSubmitQuotation = ({ onSuccessCallback, onErrorCallback } = {}) => {
+
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data) => submitQuotation(data),
+    onSuccess: (response) => {
+      if (response?.status === HttpStatusCode.Ok) {
+        onSuccessCallback?.();
+        qc.invalidateQueries(["assigned-inspection-services"]);
+      }
+      else {
+        // fallback error case (non-200 from backend)
+        onErrorCallback?.(response?.error || "Inspection Service Booking Failed!",response?.data?.serviceId);
+      }
+    },
+    onError: (error) => {
+      const msg = error?.response?.data?.error || error?.message || "Something went wrong while booking service!";
+      onErrorCallback?.(msg);
+    },
+  });
 };

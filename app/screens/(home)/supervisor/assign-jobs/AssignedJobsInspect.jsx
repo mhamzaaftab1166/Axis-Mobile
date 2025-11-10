@@ -1,26 +1,10 @@
 import { MaterialCommunityIcons as Icon } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useRef, useState } from "react";
-import {
-  Platform,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  UIManager,
-  View,
-  findNodeHandle,
-} from "react-native";
-import {
-  Avatar,
-  Card,
-  Divider,
-  Menu,
-  Portal,
-  Snackbar,
-  Text,
-  useTheme,
-} from "react-native-paper";
+import { Platform, ScrollView, StyleSheet, TouchableOpacity, UIManager, View, findNodeHandle } from "react-native";
+import { Avatar, Card, Divider, Menu, Portal, Snackbar, Text, useTheme } from "react-native-paper";
 import { ROUTES } from "../../../../helpers/routePaths";
+import { useGetMyInspeServices } from "../../../../hooks/useInspectionServices";
 import SendQuotationPopup from "./SendQuotationPopup";
 
 const SAMPLE = [
@@ -95,12 +79,13 @@ const STATUS_OPTIONS = [
 export default function AssignedJobsInspect() {
   const { colors, dark } = useTheme();
   const [openDropdownFor, setOpenDropdownFor] = useState(null);
-  const [items] = useState(SAMPLE);
   const [snack, setSnack] = useState({ visible: false, msg: "" });
   const [quotationItem, setQuotationItem] = useState(null);
   const anchorRef = useRef(null);
   const [anchorLayout, setAnchorLayout] = useState(null);
   const [menuKey, setMenuKey] = useState(null);
+
+  const { services = [], isLoading: fetchingInspectionServices } = useGetMyInspeServices();
 
   const measureInWindowAsync = (node) =>
     new Promise((resolve, reject) => {
@@ -173,10 +158,10 @@ export default function AssignedJobsInspect() {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        {items.map((item) => {
+        {services?.map((item) => {
           const statusCfg =
             STATUS_OPTIONS.find(
-              (s) => s.value === (item.status || "").toLowerCase()
+              (s) => s.value === (item.serviceStatus || "").toLowerCase()
             ) || STATUS_OPTIONS[0];
           const isOpen = openDropdownFor === item.id;
           return (
