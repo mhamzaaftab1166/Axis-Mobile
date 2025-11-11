@@ -2,12 +2,15 @@ import { create } from "zustand";
 
 export const useSupServicesStore = create((set) => ({
   services: [],
+  inspectionServices: [],
+
   stats: {
     previous: 0,
     assigned: 0,
   },
 
   setServices: (services) => set({ services }),
+  setInspectionServices: (inspectionServices) => set({ inspectionServices }),
 
   setStats: (stats) =>
     set({
@@ -37,6 +40,25 @@ export const useSupServicesStore = create((set) => ({
                 s.id !== subId ? s : { ...s, status: newStatus }
               ),
             }
+      ),
+    })),
+
+  // update service status by ID
+  updateInspectionServiceStatus: (serviceId, newStatus) =>
+    set((state) => ({
+      inspectionServices: state.inspectionServices.map((inspection) =>
+        inspection.id === serviceId
+          ? { ...inspection, serviceStatus: newStatus }
+          : inspection
+      ),
+    })),
+
+  updateQuotation: (serviceId, quotation) =>
+    set((state) => ({
+      inspectionServices: state.inspectionServices.map((inspection) =>
+        inspection.id === serviceId
+          ? { ...inspection, quotation }
+          : inspection
       ),
     })),
 }));

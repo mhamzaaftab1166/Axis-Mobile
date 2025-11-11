@@ -14,6 +14,7 @@ export default function HomeServiceSection({
   onViewAll,
   addressCapacity = 0,
 }) {
+
   const { colors } = useTheme();
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [servicesList, setServicesList] = useState([...homePageServices, ...inspectionServices]);
@@ -77,8 +78,6 @@ export default function HomeServiceSection({
       >
         {categories.map((c, idx) => {
           const active = selectedCategory === c.key;
-          const left = idx === 0;
-          const right = idx === categories.length - 1;
           return (
             <Pressable
               key={c.key}

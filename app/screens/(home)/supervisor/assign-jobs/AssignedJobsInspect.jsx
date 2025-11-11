@@ -3,44 +3,13 @@ import { router } from "expo-router";
 import { useRef, useState } from "react";
 import { Platform, ScrollView, StyleSheet, TouchableOpacity, UIManager, View, findNodeHandle } from "react-native";
 import { Avatar, Card, Divider, Menu, Portal, Snackbar, Text, useTheme } from "react-native-paper";
+import LoadingOverlay from "../../../../components/LoadingOverlay";
+import { filterInspectionServicesAfterNextWeek } from "../../../../helpers/general";
 import { ROUTES } from "../../../../helpers/routePaths";
-import { useGetMyInspeServices } from "../../../../hooks/useInspectionServices";
+import { useUpdateSubServiceStatus } from "../../../../hooks/useBookingQuery";
+import { useSubmitQuotation } from "../../../../hooks/useInspectionServices";
+import { useSupServicesStore } from "../../../../store/useSupServicesStore";
 import SendQuotationPopup from "./SendQuotationPopup";
-
-const SAMPLE = [
-  {
-    id: "ASD-1001",
-    serviceName: "Home Deep Cleaning",
-    serviceCategory: "Cleaning",
-    inspectionType: "Physical",
-    images: null,
-    video: null,
-    bookingDate: "2025-11-12",
-    bookingTime: "10:00 AM",
-    address: "Al Barsha, Dubai, UAE",
-    quotationSent: false,
-    status: "pending",
-  },
-  {
-    id: "ASD-1002",
-    serviceName: "AC Filter Replacement",
-    serviceCategory: "Maintenance",
-    inspectionType: "Online",
-    images: [
-      "https://picsum.photos/200/300",
-      "https://picsum.photos/200/300",
-      "https://picsum.photos/200/300",
-    ],
-    video: [
-      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-    ],
-    bookingDate: "2025-11-15",
-    bookingTime: "02:30 PM",
-    address: "Business Bay, Dubai, UAE",
-    quotationSent: true,
-    status: "confirmed",
-  },
-];
 
 const STATUS_OPTIONS = [
   {
@@ -85,24 +54,24 @@ export default function AssignedJobsInspect() {
   const [anchorLayout, setAnchorLayout] = useState(null);
   const [menuKey, setMenuKey] = useState(null);
 
-  const { services = [], isLoading: fetchingInspectionServices } = useGetMyInspeServices();
+  const inspectionServices = useSupServicesStore((s) => s.inspectionServices);
+  const services = filterInspectionServicesAfterNextWeek(inspectionServices);
 
-  const measureInWindowAsync = (node) =>
-    new Promise((resolve, reject) => {
-      const handle = findNodeHandle(node);
-      if (!handle) return reject(new Error("no handle"));
-      if (UIManager && UIManager.measureInWindow) {
-        UIManager.measureInWindow(handle, (x, y, w, h) =>
-          resolve({ x, y, width: w, height: h })
-        );
-      } else if (node && node.measureInWindow) {
-        node.measureInWindow((x, y, w, h) =>
-          resolve({ x, y, width: w, height: h })
-        );
-      } else {
-        reject(new Error("no measure method"));
-      }
-    });
+  const measureInWindowAsync = (node) => new Promise((resolve, reject) => {
+    const handle = findNodeHandle(node);
+    if (!handle) return reject(new Error("no handle"));
+    if (UIManager && UIManager.measureInWindow) {
+      UIManager.measureInWindow(handle, (x, y, w, h) =>
+        resolve({ x, y, width: w, height: h })
+      );
+    } else if (node && node.measureInWindow) {
+      node.measureInWindow((x, y, w, h) =>
+        resolve({ x, y, width: w, height: h })
+      );
+    } else {
+      reject(new Error("no measure method"));
+    }
+  });
 
   const toggleDropdown = async (id, node) => {
     if (openDropdownFor === id) {
@@ -129,24 +98,50 @@ export default function AssignedJobsInspect() {
     });
   };
 
-  const onSendQuotation = (item) => setQuotationItem(item);
+  const { mutate: submitQuotation, isPending: isSubmittingQuotation } = useSubmitQuotation({
+    onErrorCallback: (errMsg) => {
+      setSnack({ visible: true, message: errMsg, type: "error" })
+    },
+    onSuccessCallback: (data) => {
+      console.log(data);
+      setQuotationItem(null);
+      setSnack({
+        visible: true,
+        msg: `Quotation Submitted`,
+        type: "success",
+      });
+      useSupServicesStore.getState().updateQuotation(data?.serviceId, data?.quotation);
+    },
+  });
 
-  const onChangeStatus = (item, newStatus) => {
-    const cfg =
-      STATUS_OPTIONS.find((s) => s.value === newStatus) || STATUS_OPTIONS[0];
-    setSnack({
-      visible: true,
-      msg: `Status change (simulated) to ${cfg.label} for ${item.id}`,
-    });
-    setOpenDropdownFor(null);
-    setAnchorLayout(null);
-    setMenuKey(null);
-  };
+  const onSendQuotation = (item) => setQuotationItem(item);
 
   const handleMenuDismiss = () => {
     setOpenDropdownFor(null);
     setAnchorLayout(null);
     setMenuKey(null);
+  };
+
+  const { mutate: updateStatus, isPending: updatingStatus } = useUpdateSubServiceStatus({
+    onErrorCallback: (errMsg) => setSnack({ visible: true, message: errMsg, type: "error" }),
+    onSuccessCallback: (data) => {
+      setSnack({
+        visible: true,
+        msg: `Status updated to ${data?.newStatus}`,
+        type: "success"
+      });
+      setOpenDropdownFor(null);
+      setAnchorLayout(null);
+      setMenuKey(null);
+      useSupServicesStore.getState().updateInspectionServiceStatus(data?.inspectionServiceId, data?.newStatus);
+    },
+  });
+
+  const onChangeStatus = (item, newStatus) => {
+    updateStatus({
+      inspectionServiceId: item.id, 
+      newStatus
+    });
   };
 
   return (
@@ -159,10 +154,7 @@ export default function AssignedJobsInspect() {
         showsVerticalScrollIndicator={false}
       >
         {services?.map((item) => {
-          const statusCfg =
-            STATUS_OPTIONS.find(
-              (s) => s.value === (item.serviceStatus || "").toLowerCase()
-            ) || STATUS_OPTIONS[0];
+          const statusCfg = STATUS_OPTIONS.find((s) => s.value === (item.serviceStatus || "").toLowerCase()) || STATUS_OPTIONS[0];
           const isOpen = openDropdownFor === item.id;
           return (
             <View
@@ -175,6 +167,7 @@ export default function AssignedJobsInspect() {
                   { backgroundColor: dark ? colors.surface : "#fff" },
                 ]}
               >
+                <LoadingOverlay visible={updatingStatus} />
                 <Card.Content style={styles.cardInner}>
                   <View style={styles.rowTop}>
                     <View style={styles.left}>
@@ -275,7 +268,7 @@ export default function AssignedJobsInspect() {
                   <View style={styles.actionsRow}>
                     <View style={styles.leftAction}>
                       <View style={styles.pillWrapper}>
-                        {!item.quotationSent ? (
+                        {!item.quotation ? (
                           <TouchableOpacity
                             activeOpacity={0.85}
                             onPress={() => onSendQuotation(item)}
@@ -408,6 +401,14 @@ export default function AssignedJobsInspect() {
           visible={!!quotationItem}
           item={quotationItem}
           onDismiss={() => setQuotationItem(null)}
+          isLoading={isSubmittingQuotation}
+          onSubmit={(id,values)=>{
+            submitQuotation({
+              serviceId: id,
+              quotation: values?.amount,
+              remarks: values?.remarks
+            });
+          }}
         />
       )}
     </>

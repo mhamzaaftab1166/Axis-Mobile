@@ -1,7 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { HttpStatusCode } from "axios";
+import { useEffect } from "react";
 import { bookInspectionService, fetchAllServices, fetchAssignedServices, fetchMyInspectionService, fetchTopInspectionServices, submitQuotation } from "../services/inspectionService";
 import useAuthStore from "../store/useAuthStore";
+import { useSupServicesStore } from "../store/useSupServicesStore";
 
 // fetch top (popular) services
 export const useGetInspectionServices = (role) => {
@@ -10,12 +12,12 @@ export const useGetInspectionServices = (role) => {
   const query = useQuery({
     queryKey: ["inspection-services"],
     queryFn: () => fetchTopInspectionServices(),
-    staleTime: 1000 * 5,
+    staleTime: ()=>{},
     enabled: !!token && hasHydrated && role === "tenant",
   });
 
   return {
-    services: query.data,
+    data: query?.data?.data,
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,
@@ -105,19 +107,28 @@ export const useGetMyInspectionBookings = () => {
 export const useGetMyInspeServices = () => {
   const { token, hasHydrated } = useAuthStore();
 
+  const setServices = useSupServicesStore((s) => s.setInspectionServices);
+
   const query = useQuery({
     queryKey: ["assigned-inspection-services"],
     queryFn: () => fetchAssignedServices(),
-    staleTime: 1000 * 5,
+    staleTime: 1000 * 60 * 15,
     enabled: !!token && hasHydrated
   });
 
+  useEffect(() => {
+    if (query.data) {
+      setServices(query.data?.data || []);
+    }
+  }, [query.data, setServices]);
+
   return {
-    services: query?.data?.data,
+    data: query?.data?.data,
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,
   };
+
 };
 
 // Supervisor fetch and update inspection services
@@ -127,9 +138,9 @@ export const useSubmitQuotation = ({ onSuccessCallback, onErrorCallback } = {}) 
 
   return useMutation({
     mutationFn: (data) => submitQuotation(data),
-    onSuccess: (response) => {
+    onSuccess: (response,variables) => {
       if (response?.status === HttpStatusCode.Ok) {
-        onSuccessCallback?.();
+        onSuccessCallback?.(variables);
         qc.invalidateQueries(["assigned-inspection-services"]);
       }
       else {

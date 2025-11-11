@@ -62,8 +62,6 @@ export default function InspectJobDetailsView() {
     firstVideo ? `${config.pictureUrl}/${firstVideo}` : null
   );
 
-  // const videoPlayers = (item?.videos || []).map((vid) => useVideoPlayer(`${config.pictureUrl}/${vid}`));
-
   if (!item) {
     return (
       <View style={styles.center}>

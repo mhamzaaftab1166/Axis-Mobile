@@ -460,6 +460,50 @@ export const getNextWeekServices = (supervisorServices) => {
     .filter(Boolean);
 };
 
+export const filterInspectionServices = (supervisorServices) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const sixDaysLater = new Date();
+  sixDaysLater.setDate(today.getDate() + 6);
+  sixDaysLater.setHours(23, 59, 59, 999);
+
+  return supervisorServices?.filter((service) => {
+    const serviceDate = new Date(service.rawDate);
+    return (serviceDate >= today && serviceDate <= sixDaysLater) && service.serviceStatus !== "completed";
+  }) || [];
+};
+
+export const filterInspectionServicesPrevious = (supervisorServices) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  return supervisorServices?.filter((service) => {
+    const serviceDate = new Date(service.rawDate);
+    return serviceDate < today;
+  }) || [];
+};
+
+export const filterInspectionServicesAfterNextWeek = (supervisorServices) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const sixDaysLater = new Date();
+  sixDaysLater.setDate(today.getDate() + 6);
+  sixDaysLater.setHours(23, 59, 59, 999);
+
+  return supervisorServices?.filter((service) => {
+    const serviceDate = new Date(service.rawDate);
+    return serviceDate >= sixDaysLater;
+  }) || [];
+};
+
+export const filterInspectionServicesByStatus = (supervisorServices, statusFilter = []) => {
+  return supervisorServices?.filter((service) =>
+    statusFilter.includes(service.serviceStatus)
+  ) || [];
+};
+
 export const filterByStatus = (supervisorServices, statusFilter = []) => {
   return supervisorServices
     ?.map((service) => {
@@ -492,7 +536,6 @@ export const filterByStatus = (supervisorServices, statusFilter = []) => {
     })
     .filter(Boolean);
 };
-
 
 export const buildUpdatePayload = (serviceTime, newServices, bookingId, selectedAddress) => {
   // If serviceTime already has a `serviceTime` key, unwrap it

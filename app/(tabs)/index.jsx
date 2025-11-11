@@ -59,7 +59,7 @@ export default function Home() {
     userData?.data?.user?.role
   );
 
-  const { services: inspectionServices, isLoading: fetchingIspectionServices} = useGetInspectionServices(
+  const { data: inspectionServices, isLoading: fetchingIspectionServices} = useGetInspectionServices(
     userData?.data?.user?.role
   );
 
@@ -165,7 +165,7 @@ export default function Home() {
                 title="Popular Services"
                 addressCapacity={selectedAddress?.unitId?.unitCapacity}
                 homePageServices={topServices?.data}
-                inspectionServices={inspectionServices?.data}
+                inspectionServices={inspectionServices}
                 onViewAll={() => router.push(ROUTES.SERVICE_LISTING)}
               />
               {allSubs?.length > 0 && (

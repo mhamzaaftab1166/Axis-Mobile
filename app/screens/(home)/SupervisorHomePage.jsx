@@ -11,6 +11,7 @@ import {
   useGetSupervisorStats,
   useGetSupServices,
 } from "../../hooks/useBookingQuery";
+import { useGetMyInspeServices } from "../../hooks/useInspectionServices";
 import SupervisorHomeSkeleton from "../../skeltons/SupervisorHomeLoadingSkelton";
 import { useSupServicesStore } from "../../store/useSupServicesStore";
 
@@ -20,9 +21,11 @@ const SupervisorHomePage = ({ userData }) => {
 
   // loading flag
   const { isLoading: fetchingSupervisorServices } = useGetSupServices();
+  const { isLoading: fetchingInspectionServices } = useGetMyInspeServices();
+
   const supStats = useSupServicesStore((s) => s.stats);
 
-  if (fetchingStats || fetchingSupervisorServices)
+  if (fetchingStats || fetchingSupervisorServices || fetchingInspectionServices)
     return <SupervisorHomeSkeleton />;
   return (
     <View style={{ flex: 1 }}>

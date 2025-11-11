@@ -3,9 +3,13 @@ import { router } from "expo-router";
 import { useMemo, useRef, useState } from "react";
 import { findNodeHandle, ScrollView, StyleSheet, TouchableOpacity, UIManager, View } from "react-native";
 import { Avatar, Card, Menu, Portal, Snackbar, Text, useTheme } from "react-native-paper";
+import { filterInspectionServices } from "../../helpers/general";
 import { ROUTES } from "../../helpers/routePaths";
-import { useGetMyInspeServices, useSubmitQuotation } from "../../hooks/useInspectionServices";
+import { useUpdateSubServiceStatus } from "../../hooks/useBookingQuery";
+import { useSubmitQuotation } from "../../hooks/useInspectionServices";
 import SendQuotationPopup from "../../screens/(home)/supervisor/assign-jobs/SendQuotationPopup";
+import { useSupServicesStore } from "../../store/useSupServicesStore";
+import LoadingOverlay from "../LoadingOverlay";
 
 const STATUS_OPTIONS = [
   {
@@ -46,7 +50,8 @@ const INSPECTION_FILTERS = ["All", "Online", "Physical"];
 export default function WeekInspection() {
 
   // fetch inspection assigned servics
-  const { services = [], isLoading: fetchingInspectionServices } = useGetMyInspeServices();
+  const inspectionServices = useSupServicesStore((s) => s.inspectionServices);
+  const services = filterInspectionServices(inspectionServices);
 
   const { colors, dark } = useTheme();
   const [openDropdownFor, setOpenDropdownFor] = useState(null);
@@ -129,18 +134,6 @@ export default function WeekInspection() {
 
   const onSendQuotation = (item) => setQuotationItem(item);
 
-  const onChangeStatus = (item, newStatus) => {
-    const cfg =
-      STATUS_OPTIONS.find((s) => s.value === newStatus) || STATUS_OPTIONS[0];
-    setSnack({
-      visible: true,
-      msg: `Status changed to ${cfg.label} for ${item.id}`,
-    });
-    setOpenDropdownFor(null);
-    setAnchorLayout(null);
-    setMenuKey(null);
-  };
-
   const filteredItems = useMemo(() => {
     return services.filter((svc) =>
       filterType === "All"
@@ -163,12 +156,35 @@ export default function WeekInspection() {
     },
   });
 
+  const { mutate: updateStatus, isPending: updatingStatus } = useUpdateSubServiceStatus({
+    onErrorCallback: (errMsg) => setSnack({ visible: true, message: errMsg, type: "error" }),
+    onSuccessCallback: (data) => {
+      setSnack({
+        visible: true,
+        msg: `Status updated to ${data?.newStatus}`,
+        type: "success"
+      });
+      setOpenDropdownFor(null);
+      setAnchorLayout(null);
+      setMenuKey(null);
+      useSupServicesStore.getState().updateInspectionServiceStatus(data?.inspectionServiceId, data?.newStatus);
+    },
+  });
+
+  const onChangeStatus = (item, newStatus) => {
+    updateStatus({
+      inspectionServiceId: item.id, 
+      newStatus
+    });
+  };
+
   return (
     <>
       <View style={[styles.headerRow, { marginBottom: 12 }]}>
         <Text style={[styles.title, { color: colors.text }]}>
           This Week Inspections
         </Text>
+        <LoadingOverlay visible={updatingStatus} />
         <View style={styles.filterWrapper}>
           <View ref={filterAnchorRef}>
             <TouchableOpacity

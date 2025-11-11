@@ -1,23 +1,12 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useNavigation } from "expo-router";
-import {
-  Platform,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Platform, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Avatar, List, Surface, Text, useTheme } from "react-native-paper";
 import EmptyState from "../../../../components/common/EmptyState";
 import { subServicesStatusGroups } from "../../../../helpers/contantData";
-import {
-  filterByStatus,
-  getSubServiceStatusConfig,
-} from "../../../../helpers/general";
+import { filterByStatus, getSubServiceStatusConfig } from "../../../../helpers/general";
 import { useSupServicesStore } from "../../../../store/useSupServicesStore";
 
 export default function CompletedJobsDirect() {
-  const navigation = useNavigation();
   const theme = useTheme();
   const { colors, dark, fonts } = theme;
 

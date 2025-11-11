@@ -1,33 +1,8 @@
 import { MaterialCommunityIcons as Icon } from "@expo/vector-icons";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Avatar, Card, Divider, Text, useTheme } from "react-native-paper";
-
-const SAMPLE_COMPLETED = [
-  {
-    id: "ASD-1001",
-    serviceName: "Home Deep Cleaning",
-    serviceCategory: "Cleaning",
-    inspectionType: "Physical",
-    bookingDate: "2025-11-12",
-    bookingTime: "10:00 AM",
-    address: "Al Barsha, Dubai, UAE",
-    status: "completed",
-    inspectionAmount: 25,
-    quotationAmount: 100,
-  },
-  {
-    id: "ASD-1002",
-    serviceName: "AC Filter Replacement",
-    serviceCategory: "Maintenance",
-    inspectionType: "Online",
-    bookingDate: "2025-11-15",
-    bookingTime: "02:30 PM",
-    address: "Business Bay, Dubai, UAE",
-    status: "terminated",
-    inspectionAmount: 25,
-    quotationAmount: 150,
-  },
-];
+import { filterInspectionServicesPrevious } from "../../../../helpers/general";
+import { useSupServicesStore } from "../../../../store/useSupServicesStore";
 
 const STATUS_OPTIONS = [
   {
@@ -66,6 +41,9 @@ const STATUS_OPTIONS = [
 export default function CompletedJobsInspect() {
   const { colors, dark } = useTheme();
 
+  const inspectionServices = useSupServicesStore((s) => s.inspectionServices);
+  const services = filterInspectionServicesPrevious(inspectionServices);
+
   return (
     <ScrollView
       contentContainerStyle={[
@@ -74,10 +52,8 @@ export default function CompletedJobsInspect() {
       ]}
       showsVerticalScrollIndicator={false}
     >
-      {SAMPLE_COMPLETED.map((item) => {
-        const statusCfg =
-          STATUS_OPTIONS.find((s) => s.value === item.status) ||
-          STATUS_OPTIONS[0];
+      {services?.map((item) => {
+        const statusCfg = STATUS_OPTIONS.find((s) => s.value === item.serviceStatus) || STATUS_OPTIONS[0];
         const totalAmount = item.inspectionAmount + item.quotationAmount;
 
         return (
