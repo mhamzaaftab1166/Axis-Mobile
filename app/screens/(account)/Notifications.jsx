@@ -32,8 +32,10 @@ export default function Notifications() {
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
   const role = useAuthStore((s) => s.role);
+
   const [openReview, setOpenReview] = useState(false);
   const [serviceIdToReview, setServiceIdToReview] = useState(null);
+  const [isInspection, setIsInspection] = useState(false);
 
   const [error, setError] = useState("");
   const [isError, setIsError] = useState(false);
@@ -97,10 +99,17 @@ export default function Notifications() {
     if (!setServiceIdToReview) {
       return;
     }
-    submitReview({
-      bookingId: serviceIdToReview,
-      values,
-    });
+    if(isInspection){
+      submitReview({
+        inspectionBookingId: serviceIdToReview,
+        values,
+      });
+    }else{
+      submitReview({
+        bookingId: serviceIdToReview,
+        values,
+      });
+    }
   };
 
   const renderItem = (dataItem) => {
@@ -108,10 +117,16 @@ export default function Notifications() {
     return (
       <TouchableOpacity
         onPress={() => {
-          const { type, serviceId } = JSON.parse(dataItem.item?.pushData);
-          if (type === "review" && serviceId) {
-            setServiceIdToReview(serviceId);
-            setOpenReview(true);
+          const { type, serviceId, inspectionServiceId } = JSON.parse(dataItem.item?.pushData);
+          if (type === "review") {
+            if(serviceId){
+              setServiceIdToReview(serviceId);
+              setOpenReview(true);
+            }else if(inspectionServiceId){
+              setServiceIdToReview(inspectionServiceId);
+              setIsInspection(true);
+              setOpenReview(true);
+            }
           }
         }}
       >
