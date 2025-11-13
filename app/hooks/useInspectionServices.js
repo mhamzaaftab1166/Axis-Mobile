@@ -1,7 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { HttpStatusCode } from "axios";
 import { useEffect } from "react";
-import { bookInspectionService, fetchAllServices, fetchAssignedServices, fetchMyInspectionService, fetchTopInspectionServices, submitQuotation } from "../services/inspectionService";
+import {
+  bookInspectionService,
+  completeInspectionQuotationPayment,
+  fetchAllServices, fetchAssignedServices, fetchMyInspectionService,
+  fetchTopInspectionServices,
+  submitQuotation
+} from "../services/inspectionService";
 import useAuthStore from "../store/useAuthStore";
 import { useSupServicesStore } from "../store/useSupServicesStore";
 
@@ -133,9 +139,7 @@ export const useGetMyInspeServices = () => {
 
 // Supervisor fetch and update inspection services
 export const useSubmitQuotation = ({ onSuccessCallback, onErrorCallback } = {}) => {
-
   const qc = useQueryClient();
-
   return useMutation({
     mutationFn: (data) => submitQuotation(data),
     onSuccess: (response,variables) => {
@@ -149,6 +153,51 @@ export const useSubmitQuotation = ({ onSuccessCallback, onErrorCallback } = {}) 
       }
     },
     onError: (error) => {
+      const msg = error?.response?.data?.error || error?.message || "Something went wrong while booking service!";
+      onErrorCallback?.(msg);
+    },
+  });
+};
+
+// complete payment for the updated service
+// =====================
+// Complete inspection service payment
+// =====================
+export const useCompleteInspectionPayment = ({
+  onSuccessCallback,
+  onErrorCallback,
+  onRequireAction,
+} = {}) => {
+  return useMutation({
+    mutationFn: (data) => completeInspectionQuotationPayment(data),
+    onSuccess: (response) => {
+      console.log(response);
+      if (response?.status === HttpStatusCode.Ok) {
+        const outcome = response?.data?.case;
+
+        if (outcome === "success") {
+          onSuccessCallback?.();
+        } else if (outcome === "requires_action") {
+          // requires OTP / 3DS
+          onRequireAction?.(
+            response?.data?.clientSecret,
+            response?.data?.paymentMethod,
+            response?.data?.intentId
+          );
+        } else if (outcome === "failed") {
+          // failed
+          onErrorCallback?.(response?.data?.message || "Payment failed!");
+        } else {
+          // fallback
+          onErrorCallback?.("Unexpected booking outcome!");
+        }
+      } else {
+        // fallback error case (non-200 from backend)
+        onErrorCallback?.(response?.error || "Service Booking Failed!");
+      }
+    },
+    onError: (error) => {
+      console.log(error);
       const msg = error?.response?.data?.error || error?.message || "Something went wrong while booking service!";
       onErrorCallback?.(msg);
     },

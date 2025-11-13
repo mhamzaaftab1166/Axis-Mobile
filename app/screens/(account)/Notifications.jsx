@@ -1,5 +1,5 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useNavigation } from "expo-router";
+import { router, useNavigation } from "expo-router";
 import { useCallback, useState } from "react";
 import {
   Image,
@@ -17,6 +17,7 @@ import ConfirmDialog from "../../components/common/ConfirmDialog";
 import EmptyState from "../../components/common/EmptyState";
 import Ratings from "../../components/Ratings";
 import { getTimeDifference } from "../../helpers/general";
+import { ROUTES } from "../../helpers/routePaths";
 import { useUserDetailQuery } from "../../hooks/useAuthQuery";
 import {
   useDeleteNotification,
@@ -117,7 +118,7 @@ export default function Notifications() {
     return (
       <TouchableOpacity
         onPress={() => {
-          const { type, serviceId, inspectionServiceId } = JSON.parse(dataItem.item?.pushData);
+          const { type, serviceId, inspectionServiceId, inspectionInfo } = JSON.parse(dataItem.item?.pushData);
           if (type === "review") {
             if(serviceId){
               setServiceIdToReview(serviceId);
@@ -127,6 +128,11 @@ export default function Notifications() {
               setIsInspection(true);
               setOpenReview(true);
             }
+          }else if(type === "quotationPayment"){
+            router.dismissTo({
+              pathname: ROUTES.QUOTATION_PAYMENT_FORM,
+              params: { item: JSON.stringify(inspectionInfo) },
+            });
           }
         }}
       >

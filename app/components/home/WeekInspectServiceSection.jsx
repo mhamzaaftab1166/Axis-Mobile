@@ -42,6 +42,12 @@ const STATUS_OPTIONS = [
     color: "#95a5a6",
     icon: "close-circle-outline",
   },
+  {
+    label: "Payment Pending",
+    value: "paymentpending",
+    color: "#000303ff",
+    icon: "close-circle-outline",
+  },
   { label: "Cancelled", value: "cancelled", color: "#e74c3c", icon: "cancel" },
 ];
 
@@ -252,6 +258,7 @@ export default function WeekInspection() {
       >
         {filteredItems.map((item) => {
           const statusCfg = STATUS_OPTIONS.find((s) => s.value === (item.serviceStatus || "").toLowerCase() ) || STATUS_OPTIONS[0];
+          
           const isOpen = openDropdownFor === item.id;
           return (
             <View
@@ -464,6 +471,7 @@ export default function WeekInspection() {
                     <Menu.Item
                       key={st.value}
                       onPress={() => onChangeStatus(item, st.value)}
+                      disabled={item?.serviceStatus === "paymentPending"}
                       title={st.label}
                       icon={() => (
                         <Icon name={st.icon} size={16} color={st.color} />

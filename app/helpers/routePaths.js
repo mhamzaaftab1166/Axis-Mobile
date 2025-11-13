@@ -27,8 +27,7 @@ export const ROUTES = {
   MY_BOOKINGS: "screens/(home)/booking/MyBookings/Bookings",
   MY_INSPECTION_BOOKING:
     "screens/(home)/booking/MyInspectionBookings/InspectionBookingList",
-  INSPECT_JOB_DETAILS_VIEW:
-    "screens/(home)/supervisor/assign-jobs/InspectJobDetailsView",
+  INSPECT_JOB_DETAILS_VIEW: "screens/(home)/supervisor/assign-jobs/InspectJobDetailsView",
   BOOKED_SERVIICE_DETAIL:
     "screens/(home)/booking/MyBookings/BookedServiceDetail",
   BOOKED_SERVIICE_UPDATE:
@@ -42,4 +41,6 @@ export const ROUTES = {
     "screens/(home)/supervisor/previous-jobs/PreviousJobs",
   SUPERVSOR_ASSIGNED_JOBS: "screens/(home)/supervisor/assign-jobs/AsignedJobs",
   PAYMENT_HISTORY: "screens/(account)/PaymentsHistory",
+  // quotation payment
+  QUOTATION_PAYMENT_FORM: "screens/(home)/booking/MyInspectionBookings/PaymentScreenQuotationPayment",
 };
