@@ -5,7 +5,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
 const useAddressStore = create(
   persist(
     (set, get) => ({
-      selectedAddress: null,
+      selectedAddress: undefined,
       addresses: [],
       hasHydrated: false,
 

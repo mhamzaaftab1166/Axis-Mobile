@@ -283,7 +283,7 @@ export const calculateTax = (amount, percentage) => {
 };
 
 // service payload
-export const formatPayload = (values, selectedAddress, encryptionKey, serviceId, noOfDays = 1,loyaltyPoints = null) => {
+export const formatPayload = (values, selectedAddress, encryptionKey, serviceId, noOfDays = 1,loyaltyPoints = null, materialRequired) => {
   const unitCapacity = selectedAddress?.unitId?.unitCapacity || 1;
   
   const { amount } = calculateTotals(
@@ -300,7 +300,7 @@ export const formatPayload = (values, selectedAddress, encryptionKey, serviceId,
     address: selectedAddress._id,
     serviceId,
     noOfDays,
-    materialRequired: values?.materialRequired,
+    materialRequired,
     redeemPoints: loyaltyPoints?.percentage ? loyaltyPoints?.percentage : null
   };
 };
@@ -599,7 +599,7 @@ export const isServiceEligibleForPayment = (service) => {
 };
 
 // create form data for inspection service booking form
-export const buildInspectionFormData = (formDataStep1, valuesStep2,selectedAddress,encryptionKey, serviceId = null) => {
+export const buildInspectionFormData = (formDataStep1, valuesStep2, selectedAddress,encryptionKey, serviceId = null) => {
   const formData = new FormData();
 
   const {
@@ -618,7 +618,7 @@ export const buildInspectionFormData = (formDataStep1, valuesStep2,selectedAddre
 
   // Append selectedService (stringified)
   formData.append("selectedService", selectedService.id);
-  formData.append("address", selectedAddress._id);
+  formData.append("address", selectedAddress?._id);
 
   if(serviceId){
     formData.append("serviceId", serviceId);

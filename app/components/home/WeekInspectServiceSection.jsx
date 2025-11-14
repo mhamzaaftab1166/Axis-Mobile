@@ -163,7 +163,7 @@ export default function WeekInspection() {
   });
 
   const { mutate: updateStatus, isPending: updatingStatus } = useUpdateSubServiceStatus({
-    onErrorCallback: (errMsg) => setSnack({ visible: true, message: errMsg, type: "error" }),
+    onErrorCallback: (errMsg) => setSnack({ visible: true, msg: errMsg, type: "error" }),
     onSuccessCallback: (data) => {
       setSnack({
         visible: true,

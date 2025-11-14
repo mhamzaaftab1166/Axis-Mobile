@@ -1,13 +1,9 @@
 import { StyleSheet, View } from "react-native";
-import { PhoneNumberInput } from 'react-native-international-phone-number';
+import PhoneNumberInput from 'react-native-international-phone-number';
 import { useTheme } from "react-native-paper";
 
 const AppPhoneInput = ({
-  value,
-  onChangeText,
-  phoneInputRef,
-  touched,
-  error,
+  value, onChangeText, phoneInputRef, touched, error,
 }) => {
   const { colors, dark } = useTheme();
 

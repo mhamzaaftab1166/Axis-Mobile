@@ -80,6 +80,7 @@ export default function AddPropertyWizard() {
   const [intentId, setIntentId] = useState(null);
   const [isWorkingOnStripe, setIsWorkingOnStripe] = useState(false);
   const [serviceId, setServiceId] = useState(null);
+  const [materialRequired, setMaterialRequired] = useState(false);
   const [loyaltyPoints, setLoyaltyPoints] = useState(null);
 
   const [noOfDays, setNoOfDays] = useState(1);
@@ -147,6 +148,9 @@ export default function AddPropertyWizard() {
   };
 
   const onStepSubmit = async (values) => {
+
+    console.log(values);
+
     if(values.serviceTime.mode === "regular"){
       const { startDate, type, selectedDays, repeatDuration } = values.serviceTime.regular;
       setNoOfDays(calculateTotalServiceDays(startDate, type, selectedDays, repeatDuration));
@@ -154,6 +158,7 @@ export default function AddPropertyWizard() {
 
     if (step === 0) {
       if (values?.serviceTime) setServiceTime(values.serviceTime);
+      setMaterialRequired(values.materialRequired);
       animateStepChange(1);
       return;
     }
@@ -162,7 +167,7 @@ export default function AddPropertyWizard() {
       return;
     }
     if (step === 2) {
-      const formatted = formatPayload(values,selectedAddress,config.secretKeyForEncryption,serviceId,noOfDays,loyaltyPoints);
+      const formatted = formatPayload(values,selectedAddress,config.secretKeyForEncryption,serviceId,noOfDays,loyaltyPoints,materialRequired);
       bookMyService(formatted);
     }
   };

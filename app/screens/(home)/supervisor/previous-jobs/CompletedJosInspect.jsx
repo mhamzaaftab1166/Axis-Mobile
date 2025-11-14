@@ -43,7 +43,7 @@ export default function CompletedJobsInspect() {
 
   const inspectionServices = useSupServicesStore((s) => s.inspectionServices);
   const services = filterInspectionServicesPrevious(inspectionServices);
-
+  
   return (
     <ScrollView
       contentContainerStyle={[
@@ -54,7 +54,7 @@ export default function CompletedJobsInspect() {
     >
       {services?.map((item) => {
         const statusCfg = STATUS_OPTIONS.find((s) => s.value === item.serviceStatus) || STATUS_OPTIONS[0];
-        const totalAmount = item.inspectionAmount + item.quotationAmount;
+        const totalAmount = item.amount + item.quotation;
 
         return (
           <View key={item.id} style={{ marginBottom: 12 }}>
@@ -145,8 +145,8 @@ export default function CompletedJobsInspect() {
 
                 <View style={styles.amountRow}>
                   <Text style={[styles.amountText, { color: colors.text }]}>
-                    Inspection: AED {item.inspectionAmount} + Quotation: AED{" "}
-                    {item.quotationAmount} = Total: AED {totalAmount}
+                    Inspection: AED {item.amount} + Quotation: AED{" "}
+                    {item.quotation} = Total: AED {totalAmount}
                   </Text>
                 </View>
               </Card.Content>

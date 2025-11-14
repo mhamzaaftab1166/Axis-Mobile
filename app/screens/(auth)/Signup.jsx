@@ -26,12 +26,7 @@ const validationSchema = Yup.object().shape({
     .email("Please enter a valid email address")
     .required("Email is required"),
   name: Yup.string().required("Full name is required").min(2, "Too short"),
-  phone: Yup.string()
-    .required("Mobile number is required")
-    .matches(
-      /^\+9715[0-9]{8}$/,
-      "Enter a valid UAE mobile number (+9715XXXXXXXX)"
-    ),
+  
   password: Yup.string()
     .required("Password is required")
     .min(8, "Password must be at least 8 characters")
@@ -107,7 +102,7 @@ export default function SignupScreen() {
               initialValues={{
                 email: "",
                 name: "",
-                phone: "",
+                phone: "+971 5231512",
                 password: "",
                 role: "tenant"
               }}
