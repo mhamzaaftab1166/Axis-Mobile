@@ -460,28 +460,29 @@ export const getNextWeekServices = (supervisorServices) => {
     .filter(Boolean);
 };
 
-export const filterInspectionServices = (supervisorServices) => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+export const filterInspectionServices = (
+  supervisorServices,
+  statusFilter = []
+) => {
+  if (!Array.isArray(supervisorServices)) return [];
 
-  const sixDaysLater = new Date();
-  sixDaysLater.setDate(today.getDate() + 6);
-  sixDaysLater.setHours(23, 59, 59, 999);
+  const filtered = supervisorServices.filter((service) =>
+    statusFilter.includes(service.serviceStatus)
+  );
 
-  return supervisorServices?.filter((service) => {
-    const serviceDate = new Date(service.rawDate);
-    return (serviceDate >= today && serviceDate <= sixDaysLater) && service.serviceStatus !== "completed";
-  }) || [];
+  // return only top 5
+  return filtered.slice(0, 5);
 };
 
-export const filterInspectionServicesPrevious = (supervisorServices) => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+export const filterInspectionServicesPrevious = (
+  supervisorServices,
+  statusFilter = []
+) => {
+  if (!Array.isArray(supervisorServices)) return [];
 
-  return supervisorServices?.filter((service) => {
-    const serviceDate = new Date(service.rawDate);
-    return serviceDate < today;
-  }) || [];
+  return supervisorServices.filter((service) =>
+    statusFilter.includes(service.serviceStatus)
+  );
 };
 
 export const filterInspectionServicesAfterNextWeek = (supervisorServices) => {

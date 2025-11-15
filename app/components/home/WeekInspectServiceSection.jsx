@@ -3,6 +3,7 @@ import { router } from "expo-router";
 import { useMemo, useRef, useState } from "react";
 import { findNodeHandle, ScrollView, StyleSheet, TouchableOpacity, UIManager, View } from "react-native";
 import { Avatar, Card, Menu, Portal, Snackbar, Text, useTheme } from "react-native-paper";
+import { subServicesStatusGroupsInspection } from "../../helpers/contantData";
 import { filterInspectionServices } from "../../helpers/general";
 import { ROUTES } from "../../helpers/routePaths";
 import { useUpdateSubServiceStatus } from "../../hooks/useBookingQuery";
@@ -57,7 +58,7 @@ export default function WeekInspection() {
 
   // fetch inspection assigned servics
   const inspectionServices = useSupServicesStore((s) => s.inspectionServices);
-  const services = filterInspectionServices(inspectionServices);
+  const services = filterInspectionServices(inspectionServices,subServicesStatusGroupsInspection.assigned);
 
   const { colors, dark } = useTheme();
   const [openDropdownFor, setOpenDropdownFor] = useState(null);

@@ -4,7 +4,8 @@ import { useRef, useState } from "react";
 import { Platform, ScrollView, StyleSheet, TouchableOpacity, UIManager, View, findNodeHandle } from "react-native";
 import { Avatar, Card, Divider, Menu, Portal, Snackbar, Text, useTheme } from "react-native-paper";
 import LoadingOverlay from "../../../../components/LoadingOverlay";
-import { filterInspectionServicesAfterNextWeek } from "../../../../helpers/general";
+import { subServicesStatusGroupsInspection } from "../../../../helpers/contantData";
+import { filterInspectionServicesPrevious } from "../../../../helpers/general";
 import { ROUTES } from "../../../../helpers/routePaths";
 import { useUpdateSubServiceStatus } from "../../../../hooks/useBookingQuery";
 import { useSubmitQuotation } from "../../../../hooks/useInspectionServices";
@@ -55,7 +56,7 @@ export default function AssignedJobsInspect() {
   const [menuKey, setMenuKey] = useState(null);
 
   const inspectionServices = useSupServicesStore((s) => s.inspectionServices);
-  const services = filterInspectionServicesAfterNextWeek(inspectionServices);
+  const services = filterInspectionServicesPrevious(inspectionServices,subServicesStatusGroupsInspection.assigned);
 
   const measureInWindowAsync = (node) => new Promise((resolve, reject) => {
     const handle = findNodeHandle(node);

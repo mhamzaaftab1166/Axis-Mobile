@@ -1,5 +1,6 @@
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { BreadSlice, CheckCircle, IconoirProvider } from 'iconoir-react-native';
+import { IconoirProvider } from 'iconoir-react-native';
 import { View } from "react-native";
 import config from "../../../config.json";
 import StatCard from "../../components/common/StatCard";
@@ -57,7 +58,11 @@ const SupervisorHomePage = ({ userData }) => {
             label="Previous Jobs"
             count={supStats?.previous}
             icon={
-              <CheckCircle />
+              <MaterialCommunityIcons
+                name="check-circle"
+                size={22}
+                color="#fff"
+              />
             }
             variant="success"
             onPress={() => router.push(ROUTES.SUPERVSOR_COMPLETED_JOBS)}
@@ -67,7 +72,7 @@ const SupervisorHomePage = ({ userData }) => {
             label="Assigned Jobs"
             count={supStats?.assigned}
             icon={
-              <BreadSlice />
+              <MaterialCommunityIcons name="briefcase" size={22} color="#fff" />
             }
             variant="warning"
             onPress={() => router.push(ROUTES.SUPERVSOR_ASSIGNED_JOBS)}

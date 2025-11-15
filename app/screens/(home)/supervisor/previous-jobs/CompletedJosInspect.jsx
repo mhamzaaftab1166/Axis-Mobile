@@ -1,6 +1,7 @@
 import { MaterialCommunityIcons as Icon } from "@expo/vector-icons";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Avatar, Card, Divider, Text, useTheme } from "react-native-paper";
+import { subServicesStatusGroupsInspection } from "../../../../helpers/contantData";
 import { filterInspectionServicesPrevious } from "../../../../helpers/general";
 import { useSupServicesStore } from "../../../../store/useSupServicesStore";
 
@@ -42,7 +43,7 @@ export default function CompletedJobsInspect() {
   const { colors, dark } = useTheme();
 
   const inspectionServices = useSupServicesStore((s) => s.inspectionServices);
-  const services = filterInspectionServicesPrevious(inspectionServices);
+  const services = filterInspectionServicesPrevious(inspectionServices,subServicesStatusGroupsInspection.previous);
   
   return (
     <ScrollView
