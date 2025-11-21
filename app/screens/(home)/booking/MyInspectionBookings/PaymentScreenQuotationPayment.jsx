@@ -16,7 +16,7 @@ import LoadingOverlay from "../../../../components/LoadingOverlay";
 import LoyaltyPointsBottomSheet from "../../../../components/LoyaltyPointsBottomSheet";
 import { encryptCVV } from "../../../../helpers/general";
 import { ROUTES } from "../../../../helpers/routePaths";
-import { useCompleteInspectionPayment } from "../../../../hooks/useInspectionServices";
+import { useCompleteInspectionPayment, useRejectQuotation } from "../../../../hooks/useInspectionServices";
 import { useGetLoyaltyPoints } from "../../../../hooks/useLoyaltyQuery";
 import { useGetPaymentMethods } from "../../../../hooks/usePaymetMethodQuery";
 import { useStripeCancelledIntent, useStripeConfirmPayment } from "../../../../hooks/useStripeQuery";
@@ -92,6 +92,17 @@ export default function MakePayment() {
     },
   });
 
+  const { mutate: rejectPayment, isPending: isRejecting } = useRejectQuotation({
+    onSuccessCallback: () => {
+      navigation.replace(ROUTES.HOME);
+    },
+    onErrorCallback: (msg) => {
+      setIsError(true);
+      setError(msg);
+      setIsWorkingOnStripe(false);
+    },
+  });
+
   const [loyaltySheetVisible, setLoyaltySheetVisible] = useState(false);
 
   const handleLoyaltySelect = ({ percentage, discountValue }) => {
@@ -112,6 +123,10 @@ export default function MakePayment() {
     confirmPaymentForService(data);
   };
 
+  const handleRejectQuotation = () => {
+    rejectPayment(parsedParams?.inspectionBookingId);
+  }
+
   const onConfirmPayment = () => {
     confirmPayment({ clientSecret, pmtMethodId: paymentMethodId, intentId });
   };
@@ -128,15 +143,10 @@ export default function MakePayment() {
           onPress={() => setLoyaltySheetVisible(true)}
           style={({ pressed }) => [
             {
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-              paddingVertical: 14,
-              paddingHorizontal: 16,
-              margin: 16,
-              borderRadius: 12,
-              borderWidth: 1,
-              borderColor: colors.primary,
+              flexDirection: "row", justifyContent: "space-between",
+              alignItems: "center", paddingVertical: 14,
+              paddingHorizontal: 16, margin: 16,
+              borderRadius: 12, borderWidth: 1, borderColor: colors.primary,
               backgroundColor: pressed ? colors.primary + "20" : colors.surface,
             },
           ]}
@@ -155,7 +165,7 @@ export default function MakePayment() {
               : "Select"}
           </Text>
         </Pressable>
-        <LoadingOverlay visible={isLoading || cancellingIntent || loadingCards || fetchingLoyaltyPointsData} />
+        <LoadingOverlay visible={isLoading || cancellingIntent || loadingCards || fetchingLoyaltyPointsData || isRejecting} />
         <View style={styles.content}>
           <AppForm
             initialValues={{
@@ -188,24 +198,43 @@ export default function MakePayment() {
                     />
 
                     {!requireAction && (
-                      <Button
-                        mode="contained"
-                        onPress={handleSubmit}
-                        style={[
-                          styles.btn,
-                          {
-                            backgroundColor: colors.primary,
-                            borderRadius: 7,
-                            paddingVertical: 4,
-                          },
-                        ]}
-                        labelStyle={{ color: colors.onPrimary }}
-                        loading={isBooking}
-                      >
-                        Pay AED {loyaltyPoints
-                          ? (parsedParams.amount - loyaltyPoints.discountValue).toFixed(2)
-                          : parsedParams.amount}{''} /- {' '} (+5% Tax)
-                      </Button>
+                      <>
+                        <Button
+                          mode="contained"
+                          onPress={handleSubmit}
+                          style={[
+                            styles.btn,
+                            {
+                              backgroundColor: colors.primary,
+                              borderRadius: 7,
+                              paddingVertical: 4,
+                            },
+                          ]}
+                          labelStyle={{ color: colors.onPrimary }}
+                          loading={isBooking}
+                        >
+                          Pay AED {loyaltyPoints
+                            ? (parsedParams.amount - loyaltyPoints.discountValue).toFixed(2)
+                            : parsedParams.amount}{''} /- {' '} (+5% Tax)
+                        </Button>
+
+                        <Button
+                          mode="contained"
+                          onPress={handleRejectQuotation}
+                          style={[
+                            styles.btn,
+                            {
+                              backgroundColor: colors.primary,
+                              borderRadius: 7,
+                              paddingVertical: 4,
+                            },
+                          ]}
+                          labelStyle={{ color: colors.onPrimary }}
+                          loading={isBooking}
+                        >
+                          Reject Quotation & Terminate Service
+                        </Button>
+                      </>
                     )}
 
                     {requireAction && (

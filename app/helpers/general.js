@@ -589,14 +589,49 @@ export const isServiceEligibleForPayment = (service) => {
   const daysDiff = getDateDifferenceInDays(startDate);
 
   if (mode === "oneTime") {
-    return daysDiff >= 1; // must be at least 1 day ahead
+    return daysDiff >= 1;
   }
 
   if (mode === "regular") {
-    return daysDiff >= 3; // must be at least 3 days ahead
+    return daysDiff >= 3;
   }
 
   return false;
+};
+
+// inspection eligbile for payment
+export const isNewServiceEligibleForPayment = (service) => {
+  if (service?.paymentStatus !== "pending") {
+    return false;
+  }
+
+  // bookingDate is like "24 November 2025"
+  const bookingDateStr = service?.rawDate;
+  if (!bookingDateStr) return false;
+
+  const bookingDate = new Date(bookingDateStr);
+  const today = new Date();
+  
+  // Clear time to compare date-only
+  today.setHours(0, 0, 0, 0);
+  bookingDate.setHours(0, 0, 0, 0);
+
+  const diffInMs = bookingDate - today;
+  const daysDiff = diffInMs / (1000 * 60 * 60 * 24);
+
+  return daysDiff >= 1;
+};
+
+// is quotation payment available
+export const isQuotationEligibleForPayment = (service) => {
+  const status = service?.quotationPaymentStatus;
+  const amount = service?.quotation;
+
+  // must have a valid amount > 0
+  if (!amount || amount <= 0) return false;
+
+  // eligible statuses
+  return status === "pending" || status === "accepted";
 };
 
 // create form data for inspection service booking form

@@ -2,11 +2,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { HttpStatusCode } from "axios";
 import { useEffect } from "react";
 import {
-  bookInspectionService,
-  completeInspectionQuotationPayment,
+  bookInspectionService, completeInspectionQuotationPayment,
   fetchAllServices, fetchAssignedServices, fetchMyInspectionService,
-  fetchTopInspectionServices,
-  submitQuotation
+  fetchTopInspectionServices, rejectQuotation, submitQuotation,
+  terminateService
 } from "../services/inspectionService";
 import useAuthStore from "../store/useAuthStore";
 import { useSupServicesStore } from "../store/useSupServicesStore";
@@ -159,15 +158,8 @@ export const useSubmitQuotation = ({ onSuccessCallback, onErrorCallback } = {}) 
   });
 };
 
-// complete payment for the updated service
-// =====================
 // Complete inspection service payment
-// =====================
-export const useCompleteInspectionPayment = ({
-  onSuccessCallback,
-  onErrorCallback,
-  onRequireAction,
-} = {}) => {
+export const useCompleteInspectionPayment = ({ onSuccessCallback, onErrorCallback, onRequireAction } = {}) => {
   return useMutation({
     mutationFn: (data) => completeInspectionQuotationPayment(data),
     onSuccess: (response) => {
@@ -198,6 +190,48 @@ export const useCompleteInspectionPayment = ({
     },
     onError: (error) => {
       console.log(error);
+      const msg = error?.response?.data?.error || error?.message || "Something went wrong while booking service!";
+      onErrorCallback?.(msg);
+    },
+  });
+};
+
+// Supervisor fetch and update inspection services
+export const useRejectQuotation = ({ onSuccessCallback, onErrorCallback } = {}) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id) => rejectQuotation(id),
+    onSuccess: (response) => {
+      if (response?.status === HttpStatusCode.Ok) {
+        onSuccessCallback?.();
+        qc.invalidateQueries(["inspection-services"]);
+      }
+      else {
+        onErrorCallback?.(response?.error || "Inspection Service Booking Failed!",response?.data?.serviceId);
+      }
+    },
+    onError: (error) => {
+      const msg = error?.response?.data?.error || error?.message || "Something went wrong while booking service!";
+      onErrorCallback?.(msg);
+    },
+  });
+};
+
+// Supervisor fetch and update inspection services
+export const useTerminateService = ({ onSuccessCallback, onErrorCallback } = {}) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id) => terminateService(id),
+    onSuccess: (response) => {
+      if (response?.status === HttpStatusCode.Ok) {
+        onSuccessCallback?.();
+        qc.invalidateQueries(["inspection-services"]);
+      }
+      else {
+        onErrorCallback?.(response?.error || "Inspection Service Booking Failed!",response?.data?.serviceId);
+      }
+    },
+    onError: (error) => {
       const msg = error?.response?.data?.error || error?.message || "Something went wrong while booking service!";
       onErrorCallback?.(msg);
     },

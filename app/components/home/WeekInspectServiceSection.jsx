@@ -369,7 +369,9 @@ export default function WeekInspection() {
                         { color: colors.placeholder },
                       ]}
                       numberOfLines={2}
-                    >{`  ${item.address}`}</Text>
+                    >
+                      { item?.isClientService === false ? item?.address : item?.adminAddress }
+                    </Text>
                   </View>
 
                   <View style={styles.actionsRow}>

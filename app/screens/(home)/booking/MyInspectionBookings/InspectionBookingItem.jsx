@@ -1,26 +1,19 @@
 // File: src/components/inspection/InspectionBookingItem.jsx
 import { MaterialCommunityIcons as Icon } from "@expo/vector-icons";
-import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { Surface } from "react-native-paper";
+import { router } from "expo-router";
+import { useState } from "react";
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Appbar, Menu, Surface } from "react-native-paper";
 import config from "../../../../../config.json";
+import LoadingOverlay from "../../../../components/LoadingOverlay";
+import { isNewServiceEligibleForPayment, isQuotationEligibleForPayment } from "../../../../helpers/general";
+import { ROUTES } from "../../../../helpers/routePaths";
+import { useTerminateService } from "../../../../hooks/useInspectionServices";
 
-export default function InspectionBookingItem({
-  item,
-  width,
-  colors,
-  dark,
-  navigation,
-}) {
+export default function InspectionBookingItem({ item, width, colors, dark}) {
   const isOnline = (item.inspectionType || "").toLowerCase() === "online";
 
-  // ✅ Define all status options with label + value
+  // Define all status options with label + value
   const statusOptions = [
     { label: "Pending", value: "pending", color: "#9c978eff" },
     { label: "Confirmed", value: "confirmed", color: "#3498db" },
@@ -33,12 +26,54 @@ export default function InspectionBookingItem({
     { label: "Unknown", value: "unknown", color: "#7f8c8d" },
   ];
 
-  // ✅ Find matching option by value
+  // Find matching option by value
   const getStatusOption = (statusValue) => {
     const match = statusOptions.find(
       (opt) => opt.value.toLowerCase() === (statusValue || "").toLowerCase()
     );
     return match || statusOptions.find((opt) => opt.value === "unknown");
+  };
+
+  const [menuVisible, setMenuVisible] = useState(false);
+
+  const openMenu = () => setMenuVisible(true);
+  const closeMenu = () => setMenuVisible(false);
+
+  const [error, setError] = useState("");
+  const [isError, setIsError] = useState(false);
+
+  const { mutate: terminateService, isPending: isTerminatingService } = useTerminateService({
+    onErrorCallback: (errMsg) => {
+      setError(errMsg);
+      setIsError(true);
+    },
+    onSuccessCallback: () => {
+      setError("");
+      setIsError(false);
+      closeMenu();
+    },
+  });
+
+  const handlePay = () => {
+    closeMenu();
+    if (!item) return;
+    router.dismissTo({
+      pathname: ROUTES.QUOTATION_PAYMENT_FORM,
+      params: { item: JSON.stringify(item) },
+    });
+  };
+
+  const handlePayQuotation = () => {
+    closeMenu();
+    if (!item) return;
+    router.dismissTo({
+      pathname: ROUTES.QUOTATION_PAYMENT_FORM,
+      params: { item: JSON.stringify(item) },
+    });
+  };
+
+  const openDialog = () => {
+    terminateService(item.id);
   };
 
   const Badge = ({ label, color }) => (
@@ -126,6 +161,7 @@ export default function InspectionBookingItem({
         },
       ]}
     >
+      <LoadingOverlay visible={isTerminatingService} />
       <TouchableOpacity
         activeOpacity={0.95}
         style={[
@@ -149,7 +185,7 @@ export default function InspectionBookingItem({
           <View style={localStyles.rowBetween}>
             <View style={{ flex: 1 }}>
               <Text style={[localStyles.unique, { color: colors.primary }]}>
-                {item.uniqueNumber}
+                {item.uniqueId}
               </Text>
               <Text
                 style={[localStyles.title, { color: colors.text }]}
@@ -168,6 +204,30 @@ export default function InspectionBookingItem({
             <View style={localStyles.badgesColumn}>
               <Badge label={statusOption.label} color={statusOption.color} />
             </View>
+
+            <Menu
+              visible={menuVisible}
+              onDismiss={closeMenu}
+              anchor={
+                <Appbar.Action
+                  icon="dots-vertical"
+                  color={colors.onPrimary}
+                  onPress={openMenu}
+                />
+              }
+            >
+              {
+                isNewServiceEligibleForPayment(item) && (
+                  <Menu.Item onPress={handlePay} title="Pay" />
+                )
+              }
+              {
+                isQuotationEligibleForPayment(item) && (
+                  <Menu.Item onPress={handlePayQuotation} title="Pay Quotation" />
+                )
+              }
+              <Menu.Item onPress={openDialog} title="Terminate" />
+            </Menu>
           </View>
 
           <View style={localStyles.metaRow}>

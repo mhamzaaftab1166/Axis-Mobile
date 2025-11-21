@@ -18,6 +18,12 @@ const STATUS_OPTIONS = [
     icon: "clock-outline",
   },
   {
+    label: "In Progress",
+    value: "inProgress",
+    color: "#95a5a6",
+    icon: "clock-outline",
+  },
+  {
     label: "Confirmed",
     value: "confirmed",
     color: "#3498db",
@@ -73,8 +79,7 @@ export default function InspectJobDetailsView() {
   const onSendQuotation = () => setQuotationItem(item);
 
   const onChangeStatus = (newStatus) => {
-    const cfg =
-      STATUS_OPTIONS.find((s) => s.value === newStatus) || STATUS_OPTIONS[0];
+    const cfg = STATUS_OPTIONS.find((s) => s.value === newStatus) || STATUS_OPTIONS[0];
     setStatus(cfg.value);
     setOpenDropdown(false);
     setSnack({ visible: true, msg: `Status changed to ${cfg.label}` });
@@ -222,7 +227,7 @@ export default function InspectJobDetailsView() {
               <View style={styles.actionsRow}>
                 <View style={styles.leftAction}>
                   <View style={styles.pillWrapper}>
-                    {!item.quotationSent ? (
+                    {(item.quotation === null || item.quotation === undefined) ? (
                       <TouchableOpacity
                         activeOpacity={0.85}
                         onPress={onSendQuotation}
