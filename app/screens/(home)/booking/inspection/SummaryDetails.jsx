@@ -210,7 +210,7 @@ export default function BookingSummary({ bookingData, onChangeAddress }) {
                 color={colors.primary}
               />
               <Text style={[styles.priceText, { color: colors.onSurface }]}>
-                AED 25
+                AED 0 /- 
               </Text>
             </View>
           </View>

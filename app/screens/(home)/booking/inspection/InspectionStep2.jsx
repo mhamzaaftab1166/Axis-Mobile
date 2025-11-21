@@ -18,15 +18,7 @@ import BookingSummary from "./SummaryDetails";
 
 const InspectionStep2 = forwardRef(
   (
-    {
-      bookingData,
-      onSubmit,
-      requireAction,
-      isBooking,
-      onConfirmPayment,
-      isWorkingOnStripe,
-      inspectionType,
-    },
+    { bookingData, onSubmit, requireAction, isBooking, onConfirmPayment, isWorkingOnStripe, inspectionType },
     ref
   ) => {
     const { colors, fonts } = useTheme(); 

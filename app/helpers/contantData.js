@@ -60,5 +60,5 @@ export const subServicesStatusGroups = {
 
 export const subServicesStatusGroupsInspection = {
   previous: ["completed", "missed", "cancelled", "failed"],
-  assigned: ["pending", "upcoming", "inProgress","confirmed"],
+  assigned: ["pending", "upcoming", "inProgress","confirmed","ongoing"],
 };
