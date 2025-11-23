@@ -16,7 +16,7 @@ import LoadingOverlay from "../../../../components/LoadingOverlay";
 import LoyaltyPointsBottomSheet from "../../../../components/LoyaltyPointsBottomSheet";
 import { encryptCVV } from "../../../../helpers/general";
 import { ROUTES } from "../../../../helpers/routePaths";
-import { useCompleteInspectionPayment, useRejectQuotation } from "../../../../hooks/useInspectionServices";
+import { useCompleteInspectionPayment, usePayForPendingService, useRejectQuotation } from "../../../../hooks/useInspectionServices";
 import { useGetLoyaltyPoints } from "../../../../hooks/useLoyaltyQuery";
 import { useGetPaymentMethods } from "../../../../hooks/usePaymetMethodQuery";
 import { useStripeCancelledIntent, useStripeConfirmPayment } from "../../../../hooks/useStripeQuery";
@@ -46,6 +46,26 @@ export default function MakePayment() {
   const parsedParams = JSON.parse(params.item);
 
   const { mutate: confirmPaymentForService, isPending: isBooking } = useCompleteInspectionPayment({
+    onErrorCallback: (errMsg) => {
+      setError(errMsg);
+      setIsError(true);
+    },
+    onSuccessCallback: () => {
+      setError("");
+      setIsError(false);
+      navigation.replace(ROUTES.HOME);
+    },
+    onRequireAction: (clientSecret, methodId, intentId) => {
+      setRequireAction(true);
+      setClientSecret(clientSecret);
+      setPaymentMethodId(methodId);
+      setIntentId(intentId);
+      setIsError(false);
+      setError("");
+    }
+  });
+
+  const { mutate: confirmPendingPayment, isPending: isPayingInspAmount } = usePayForPendingService({
     onErrorCallback: (errMsg) => {
       setError(errMsg);
       setIsError(true);
@@ -120,7 +140,12 @@ export default function MakePayment() {
       amount: parsedParams?.amount,
       discountPercentage: loyaltyPoints?.percentage ? loyaltyPoints?.percentage : 0
     };
-    confirmPaymentForService(data);
+    if(params?.isQuotation === true){
+      confirmPaymentForService(data);
+    }else{
+      confirmPendingPayment(data);
+    }
+    
   };
 
   const handleRejectQuotation = () => {
@@ -136,35 +161,40 @@ export default function MakePayment() {
       <View style={[styles.container, { backgroundColor: screenBg }]}>
         <StatusBar barStyle={"light-content"} backgroundColor={colors.primary} />
         <CenteredAppbarHeader
-          title={"Payment"}
+          title={
+            parsedParams?.isQuotation === true ? "Inspection Quotation Payment" : "Inspection Service Payment"
+          }
           onBack={() => navigation.goBack()}
         />
-        <Pressable
-          onPress={() => setLoyaltySheetVisible(true)}
-          style={({ pressed }) => [
-            {
-              flexDirection: "row", justifyContent: "space-between",
-              alignItems: "center", paddingVertical: 14,
-              paddingHorizontal: 16, margin: 16,
-              borderRadius: 12, borderWidth: 1, borderColor: colors.primary,
-              backgroundColor: pressed ? colors.primary + "20" : colors.surface,
-            },
-          ]}
-        >
-          <Text
-            style={{ color: colors.onSurface, fontSize: 16, fontWeight: "600" }}
+        {
+          parsedParams?.isQuotation && 
+          <Pressable
+            onPress={() => setLoyaltySheetVisible(true)}
+            style={({ pressed }) => [
+              {
+                flexDirection: "row", justifyContent: "space-between",
+                alignItems: "center", paddingVertical: 14,
+                paddingHorizontal: 16, margin: 16,
+                borderRadius: 12, borderWidth: 1, borderColor: colors.primary,
+                backgroundColor: pressed ? colors.primary + "20" : colors.surface,
+              },
+            ]}
           >
-            Redeem Loyalty Points
-          </Text>
+            <Text
+              style={{ color: colors.onSurface, fontSize: 16, fontWeight: "600" }}
+            >
+              Redeem Loyalty Points
+            </Text>
 
-          <Text
-            style={{ color: colors.primary, fontSize: 16, fontWeight: "700" }}
-          >
-            {loyaltyPoints
-              ? `${loyaltyPoints?.percentage}% (-AED ${loyaltyPoints?.discountValue})`
-              : "Select"}
-          </Text>
-        </Pressable>
+            <Text
+              style={{ color: colors.primary, fontSize: 16, fontWeight: "700" }}
+            >
+              {loyaltyPoints
+                ? `${loyaltyPoints?.percentage}% (-AED ${loyaltyPoints?.discountValue})`
+                : "Select"}
+            </Text>
+          </Pressable>
+        }
         <LoadingOverlay visible={isLoading || cancellingIntent || loadingCards || fetchingLoyaltyPointsData || isRejecting} />
         <View style={styles.content}>
           <AppForm
@@ -211,29 +241,32 @@ export default function MakePayment() {
                             },
                           ]}
                           labelStyle={{ color: colors.onPrimary }}
-                          loading={isBooking}
+                          loading={isBooking || isPayingInspAmount}
                         >
                           Pay AED {loyaltyPoints
                             ? (parsedParams.amount - loyaltyPoints.discountValue).toFixed(2)
                             : parsedParams.amount}{''} /- {' '} (+5% Tax)
                         </Button>
 
-                        <Button
-                          mode="contained"
-                          onPress={handleRejectQuotation}
-                          style={[
-                            styles.btn,
-                            {
-                              backgroundColor: colors.primary,
-                              borderRadius: 7,
-                              paddingVertical: 4,
-                            },
-                          ]}
-                          labelStyle={{ color: colors.onPrimary }}
-                          loading={isBooking}
-                        >
-                          Reject Quotation & Terminate Service
-                        </Button>
+                        {
+                          parsedParams?.isQuotation && 
+                          <Button
+                            mode="contained"
+                            onPress={handleRejectQuotation}
+                            style={[
+                              styles.btn,
+                              {
+                                backgroundColor: colors.primary,
+                                borderRadius: 7,
+                                paddingVertical: 4,
+                              },
+                            ]}
+                            labelStyle={{ color: colors.onPrimary }}
+                            loading={isBooking || isPayingInspAmount}
+                          >
+                            Reject Quotation & Terminate Service
+                          </Button>
+                        }
                       </>
                     )}
 
@@ -276,14 +309,17 @@ export default function MakePayment() {
         </View>
       </View>
 
-      <LoyaltyPointsBottomSheet
-        visible={loyaltySheetVisible}
-        onClose={() => setLoyaltySheetVisible(false)}
-        totalAmount={parsedParams?.amount}
-        availablePoints={loyaltyPointsData?.data?.pointsBalance}
-        onSelect={handleLoyaltySelect}
-        selectedPercentage={loyaltyPoints?.percentage ?? null}
-      />
+      {
+        parsedParams?.isQuotation === true && 
+        <LoyaltyPointsBottomSheet
+          visible={loyaltySheetVisible}
+          onClose={() => setLoyaltySheetVisible(false)}
+          totalAmount={parsedParams?.amount}
+          availablePoints={loyaltyPointsData?.data?.pointsBalance}
+          onSelect={handleLoyaltySelect}
+          selectedPercentage={loyaltyPoints?.percentage ?? null}
+        />
+      }
     </>
   );
 }

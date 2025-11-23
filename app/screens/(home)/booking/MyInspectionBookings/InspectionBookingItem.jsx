@@ -59,7 +59,10 @@ export default function InspectionBookingItem({ item, width, colors, dark}) {
     if (!item) return;
     router.dismissTo({
       pathname: ROUTES.QUOTATION_PAYMENT_FORM,
-      params: { item: JSON.stringify(item) },
+      params: { item: JSON.stringify({
+        inspectionBookingId: item.id,
+        amount: item.amount
+      }), isQuotation: false },
     });
   };
 
@@ -68,7 +71,10 @@ export default function InspectionBookingItem({ item, width, colors, dark}) {
     if (!item) return;
     router.dismissTo({
       pathname: ROUTES.QUOTATION_PAYMENT_FORM,
-      params: { item: JSON.stringify(item) },
+      params: { item: JSON.stringify({
+        inspectionBookingId: item.id,
+        amount: item.amount
+      }), isQuotation: false },
     });
   };
 

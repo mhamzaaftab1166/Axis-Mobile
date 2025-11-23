@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { HttpStatusCode } from "axios";
 import { useEffect } from "react";
 import {
-  bookInspectionService, completeInspectionQuotationPayment,
+  bookInspectionService, completeInspectionPendingPayment, completeInspectionQuotationPayment,
   fetchAllServices, fetchAssignedServices, fetchMyInspectionService,
   fetchTopInspectionServices, rejectQuotation, submitQuotation,
   terminateService
@@ -229,6 +229,39 @@ export const useTerminateService = ({ onSuccessCallback, onErrorCallback } = {})
       }
       else {
         onErrorCallback?.(response?.error || "Inspection Service Booking Failed!",response?.data?.serviceId);
+      }
+    },
+    onError: (error) => {
+      const msg = error?.response?.data?.error || error?.message || "Something went wrong while booking service!";
+      onErrorCallback?.(msg);
+    },
+  });
+};
+
+// pay for service
+export const usePayForPendingService = ({ onSuccessCallback, onErrorCallback, onRequireAction } = {}) => {
+  return useMutation({
+    mutationFn: (data) => completeInspectionPendingPayment(data),
+    onSuccess: (response) => {
+      console.log(response);
+      if (response?.status === HttpStatusCode.Ok) {
+        const outcome = response?.data?.case;
+
+        if (outcome === "success") {
+          onSuccessCallback?.();
+        } else if (outcome === "requires_action") {
+          // requires OTP / 3DS
+          onRequireAction?.(response?.data?.clientSecret, response?.data?.paymentMethod, response?.data?.intentId);
+        } else if (outcome === "failed") {
+          // failed
+          onErrorCallback?.(response?.data?.message || "Payment failed!");
+        } else {
+          // fallback
+          onErrorCallback?.("Unexpected booking outcome!");
+        }
+      } else {
+        // fallback error case (non-200 from backend)
+        onErrorCallback?.(response?.error || "Service Booking Failed!");
       }
     },
     onError: (error) => {

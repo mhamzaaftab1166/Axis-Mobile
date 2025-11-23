@@ -21,6 +21,10 @@ const completeInspectionQuotationPayment = async (data) => {
   return await _axios('post', 'v1/tenant/inspection-services/inspection-quotation-payment',data);
 };
 
+const completeInspectionPendingPayment = async (data) => {
+  return await _axios('post', 'v1/tenant/inspection-services/inspection-pending-payment',data);
+};
+
 // supervisor fetch services
 const fetchAssignedServices = async () => {
   return await _axios('get', 'v1/supervisor/service/fetch-inspection-services');
@@ -41,7 +45,7 @@ const rejectQuotation = async (id) => {
 };
 
 export {
-  bookInspectionService, completeInspectionQuotationPayment, fetchAllServices, fetchAssignedServices,
+  bookInspectionService, completeInspectionPendingPayment, completeInspectionQuotationPayment, fetchAllServices, fetchAssignedServices,
   fetchMyInspectionService, fetchTopInspectionServices, rejectQuotation, submitQuotation, terminateService
 };
 
