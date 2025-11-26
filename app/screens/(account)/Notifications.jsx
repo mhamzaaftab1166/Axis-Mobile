@@ -131,7 +131,7 @@ export default function Notifications() {
           }else if(type === "quotationPayment"){
             router.dismissTo({
               pathname: ROUTES.QUOTATION_PAYMENT_FORM,
-              params: { item: JSON.stringify(inspectionInfo) },
+              params: { item: JSON.stringify(inspectionInfo), isQuotation: true },
             });
           }
         }}

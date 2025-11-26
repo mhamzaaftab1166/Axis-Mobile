@@ -10,7 +10,7 @@ import { isNewServiceEligibleForPayment, isQuotationEligibleForPayment } from ".
 import { ROUTES } from "../../../../helpers/routePaths";
 import { useTerminateService } from "../../../../hooks/useInspectionServices";
 
-export default function InspectionBookingItem({ item, width, colors, dark}) {
+export default function InspectionBookingItem({ item, width, colors, mode, dark}) {
   const isOnline = (item.inspectionType || "").toLowerCase() === "online";
 
   // Define all status options with label + value
@@ -24,6 +24,8 @@ export default function InspectionBookingItem({ item, width, colors, dark}) {
     { label: "Cancelled", value: "cancelled", color: "#e74c3c" },
     { label: "Canceled", value: "canceled", color: "#e74c3c" },
     { label: "Unknown", value: "unknown", color: "#7f8c8d" },
+    { label: "Pending Quotation Payment", value: "pendingQuotationPayment", color: "#e74c3c" },
+  
   ];
 
   // Find matching option by value
@@ -73,8 +75,8 @@ export default function InspectionBookingItem({ item, width, colors, dark}) {
       pathname: ROUTES.QUOTATION_PAYMENT_FORM,
       params: { item: JSON.stringify({
         inspectionBookingId: item.id,
-        amount: item.amount
-      }), isQuotation: false },
+        amount: item.quotation
+      }), isQuotation: true },
     });
   };
 
@@ -206,34 +208,37 @@ export default function InspectionBookingItem({ item, width, colors, dark}) {
               </Text>
             </View>
 
-            {/* ✅ Display Label from statusOptions */}
+            {/* Display Label from statusOptions */}
             <View style={localStyles.badgesColumn}>
               <Badge label={statusOption.label} color={statusOption.color} />
             </View>
 
-            <Menu
-              visible={menuVisible}
-              onDismiss={closeMenu}
-              anchor={
-                <Appbar.Action
-                  icon="dots-vertical"
-                  color={colors.onPrimary}
-                  onPress={openMenu}
-                />
-              }
-            >
-              {
-                isNewServiceEligibleForPayment(item) && (
-                  <Menu.Item onPress={handlePay} title="Pay" />
-                )
-              }
-              {
-                isQuotationEligibleForPayment(item) && (
-                  <Menu.Item onPress={handlePayQuotation} title="Pay Quotation" />
-                )
-              }
-              <Menu.Item onPress={openDialog} title="Terminate" />
-            </Menu>
+            {
+              mode === "upcoming" && 
+              <Menu
+                visible={menuVisible}
+                onDismiss={closeMenu}
+                anchor={
+                  <Appbar.Action
+                    icon="dots-vertical"
+                    color={colors.onPrimary}
+                    onPress={openMenu}
+                  />
+                }
+              >
+                {
+                  isNewServiceEligibleForPayment(item) && (
+                    <Menu.Item onPress={handlePay} title="Pay" />
+                  )
+                }
+                {
+                  isQuotationEligibleForPayment(item) && (
+                    <Menu.Item onPress={handlePayQuotation} title="Pay Quotation" />
+                  )
+                }
+                <Menu.Item onPress={openDialog} title="Terminate" />
+              </Menu>
+            }
           </View>
 
           <View style={localStyles.metaRow}>

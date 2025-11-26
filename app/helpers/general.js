@@ -337,6 +337,7 @@ export const filterBookings = (data, mode) => {
     "pending",
     "confirmed",
     "success",
+    "pendingQuotationPayment"
   ];
 
   const PREVIOUS_STATUSES = [
@@ -624,14 +625,14 @@ export const isNewServiceEligibleForPayment = (service) => {
 
 // is quotation payment available
 export const isQuotationEligibleForPayment = (service) => {
-  const status = service?.quotationPaymentStatus;
+  const status = service?.quotationStatus;
   const amount = service?.quotation;
 
   // must have a valid amount > 0
   if (!amount || amount <= 0) return false;
 
   // eligible statuses
-  return status === "pending" || status === "accepted";
+  return status === "pending";
 };
 
 // create form data for inspection service booking form

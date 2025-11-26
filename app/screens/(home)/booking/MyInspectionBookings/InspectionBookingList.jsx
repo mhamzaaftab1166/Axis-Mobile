@@ -41,6 +41,7 @@ export default function InspectionBookingListing() {
       colors={colors}
       dark={dark}
       navigation={navigation}
+      mode={mode}
     />
   );
 

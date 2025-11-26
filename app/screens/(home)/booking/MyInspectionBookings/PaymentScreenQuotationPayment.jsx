@@ -132,6 +132,8 @@ export default function MakePayment() {
 
   const screenBg = colors.background;
 
+  console.log(params);
+
   const handleSubmit = (values) => {
     const data = {
       inspectionBookingId: parsedParams?.inspectionBookingId,
@@ -145,7 +147,6 @@ export default function MakePayment() {
     }else{
       confirmPendingPayment(data);
     }
-    
   };
 
   const handleRejectQuotation = () => {
@@ -162,12 +163,12 @@ export default function MakePayment() {
         <StatusBar barStyle={"light-content"} backgroundColor={colors.primary} />
         <CenteredAppbarHeader
           title={
-            parsedParams?.isQuotation === true ? "Inspection Quotation Payment" : "Inspection Service Payment"
+            params?.isQuotation === "true" ? "Inspection Quotation Payment" : "Inspection Service Payment"
           }
           onBack={() => navigation.goBack()}
         />
         {
-          parsedParams?.isQuotation && 
+          params?.isQuotation === "true" && 
           <Pressable
             onPress={() => setLoyaltySheetVisible(true)}
             style={({ pressed }) => [
@@ -245,11 +246,11 @@ export default function MakePayment() {
                         >
                           Pay AED {loyaltyPoints
                             ? (parsedParams.amount - loyaltyPoints.discountValue).toFixed(2)
-                            : parsedParams.amount}{''} /- {' '} (+5% Tax)
+                            : parsedParams.amount}{''} /- {' '} {params?.isQuotation === "true" && (+5% Tax)}
                         </Button>
 
                         {
-                          parsedParams?.isQuotation && 
+                          params?.isQuotation === "true" && 
                           <Button
                             mode="contained"
                             onPress={handleRejectQuotation}
@@ -310,7 +311,7 @@ export default function MakePayment() {
       </View>
 
       {
-        parsedParams?.isQuotation === true && 
+        params?.isQuotation === "true" && 
         <LoyaltyPointsBottomSheet
           visible={loyaltySheetVisible}
           onClose={() => setLoyaltySheetVisible(false)}
