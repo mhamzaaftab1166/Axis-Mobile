@@ -10,8 +10,10 @@ import CenteredAppbarHeader from "../../../../components/common/CenteredAppBar";
 import EmptyState from "../../../../components/common/EmptyState";
 import AppErrorMessage from "../../../../components/forms/AppErrorMessage";
 import AppForm from "../../../../components/forms/AppForm";
+import AppFormDateInput from "../../../../components/forms/AppFormDatePicker";
 import AppFormDropdown from "../../../../components/forms/AppFormDropdown";
 import AppFormField from "../../../../components/forms/AppFormFeild";
+import AppFormTimeInput from "../../../../components/forms/AppFormTimePicker";
 import LoadingOverlay from "../../../../components/LoadingOverlay";
 import LoyaltyPointsBottomSheet from "../../../../components/LoyaltyPointsBottomSheet";
 import { encryptCVV } from "../../../../helpers/general";
@@ -132,17 +134,17 @@ export default function MakePayment() {
 
   const screenBg = colors.background;
 
-  console.log(params);
-
   const handleSubmit = (values) => {
     const data = {
       inspectionBookingId: parsedParams?.inspectionBookingId,
       cvv: encryptCVV(values.cvv, config.secretKeyForEncryption),
       cardId: values?.selectedCard?.id,
       amount: parsedParams?.amount,
+      bookingDate: values.startDate,
+      bookingTime: values.startTime,
       discountPercentage: loyaltyPoints?.percentage ? loyaltyPoints?.percentage : 0
     };
-    if(params?.isQuotation === true){
+    if(params?.isQuotation === "true"){
       confirmPaymentForService(data);
     }else{
       confirmPendingPayment(data);
@@ -202,6 +204,8 @@ export default function MakePayment() {
             initialValues={{
               selectedCard: null,
               cvv: "",
+              startDate: "",
+              startTime: ""
             }}
             onSubmit={handleSubmit}
             validationSchema={validationSchema}
@@ -221,12 +225,30 @@ export default function MakePayment() {
                       labelKey="name_on_card"
                       valueKey="id"
                     />
+
                     <AppFormField
                       name="cvv"
                       placeholder="CVV"
                       keyboardType="numeric"
                       maxLength={3}
                     />
+
+                    <Text style={[styles.subHeading, { color: colors.onBackground }]}>
+                      Schedule
+                    </Text>
+
+                    <View style={styles.row}>
+                      <View style={[styles.flexItem, { marginRight: 10 }]}>
+                        <AppFormDateInput
+                          name="startDate"
+                          label="Preferred Date"
+                          minDaysOffset={3}
+                        />
+                      </View>
+                      <View style={[styles.flexItem, { marginLeft: 10 }]}>
+                        <AppFormTimeInput name="startTime" label="Preferred Time" />
+                      </View>
+                    </View>
 
                     {!requireAction && (
                       <>
@@ -246,7 +268,7 @@ export default function MakePayment() {
                         >
                           Pay AED {loyaltyPoints
                             ? (parsedParams.amount - loyaltyPoints.discountValue).toFixed(2)
-                            : parsedParams.amount}{''} /- {' '} {params?.isQuotation === "true" && (+5% Tax)}
+                            : parsedParams.amount}{''} /- {' '} {params?.isQuotation === "true" && ("+5% Tax")}
                         </Button>
 
                         {
@@ -330,4 +352,12 @@ const styles = StyleSheet.create({
   content: { padding: 16 },
   btn: { marginTop: 16 },
   otpWrapper: { marginTop: 20 },
+  row: { flexDirection: "row", alignItems: "flex-start", marginBottom: 8, marginVertical: 12,  },
+  flexItem: { flex: 1 },
+  subHeading: {
+    fontSize: 18,
+    marginTop: 25,
+    marginBottom: 6,
+    fontWeight: "600",
+  },
 });

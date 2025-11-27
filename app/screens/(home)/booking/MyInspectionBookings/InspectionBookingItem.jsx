@@ -6,7 +6,7 @@ import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "rea
 import { Appbar, Menu, Surface } from "react-native-paper";
 import config from "../../../../../config.json";
 import LoadingOverlay from "../../../../components/LoadingOverlay";
-import { isNewServiceEligibleForPayment, isQuotationEligibleForPayment } from "../../../../helpers/general";
+import { isNewServiceEligibleForPayment } from "../../../../helpers/general";
 import { ROUTES } from "../../../../helpers/routePaths";
 import { useTerminateService } from "../../../../hooks/useInspectionServices";
 
@@ -178,9 +178,7 @@ export default function InspectionBookingItem({ item, width, colors, mode, dark}
             ? { flexDirection: "row" }
             : { flexDirection: "column" },
         ]}
-        onPress={() => {
-          /* open details if needed */
-        }}
+        onPress={() => {}}
       >
         <View
           style={[
@@ -208,7 +206,6 @@ export default function InspectionBookingItem({ item, width, colors, mode, dark}
               </Text>
             </View>
 
-            {/* Display Label from statusOptions */}
             <View style={localStyles.badgesColumn}>
               <Badge label={statusOption.label} color={statusOption.color} />
             </View>
@@ -232,7 +229,7 @@ export default function InspectionBookingItem({ item, width, colors, mode, dark}
                   )
                 }
                 {
-                  isQuotationEligibleForPayment(item) && (
+                  item?.quotationPaymentAllowed === true && (
                     <Menu.Item onPress={handlePayQuotation} title="Pay Quotation" />
                   )
                 }
