@@ -15,13 +15,15 @@ import { SwipeListView } from "react-native-swipe-list-view";
 import CenteredAppbarHeader from "../../components/common/CenteredAppBar";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
 import EmptyState from "../../components/common/EmptyState";
+import AppErrorMessage from "../../components/forms/AppErrorMessage";
+import LoadingOverlay from "../../components/LoadingOverlay";
 import Ratings from "../../components/Ratings";
 import { getTimeDifference } from "../../helpers/general";
 import { ROUTES } from "../../helpers/routePaths";
 import { useUserDetailQuery } from "../../hooks/useAuthQuery";
+import { useCheckIfReviewAllowed } from "../../hooks/useGeneralQuery";
 import {
-  useDeleteNotification,
-  useFetchNotifications,
+  useDeleteNotification, useFetchNotifications,
 } from "../../hooks/useNotificationQuery";
 import { useSubmitServiceReview } from "../../hooks/useReviewQuery";
 import NotificationsSkeleton from "../../skeltons/NotificationsSkelton";
@@ -56,21 +58,36 @@ export default function Notifications() {
       },
     });
 
+  const { mutate: checkReviewEligible, isPending: checkingReviewEligble } = useCheckIfReviewAllowed({
+    onErrorCallback: (errorMessage) => {
+      setError(errorMessage);
+      setIsError(true);
+    },
+    onSuccessCallback: (data) => {
+      if(data.reviewType === "BookedService"){
+        setServiceIdToReview(data.referenceId);
+        setOpenReview(true);
+      }else if(data.reviewType === "InspectionServiceBooking"){
+        setServiceIdToReview(data.referenceId);
+        setIsInspection(true);
+        setOpenReview(true);
+      }
+    },
+  });
+
   const screenBg = colors.background;
   const textColor = colors.text;
   const cardBg = dark ? colors.secondary : colors.surface;
 
   const { userData, isLoading: fetchingUser } = useUserDetailQuery();
-  const { data: userNotifications, isLoading: gettingNotifications } =
-    useFetchNotifications(userData?.data?.user?._id);
-  const { mutate: deleteNotification, isPending: isDeleting } =
-    useDeleteNotification({
-      onSuccessCallback: () => {
-        setConfirmVisible(false);
-        setSelectedId(null);
-      },
-      onErrorCallback: (error) => {},
-    });
+  const { data: userNotifications, isLoading: gettingNotifications } = useFetchNotifications(userData?.data?.user?._id);
+  const { mutate: deleteNotification, isPending: isDeleting } = useDeleteNotification({
+    onSuccessCallback: () => {
+      setConfirmVisible(false);
+      setSelectedId(null);
+    },
+    onErrorCallback: (error) => {},
+  });
 
   const [refreshing, setRefreshing] = useState(false);
 
@@ -113,6 +130,22 @@ export default function Notifications() {
     }
   };
 
+  const handleReview = (serviceId, inspectionServiceId) => {
+    setError("");
+    setIsError(false);
+    if(serviceId){
+      checkReviewEligible({
+        reviewType: "BookedService",
+        referenceId: serviceId
+      });
+    }else if(inspectionServiceId){
+      checkReviewEligible({
+        reviewType: "InspectionServiceBooking",
+        referenceId: inspectionServiceId
+      });
+    }
+  }
+
   const renderItem = (dataItem) => {
     const item = dataItem.item;
     return (
@@ -120,14 +153,7 @@ export default function Notifications() {
         onPress={() => {
           const { type, serviceId, inspectionServiceId, inspectionInfo } = JSON.parse(dataItem.item?.pushData);
           if (type === "review") {
-            if(serviceId){
-              setServiceIdToReview(serviceId);
-              setOpenReview(true);
-            }else if(inspectionServiceId){
-              setServiceIdToReview(inspectionServiceId);
-              setIsInspection(true);
-              setOpenReview(true);
-            }
+            handleReview(serviceId, inspectionServiceId);
           }else if(type === "quotationPayment"){
             router.dismissTo({
               pathname: ROUTES.QUOTATION_PAYMENT_FORM,
@@ -223,11 +249,22 @@ export default function Notifications() {
   return (
     <View style={[styles.container, { backgroundColor: screenBg }]}>
       <StatusBar barStyle={"light-content"} backgroundColor={colors.primary} />
+
+      <LoadingOverlay visible={checkingReviewEligble} />
+
       <CenteredAppbarHeader
         title={"Notifications"}
         onBack={() => navigation.goBack()}
         cartDisplay={role === "supervisor" ? false : true}
       />
+
+      <View
+        style={{
+          alignSelf: "center",
+        }}
+      >
+        <AppErrorMessage visible={isError} error={error} />
+      </View>
 
       <SwipeListView
         data={userNotifications}

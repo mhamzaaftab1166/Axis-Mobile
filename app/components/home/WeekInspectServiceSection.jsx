@@ -259,7 +259,6 @@ export default function WeekInspection() {
       >
         {filteredItems.map((item) => {
           const statusCfg = STATUS_OPTIONS.find((s) => s.value === (item.serviceStatus || "").toLowerCase() ) || STATUS_OPTIONS[0];
-          
           const isOpen = openDropdownFor === item.id;
           return (
             <View
@@ -343,7 +342,11 @@ export default function WeekInspection() {
                       />
                       <Text
                         style={[styles.metaText, { color: colors.placeholder }]}
-                      >{`  ${item.bookingDate}`}</Text>
+                      >
+                        {
+                          !item.quotation ? item.bookingDate : item.quotationDate  
+                        }
+                      </Text>
                     </View>
                     <View style={styles.metaItem}>
                       <Icon
@@ -353,7 +356,11 @@ export default function WeekInspection() {
                       />
                       <Text
                         style={[styles.metaText, { color: colors.placeholder }]}
-                      >{`  ${item.bookingTime}`}</Text>
+                      >
+                        {
+                          !item.quotation ? item.bookingTime : item.quotationTime  
+                        }
+                      </Text>
                     </View>
                   </View>
 

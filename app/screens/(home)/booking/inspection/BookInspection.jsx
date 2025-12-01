@@ -31,7 +31,6 @@ export default function AddPropertyWizard() {
   const stepRef = useRef(null);
 
   useEffect(() => {
-    // Cleanup when the user navigates away (unmount)
     return () => {
       setFormData({});
       setInspectionType(null);

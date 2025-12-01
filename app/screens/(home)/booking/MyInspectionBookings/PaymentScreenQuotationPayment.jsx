@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useNavigation } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
 import { Button, useTheme } from "react-native-paper";
 import * as Yup from "yup";
@@ -18,6 +18,7 @@ import LoadingOverlay from "../../../../components/LoadingOverlay";
 import LoyaltyPointsBottomSheet from "../../../../components/LoyaltyPointsBottomSheet";
 import { encryptCVV } from "../../../../helpers/general";
 import { ROUTES } from "../../../../helpers/routePaths";
+import { useCheckQuotationPaymentAllowed } from "../../../../hooks/useGeneralQuery";
 import { useCompleteInspectionPayment, usePayForPendingService, useRejectQuotation } from "../../../../hooks/useInspectionServices";
 import { useGetLoyaltyPoints } from "../../../../hooks/useLoyaltyQuery";
 import { useGetPaymentMethods } from "../../../../hooks/usePaymetMethodQuery";
@@ -46,6 +47,23 @@ export default function MakePayment() {
 
   const params = useLocalSearchParams();
   const parsedParams = JSON.parse(params.item);
+
+  const { mutate: checkPaymentAllowed, isPending: checkingQtPaymentAllowed } = useCheckQuotationPaymentAllowed({
+    onSuccessCallback: () => {},
+    onErrorCallback: () => {
+      // error means not allowed
+      navigation.goBack();
+    }
+  });
+
+  // Run request only if ID exists
+  useEffect(() => {
+    if (parsedParams?.inspectionBookingId) {
+      console.log(parsedParams?.inspectionBookingId);
+      checkPaymentAllowed(parsedParams.inspectionBookingId);
+    }
+  }, [parsedParams?.inspectionBookingId]);
+
 
   const { mutate: confirmPaymentForService, isPending: isBooking } = useCompleteInspectionPayment({
     onErrorCallback: (errMsg) => {
@@ -198,7 +216,7 @@ export default function MakePayment() {
             </Text>
           </Pressable>
         }
-        <LoadingOverlay visible={isLoading || cancellingIntent || loadingCards || fetchingLoyaltyPointsData || isRejecting} />
+        <LoadingOverlay visible={checkingQtPaymentAllowed || isLoading || cancellingIntent || loadingCards || fetchingLoyaltyPointsData || isRejecting} />
         <View style={styles.content}>
           <AppForm
             initialValues={{
@@ -234,7 +252,7 @@ export default function MakePayment() {
                     />
 
                     <Text style={[styles.subHeading, { color: colors.onBackground }]}>
-                      Schedule
+                      Next Service Schedule
                     </Text>
 
                     <View style={styles.row}>
@@ -264,6 +282,7 @@ export default function MakePayment() {
                             },
                           ]}
                           labelStyle={{ color: colors.onPrimary }}
+                          disabled={isLoading || cancellingIntent || loadingCards || fetchingLoyaltyPointsData || isBooking || isPayingInspAmount || isRejecting}
                           loading={isBooking || isPayingInspAmount}
                         >
                           Pay AED {loyaltyPoints
@@ -285,7 +304,8 @@ export default function MakePayment() {
                               },
                             ]}
                             labelStyle={{ color: colors.onPrimary }}
-                            loading={isBooking || isPayingInspAmount}
+                            disabled={isLoading || cancellingIntent || loadingCards || fetchingLoyaltyPointsData || isBooking || isPayingInspAmount || isRejecting}
+                            loading={isRejecting}
                           >
                             Reject Quotation & Terminate Service
                           </Button>
