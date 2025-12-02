@@ -344,7 +344,7 @@ export default function WeekInspection() {
                         style={[styles.metaText, { color: colors.placeholder }]}
                       >
                         {
-                          !item.quotation ? item.bookingDate : item.quotationDate  
+                          item.quotation === 0 ? item.bookingDate : item.quotationDate  
                         }
                       </Text>
                     </View>
@@ -358,7 +358,7 @@ export default function WeekInspection() {
                         style={[styles.metaText, { color: colors.placeholder }]}
                       >
                         {
-                          !item.quotation ? item.bookingTime : item.quotationTime  
+                          item.quotation === 0 ? item.bookingTime : item.quotationTime  
                         }
                       </Text>
                     </View>

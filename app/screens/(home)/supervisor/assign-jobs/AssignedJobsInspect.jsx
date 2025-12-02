@@ -237,7 +237,11 @@ export default function AssignedJobsInspect() {
                       />
                       <Text
                         style={[styles.metaText, { color: colors.placeholder }]}
-                      >{`  ${item.bookingDate}`}</Text>
+                      >
+                        {
+                          item.quotation === 0 ? item.bookingDate : item.quotationDate  
+                        }
+                      </Text>
                     </View>
                     <View style={styles.metaItem}>
                       <Icon
@@ -247,7 +251,11 @@ export default function AssignedJobsInspect() {
                       />
                       <Text
                         style={[styles.metaText, { color: colors.placeholder }]}
-                      >{`  ${item.bookingTime}`}</Text>
+                      >
+                        {
+                          item.quotation === 0 ? item.bookingTime : item.quotationTime  
+                        }
+                      </Text>
                     </View>
                   </View>
 
@@ -263,7 +271,9 @@ export default function AssignedJobsInspect() {
                         { color: colors.placeholder },
                       ]}
                       numberOfLines={2}
-                    >{`  ${item.address}`}</Text>
+                    >
+                      { item?.isClientService === false ? item?.address : item?.adminAddress }
+                    </Text>
                   </View>
 
                   <View style={styles.actionsRow}>
