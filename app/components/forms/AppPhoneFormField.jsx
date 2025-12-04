@@ -1,9 +1,10 @@
+// AppPhoneFormField.js
 import { useFormikContext } from "formik";
 import { useRef } from "react";
 import AppPhoneInput from "../AppPhoneInputFeild";
 import AppErrorMessage from "./AppErrorMessage";
 
-const AppPhoneFormField = ({ name, editable }) => {
+const AppPhoneFormField = ({ name, editable = true }) => {
   const { setFieldValue, errors, touched, values } = useFormikContext();
   const phoneInputRef = useRef(null);
 

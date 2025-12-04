@@ -26,7 +26,12 @@ const validationSchema = Yup.object().shape({
     .email("Please enter a valid email address")
     .required("Email is required"),
   name: Yup.string().required("Full name is required").min(2, "Too short"),
-  
+  phone: Yup.string()
+    .required("Mobile number is required")
+    .matches(
+      /^\+9715[0-9]{8}$/,
+      "Enter a valid UAE mobile number (+9715XXXXXXXX)"
+    ),
   password: Yup.string()
     .required("Password is required")
     .min(8, "Password must be at least 8 characters")
@@ -37,7 +42,7 @@ const validationSchema = Yup.object().shape({
       /[@$!%*?&]/,
       "Password must contain at least one special character (@, $, !, %, *, ?, &)"
     ),
-    role: Yup.string(),
+  role: Yup.string(),
 });
 
 export default function SignupScreen() {
@@ -56,7 +61,6 @@ export default function SignupScreen() {
       setIsFail(false);
     },
   });
-    
 
   const handleSubmit = async (values) => {
     registerUser(values);
@@ -102,16 +106,18 @@ export default function SignupScreen() {
               initialValues={{
                 email: "",
                 name: "",
-                phone: "+971 5231512",
+                phone: "",
                 password: "",
-                role: "tenant"
+                role: "tenant",
               }}
               onSubmit={handleSubmit}
               validationSchema={validationSchema}
             >
-              <View style={{
-                alignSelf: "center"
-              }}>
+              <View
+                style={{
+                  alignSelf: "center",
+                }}
+              >
                 <AppErrorMessage visible={isFail} error={error} />
               </View>
               <AppFormField
@@ -139,7 +145,7 @@ export default function SignupScreen() {
 
               <AppPhoneFormField name="phone" />
 
-              <SubmitButton isLoading={isSaving}  title="Sign Up" />
+              <SubmitButton isLoading={isSaving} title="Sign Up" />
 
               <RNText style={[styles.loginText, { color: colors.text }]}>
                 Already have an account?{" "}

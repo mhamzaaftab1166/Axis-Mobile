@@ -27,7 +27,11 @@ import { useGetAllAddress } from "../hooks/useAddressQuery";
 import { useUserDetailQuery } from "../hooks/useAuthQuery";
 import { useGetInspectionServices } from "../hooks/useInspectionServices";
 import { useFetchUnreadCount } from "../hooks/useNotificationQuery";
-import { useGetAllServices, useGetTopServices, useGetUpcomingSubServices } from "../hooks/useServiceQuery";
+import {
+  useGetAllServices,
+  useGetTopServices,
+  useGetUpcomingSubServices,
+} from "../hooks/useServiceQuery";
 import SupervisorHomePage from "../screens/(home)/SupervisorHomePage";
 import HomeSkeleton from "../skeltons/HomeLoadingSkelton";
 import useAddressStore from "../store/useAddressStore";
@@ -59,21 +63,21 @@ export default function Home() {
     userData?.data?.user?.role
   );
 
-  const { data: inspectionServices, isLoading: fetchingIspectionServices} = useGetInspectionServices(
-    userData?.data?.user?.role
-  );
+  const { data: inspectionServices, isLoading: fetchingIspectionServices } =
+    useGetInspectionServices(userData?.data?.user?.role);
 
   const selectedAddress = useAddressStore((s) => s.selectedAddress);
 
   const setAddress = useAddressStore((s) => s.setAddress);
   const role = useAuthStore((s) => s.role);
-  
+
   useFocusEffect(
     useCallback(() => {
       const store = useAddressStore.getState();
-      if (allAddresses?.length > 0) {
+      if (Array.isArray(allAddresses) && allAddresses.length > 0) {
         store.setAddresses(allAddresses);
-        store.ensureDefault(allAddresses[0]);
+      } else {
+        store.clearAddresses();
       }
       store.validateSelectedAddress();
     }, [allAddresses])
@@ -84,7 +88,8 @@ export default function Home() {
       gettingCount ||
       fetchingUserData ||
       fetchingTopServices ||
-      loadingAddress || fetchingIspectionServices || 
+      loadingAddress ||
+      fetchingIspectionServices ||
       fetchingSubs) &&
     role === "tenant"
   )

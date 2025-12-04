@@ -84,7 +84,6 @@ const useAddressStore = create(
           hasHydrated: false,
         });
       },
-
     }),
     {
       name: "address-storage",

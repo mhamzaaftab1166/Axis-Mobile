@@ -1,24 +1,25 @@
+// AppPhoneInputFeild.js
 import { StyleSheet, View } from "react-native";
-import PhoneNumberInput from 'react-native-international-phone-number';
 import { useTheme } from "react-native-paper";
+import PhoneInput from "react-native-phone-number-input";
 
 const AppPhoneInput = ({
-  value, onChangeText, phoneInputRef, touched, error,
+  value,
+  onChangeText,
+  phoneInputRef,
+  touched,
+  error,
+  editable = true,
 }) => {
   const { colors, dark } = useTheme();
 
   let displayValue = value ?? "";
-  let defaultCode = "AE";
-
   if (typeof value === "string" && value.startsWith("+")) {
     if (value.startsWith("+971")) {
-      defaultCode = "AE";
       displayValue = value.replace(/^\+971/, "").replace(/\D/g, "");
     } else {
       const m = value.match(/^\+(\d{1,3})(\d+)$/);
-      if (m) {
-        displayValue = m[2] || "";
-      }
+      displayValue = m ? m[2] || "" : "";
     }
   } else {
     displayValue = value ?? "";
@@ -26,16 +27,23 @@ const AppPhoneInput = ({
 
   return (
     <View style={styles.wrapper}>
-      <PhoneNumberInput
+      <PhoneInput
         ref={phoneInputRef}
-        value={displayValue}
-        defaultCode={defaultCode}
+        defaultCode="AE"
         layout="first"
+        value={displayValue}
         onChangeFormattedText={onChangeText}
-        disableArrowIcon
-        disableCountryChange
-        countryPickerButtonStyle={{ display: "none" }}
-        withDarkTheme={dark}
+        countryPickerProps={{
+          countryCodes: ["AE"],
+          withFilter: false,
+          withFlagButton: true,
+        }}
+        textInputProps={{
+          placeholder: "5XXXXXXXX",
+          placeholderTextColor: colors.placeholder,
+          selectionColor: colors.text,
+          editable,
+        }}
         containerStyle={[
           styles.phoneInput,
           {
@@ -55,10 +63,6 @@ const AppPhoneInput = ({
           paddingVertical: 0,
           includeFontPadding: false,
           textAlignVertical: "center",
-        }}
-        textInputProps={{
-          placeholderTextColor: colors.placeholder,
-          selectionColor: colors.text,
         }}
         codeTextStyle={{ color: colors.onSurface, fontSize: 16 }}
       />
