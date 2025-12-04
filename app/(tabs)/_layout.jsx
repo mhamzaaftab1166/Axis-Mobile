@@ -4,7 +4,7 @@ import { useTheme } from "react-native-paper";
 
 export default function TabLayout() {
   const { colors, fonts } = useTheme();
-
+  // if (1 === 1) return <AddPrimaryAddress />;
   return (
     <Tabs
       screenOptions={({ route }) => {
