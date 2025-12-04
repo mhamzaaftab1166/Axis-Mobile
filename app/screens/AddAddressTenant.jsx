@@ -1,6 +1,6 @@
 // screens/(account)/AddPrimaryAddress.js
 import { useState } from "react";
-import { StatusBar, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { Text, useTheme } from "react-native-paper";
 
 import AppErrorMessage from "../components/forms/AppErrorMessage";
@@ -44,7 +44,6 @@ export default function AddPrimaryAddress() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
       <LoadingOveralay visible={isLoading} />
 
       <View style={styles.content}>
