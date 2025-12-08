@@ -148,9 +148,6 @@ export default function AddPropertyWizard() {
   };
 
   const onStepSubmit = async (values) => {
-
-    console.log(values);
-
     if(values.serviceTime.mode === "regular"){
       const { startDate, type, selectedDays, repeatDuration } = values.serviceTime.regular;
       setNoOfDays(calculateTotalServiceDays(startDate, type, selectedDays, repeatDuration));

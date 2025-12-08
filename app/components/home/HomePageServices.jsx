@@ -14,7 +14,6 @@ export default function HomeServiceSection({
   onViewAll,
   addressCapacity = 0,
 }) {
-
   const { colors } = useTheme();
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [servicesList, setServicesList] = useState([...homePageServices, ...inspectionServices]);

@@ -301,7 +301,7 @@ export const formatPayload = (values, selectedAddress, encryptionKey, serviceId,
     serviceId,
     noOfDays,
     materialRequired,
-    redeemPoints: loyaltyPoints?.percentage ? loyaltyPoints?.percentage : null
+    redeemPoints: loyaltyPoints?.percentage ? loyaltyPoints?.percentage : null 
   };
 };
 
