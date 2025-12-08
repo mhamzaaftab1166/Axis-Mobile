@@ -3,11 +3,13 @@ import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { Text, useTheme } from "react-native-paper";
 
+import { router } from "expo-router";
 import AppErrorMessage from "../components/forms/AppErrorMessage";
 import AppForm from "../components/forms/AppForm";
 import AppFormDropdown from "../components/forms/AppFormDropdown";
 import SubmitButton from "../components/forms/AppSubmitButton";
 import LoadingOveralay from "../components/LoadingOverlay";
+import { ROUTES } from "../helpers/routePaths";
 import { addressValidationSchema } from "../helpers/validations";
 import {
   useGetAllBuildingInfo,
@@ -28,6 +30,7 @@ export default function AddPrimaryAddress() {
     onSuccessCallback: () => {
       setError("");
       setIsError(false);
+      router.replace(ROUTES.HOME);
     },
   });
 
@@ -38,7 +41,7 @@ export default function AddPrimaryAddress() {
       floorId: values?.floor?._id,
       unitId: values?.unit?._id,
       unitName: values?.unit?.unitName,
-      primary: true, // mark as primary address
+      primary: true,
     });
   };
 

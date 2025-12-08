@@ -151,6 +151,7 @@ export default function Notifications() {
     return (
       <TouchableOpacity
         onPress={() => {
+          getTimeDifference(dataItem.item?.date);
           const { type, serviceId, inspectionServiceId, inspectionInfo } = JSON.parse(dataItem.item?.pushData);
           if (type === "review") {
             handleReview(serviceId, inspectionServiceId);
@@ -246,6 +247,7 @@ export default function Notifications() {
   };
 
   if (fetchingUser || gettingNotifications) return <NotificationsSkeleton />;
+
   return (
     <View style={[styles.container, { backgroundColor: screenBg }]}>
       <StatusBar barStyle={"light-content"} backgroundColor={colors.primary} />

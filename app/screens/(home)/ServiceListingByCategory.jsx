@@ -7,6 +7,7 @@ import EmptyState from "../../components/common/EmptyState";
 import CompactServiceCard from "../../components/home/services/ServicecCardByCategory";
 import LoadingOverlay from "../../components/LoadingOverlay";
 import { filterServices } from "../../helpers/general";
+import { useUserDetailQuery } from "../../hooks/useAuthQuery";
 import { useGetAllServices } from "../../hooks/useServiceQuery";
 import useAddressStore from "../../store/useAddressStore";
 import useBookingStore from "../../store/useBookingStore";
@@ -21,13 +22,16 @@ export default function ListingByCategoryScreen() {
   const toggleService = useBookingStore((s) => s.toggleService);
   const selectedServices = booking?.selectedServices || [];
   const isSelected = useBookingStore((state) => state.isSelected);
+  const { userData, isLoading: fetchingUserData } = useUserDetailQuery();
 
   const handleToggle = (service) => {
     if (toggleService) toggleService(service);
   };
-
-  const { allServices: services, isLoading } = useGetAllServices();
   const selectedAddress = useAddressStore((s) => s.selectedAddress);
+
+  const { allServices: services, isLoading } = useGetAllServices(
+    userData?.data?.user?.role, selectedAddress?._id
+  );
 
   const filteredServices = filterServices([params.selectedItem], services);
 

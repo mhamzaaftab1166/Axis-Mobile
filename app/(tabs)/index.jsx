@@ -28,9 +28,7 @@ import { useUserDetailQuery } from "../hooks/useAuthQuery";
 import { useGetInspectionServices } from "../hooks/useInspectionServices";
 import { useFetchUnreadCount } from "../hooks/useNotificationQuery";
 import {
-  useGetAllServices,
-  useGetTopServices,
-  useGetUpcomingSubServices,
+  useGetAllServices, useGetTopServices, useGetUpcomingSubServices
 } from "../hooks/useServiceQuery";
 import SupervisorHomePage from "../screens/(home)/SupervisorHomePage";
 import HomeSkeleton from "../skeltons/HomeLoadingSkelton";
@@ -45,12 +43,8 @@ export default function Home() {
   const { colors } = useTheme();
 
   const { userData, isLoading: fetchingUserData } = useUserDetailQuery();
-  const { topServices, isLoading: fetchingTopServices } = useGetTopServices(
-    userData?.data?.user?.role
-  );
-  const { allServices, isLoading: fetchingAllServices } = useGetAllServices(
-    userData?.data?.user?.role
-  );
+  const selectedAddress = useAddressStore((s) => s.selectedAddress);
+  
   const { allAddresses, isLoading: loadingAddress } = useGetAllAddress(
     userData?.data?.user?.role
   );
@@ -63,10 +57,14 @@ export default function Home() {
     userData?.data?.user?.role
   );
 
-  const { data: inspectionServices, isLoading: fetchingIspectionServices } =
-    useGetInspectionServices(userData?.data?.user?.role);
+  const { data: inspectionServices, isLoading: fetchingIspectionServices } = useGetInspectionServices(
+    userData?.data?.user?.role, selectedAddress?._id);
 
-  const selectedAddress = useAddressStore((s) => s.selectedAddress);
+  const { allServices, isLoading: fetchingAllServices } = useGetAllServices(
+    userData?.data?.user?.role, selectedAddress?._id);
+
+  const { topServices, isLoading: fetchingTopServices } = useGetTopServices(
+    userData?.data?.user?.role, selectedAddress?._id);
 
   const setAddress = useAddressStore((s) => s.setAddress);
   const role = useAuthStore((s) => s.role);
@@ -94,6 +92,12 @@ export default function Home() {
     role === "tenant"
   )
     return <HomeSkeleton />;
+
+  const handleUpdateAddress = (address) =>{
+    // address changed handle fetching updated services
+    setAddress(address);
+    setShowSheet(false);
+  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -188,8 +192,7 @@ export default function Home() {
               selectedId={selectedAddress?.id}
               onClose={() => setShowSheet(false)}
               onSelect={(addr) => {
-                setAddress(addr);
-                setShowSheet(false);
+                handleUpdateAddress(addr);
               }}
               onAdd={() => router.push(ROUTES.ADD_ADDRESS)}
             />

@@ -43,4 +43,7 @@ export const ROUTES = {
   PAYMENT_HISTORY: "screens/(account)/PaymentsHistory",
   // quotation payment
   QUOTATION_PAYMENT_FORM: "screens/(home)/booking/MyInspectionBookings/PaymentScreenQuotationPayment",
+
+  // address page
+  ADD_ADDRESS_PAGE: "screens/AddAddressTenant"
 };

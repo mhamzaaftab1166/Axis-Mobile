@@ -23,9 +23,7 @@ export default function ServiceListing() {
 
   const { userData, isLoading: fetchingUserData } = useUserDetailQuery();
 
-  const { allServices: services, isLoading } = useGetAllServices(
-    userData?.data?.user?.role
-  );
+  
   const navigation = useNavigation();
   const { colors } = useTheme();
 
@@ -40,7 +38,11 @@ export default function ServiceListing() {
   const selectedAddress = useAddressStore((s) => s.selectedAddress);
 
   const { services: inspectionServices, isLoading: fetchingIspectionServices} = useGetAllInspectionServices(
-    userData?.data?.user?.role
+    userData?.data?.user?.role, selectedAddress?._id
+  );
+
+  const { allServices: services, isLoading } = useGetAllServices(
+    userData?.data?.user?.role, selectedAddress._id
   );
 
   const filteredServices = filterServices(

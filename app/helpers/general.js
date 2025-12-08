@@ -1,11 +1,16 @@
 import { FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 import { Linking } from "react-native";
 import CryptoJS from "react-native-crypto-js";
 import { SUB_SERVICES_STATUS_MAP } from "./contantData";
 
 dayjs.extend(customParseFormat);
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 
 export const getGreeting = () => {
   const hour = new Date().getHours();
@@ -560,8 +565,12 @@ export const buildUpdatePayload = (serviceTime, newServices, bookingId, selected
 
 export const getTimeDifference = (dateString) => {
   const now = dayjs();
-  const parsedDate = dayjs(dateString, "M-D-YYYY h:mma");
-  if (!parsedDate.isValid()) return "";
+
+  // Fix missing space before AM/PM
+  const fixedDateString = dateString.replace(/(AM|PM)$/i, " $1");
+
+  const parsedDate = dayjs.utc(fixedDateString, "M-D-YYYY h:mmA").local();
+  if (!parsedDate.isValid()) return "N/A";
 
   const diffMinutes = now.diff(parsedDate, "minute");
   const diffHours = now.diff(parsedDate, "hour");
@@ -570,7 +579,6 @@ export const getTimeDifference = (dateString) => {
   if (diffMinutes < 1) return "Just now";
   if (diffMinutes < 60) return `${diffMinutes}m ago`;
   if (diffHours < 24) return `${diffHours}h ago`;
-
   return `${diffDays}d ago`;
 };
 

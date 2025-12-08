@@ -11,14 +11,14 @@ import useAuthStore from "../store/useAuthStore";
 import { useSupServicesStore } from "../store/useSupServicesStore";
 
 // fetch top (popular) services
-export const useGetInspectionServices = (role) => {
+export const useGetInspectionServices = (role,addressId) => {
   const { token, hasHydrated } = useAuthStore();
 
   const query = useQuery({
-    queryKey: ["inspection-services"],
-    queryFn: () => fetchTopInspectionServices(),
+    queryKey: ["inspection-services",addressId],
+    queryFn: () => fetchTopInspectionServices(addressId),
     staleTime: ()=>{},
-    enabled: !!token && hasHydrated && role === "tenant",
+    enabled: !!token && hasHydrated && role === "tenant" && !!addressId,
   });
 
   return {
@@ -29,14 +29,14 @@ export const useGetInspectionServices = (role) => {
   };
 };
 
-export const useGetAllInspectionServices = (role) => {
+export const useGetAllInspectionServices = (role, addressId) => {
   const { token, hasHydrated } = useAuthStore();
 
   const query = useQuery({
-    queryKey: ["all-inspection-services"],
-    queryFn: () => fetchAllServices(),
+    queryKey: ["all-inspection-services",addressId],
+    queryFn: () => fetchAllServices(addressId),
     staleTime: () => {},
-    enabled: !!token && hasHydrated && role === "tenant",
+    enabled: !!token && hasHydrated && role === "tenant" && !!addressId,
   });
 
   return {

@@ -1,12 +1,12 @@
 // services/auth.js
 import { _axios } from "../helpers/axios";
 
-const fetchTopInspectionServices = async () => {
-  return await _axios('get', 'v1/tenant/inspection-services/fetch-top-inspection-services');
+const fetchTopInspectionServices = async (addressId) => {
+  return await _axios('get', `v1/tenant/inspection-services/fetch-top-inspection-services/${addressId}`);
 };
 
-const fetchAllServices = async () => {
-  return await _axios('get', 'v1/tenant/inspection-services/fetch-inspection-services');
+const fetchAllServices = async (addressId) => {
+  return await _axios('get', `v1/tenant/inspection-services/fetch-inspection-services/${addressId}`);
 };
 
 const bookInspectionService = async (data) => {

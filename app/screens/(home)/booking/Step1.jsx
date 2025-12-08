@@ -18,6 +18,7 @@ import LoadingOverlay from "../../../components/LoadingOverlay";
 import { buildServiceOptions } from "../../../helpers/general";
 import { ROUTES } from "../../../helpers/routePaths";
 import { bookingValidationSchema } from "../../../helpers/validations";
+import { useUserDetailQuery } from "../../../hooks/useAuthQuery";
 import { useGetAllServices } from "../../../hooks/useServiceQuery";
 import useAddressStore from "../../../store/useAddressStore";
 import useBookingStore from "../../../store/useBookingStore";
@@ -28,6 +29,7 @@ export default forwardRef(function Step1({ onSubmit }, ref) {
   const removeService = useBookingStore((state) => state.removeService);
   const booking = useBookingStore((state) => state.booking);
   const selectedServices = booking.selectedServices;
+  const { userData, isLoading: fetchingUserData } = useUserDetailQuery();
 
   let formikRef;
   useImperativeHandle(ref, () => ({
@@ -42,8 +44,10 @@ export default forwardRef(function Step1({ onSubmit }, ref) {
   };
 
   const selectedAddress = useAddressStore((s) => s.selectedAddress);
-
-  const { allServices: services, isLoading } = useGetAllServices();
+  const { allServices: services, isLoading } = useGetAllServices(
+    userData?.data?.user?.role, selectedAddress?._id
+  );
+  
   let serviceOptions = buildServiceOptions(services ? services : []);
 
   return (
@@ -61,7 +65,7 @@ export default forwardRef(function Step1({ onSubmit }, ref) {
         <View
           style={[styles.container, { backgroundColor: colors.background }]}
         >
-          <LoadingOverlay visible={isLoading} />
+          <LoadingOverlay visible={isLoading || fetchingUserData} />
           <ScrollView
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}

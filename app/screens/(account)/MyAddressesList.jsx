@@ -10,8 +10,7 @@ import EmptyState from "../../components/common/EmptyState";
 import AppErrorMessage from "../../components/forms/AppErrorMessage";
 import { ROUTES } from "../../helpers/routePaths";
 import {
-  useGetAllAddress,
-  useRemoveAddress,
+  useGetAllAddress, useRemoveAddress,
 } from "../../hooks/useAddressQuery";
 import MyAddressesSkeleton from "../../skeltons/MyAddressSkelton";
 import useAddressStore from "../../store/useAddressStore";

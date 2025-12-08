@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   fetchAllServices,
   fetchMyUpcomingSubs,
@@ -7,14 +7,14 @@ import {
 import useAuthStore from "../store/useAuthStore";
 
 // 🔝 fetch top (popular) services
-export const useGetTopServices = (role) => {
+export const useGetTopServices = (role, addressId) => {
   const { token, hasHydrated } = useAuthStore();
 
   const query = useQuery({
-    queryKey: ["top-services"],
-    queryFn: () => fetchTopServices(),
+    queryKey: ["top-services",addressId],
+    queryFn: () => fetchTopServices(addressId),
     staleTime: () => {},
-    enabled: !!token && hasHydrated && role === "tenant",
+    enabled: !!token && hasHydrated && role === "tenant" && !!addressId,
   });
 
   return {
@@ -25,14 +25,14 @@ export const useGetTopServices = (role) => {
   };
 };
 
-export const useGetAllServices = (role) => {
+export const useGetAllServices = (role, addressId) => {
   const { token, hasHydrated } = useAuthStore();
 
   const query = useQuery({
-    queryKey: ["all-services"],
-    queryFn: () => fetchAllServices(),
+    queryKey: ["all-services",addressId],
+    queryFn: () => fetchAllServices(addressId),
     staleTime: () => {},
-    enabled: !!token && hasHydrated && role === "tenant",
+    enabled: !!token && hasHydrated && role === "tenant" && !!addressId,
   });
 
   return {
@@ -59,4 +59,12 @@ export const useGetUpcomingSubServices = (role) => {
     isError: query.isError,
     error: query.error,
   };
+};
+
+// utils/addressHelpers.js
+export const updateAddressAndInvalidate = () => {
+  const qc = useQueryClient();
+  qc.invalidateQueries(["all-services"]);
+  qc.invalidateQueries(["inspection-services"]);
+  qc.invalidateQueries(["top-services"]);
 };

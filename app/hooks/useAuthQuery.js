@@ -4,12 +4,8 @@ import { router } from "expo-router";
 import { registerIndieID } from "native-notify";
 import { ROUTES } from "../helpers/routePaths";
 import {
-  fetchUserDetails,
-  loginUser,
-  passwordResetRequest,
-  registerUser,
-  updatePassword,
-  verifyOtp,
+  fetchUserDetails, loginUser, passwordResetRequest,
+  registerUser, updatePassword, verifyOtp,
 } from "../services/authService";
 import useAuthStore from "../store/useAuthStore";
 import notificationData from "../utils/notificationData";
@@ -69,8 +65,7 @@ export const useLoginMutation = ({
   const { setToken, setRole, setIndieId } = useAuthStore();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ email, password, rememberMe }) =>
-      loginUser({ email, password, rememberMe }),
+    mutationFn: ({ email, password, rememberMe }) => loginUser({ email, password, rememberMe }),
     onSuccess: (response, variables) => {
       const resData = response;
       if (resData.status === HttpStatusCode.Ok) {
@@ -84,7 +79,11 @@ export const useLoginMutation = ({
           notificationData.appId,
           notificationData.appToken
         );
-        router.replace(ROUTES.HOME);
+        if(resData?.data?.tenantAddressPass === false){
+          router.replace(ROUTES.ADD_ADDRESS_PAGE);
+        }else{
+          router.replace(ROUTES.HOME);
+        }
         onSuccessCallback?.();
       } else {
         if (resData?.status === HttpStatusCode.Forbidden) {
