@@ -79,7 +79,7 @@ export const useLoginMutation = ({
           notificationData.appId,
           notificationData.appToken
         );
-        if(resData?.data?.tenantAddressPass === false){
+        if(resData?.data?.role === "tenant" && resData?.data?.tenantAddressPass === false){
           router.replace(ROUTES.ADD_ADDRESS_PAGE);
         }else{
           router.replace(ROUTES.HOME);
