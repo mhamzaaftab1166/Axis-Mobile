@@ -17,7 +17,7 @@ export const useGetInspectionServices = (role,addressId) => {
   const query = useQuery({
     queryKey: ["inspection-services",addressId],
     queryFn: () => fetchTopInspectionServices(addressId),
-    staleTime: ()=>{},
+    staleTime: 1000 * 60 * 5,
     enabled: !!token && hasHydrated && role === "tenant" && !!addressId,
   });
 

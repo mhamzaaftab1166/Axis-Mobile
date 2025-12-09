@@ -1,6 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "react-native-paper";
 import { ROUTES } from "../../helpers/routePaths";
@@ -16,7 +16,11 @@ export default function HomeServiceSection({
 }) {
   const { colors } = useTheme();
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [servicesList, setServicesList] = useState([...homePageServices, ...inspectionServices]);
+  const [servicesList, setServicesList] = useState([]);
+
+  useEffect(() => {
+    setServicesList([...(homePageServices || []), ...(inspectionServices || [])]);
+  }, [homePageServices, inspectionServices]);
 
   const toggleService = useBookingStore((state) => state.toggleService);
   const isSelected = useBookingStore((state) => state.isSelected);

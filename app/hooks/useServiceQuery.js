@@ -13,7 +13,7 @@ export const useGetTopServices = (role, addressId) => {
   const query = useQuery({
     queryKey: ["top-services",addressId],
     queryFn: () => fetchTopServices(addressId),
-    staleTime: () => {},
+    staleTime: 1000 * 60 * 5,
     enabled: !!token && hasHydrated && role === "tenant" && !!addressId,
   });
 
@@ -31,7 +31,7 @@ export const useGetAllServices = (role, addressId) => {
   const query = useQuery({
     queryKey: ["all-services",addressId],
     queryFn: () => fetchAllServices(addressId),
-    staleTime: () => {},
+    staleTime: 1000 * 60 * 5,
     enabled: !!token && hasHydrated && role === "tenant" && !!addressId,
   });
 
@@ -49,7 +49,7 @@ export const useGetUpcomingSubServices = (role) => {
   const query = useQuery({
     queryKey: ["upcoming-subs"],
     queryFn: () => fetchMyUpcomingSubs(),
-    staleTime: 1000 * 60,
+    staleTime: 1000 * 60 * 5,
     enabled: !!token && hasHydrated && role === "tenant",
   });
 

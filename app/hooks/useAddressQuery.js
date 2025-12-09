@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { HttpStatusCode } from "axios";
+import { router } from "expo-router";
+import { ROUTES } from "../helpers/routePaths";
 import {
   addAddress,
   fetchAddress,
@@ -76,6 +78,9 @@ export const useRemoveAddress = ({
     mutationFn: (id) => removeAddress(id),
     onSuccess: (response) => {
       if (response?.status === HttpStatusCode.Ok) {
+        if(response?.data?.redirectPage === true){
+          router.replace(ROUTES.ADD_ADDRESS_PAGE);
+        }
         onSuccessCallback?.();
         qc.invalidateQueries(["addresses"]);
       } else {

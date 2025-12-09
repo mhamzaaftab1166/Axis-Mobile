@@ -88,16 +88,9 @@ export default function Home() {
       fetchingTopServices ||
       loadingAddress ||
       fetchingIspectionServices ||
-      fetchingSubs) &&
-    role === "tenant"
+      fetchingSubs)
   )
     return <HomeSkeleton />;
-
-  const handleUpdateAddress = (address) =>{
-    // address changed handle fetching updated services
-    setAddress(address);
-    setShowSheet(false);
-  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -192,7 +185,8 @@ export default function Home() {
               selectedId={selectedAddress?.id}
               onClose={() => setShowSheet(false)}
               onSelect={(addr) => {
-                handleUpdateAddress(addr);
+                setAddress(addr);
+                setShowSheet(false);
               }}
               onAdd={() => router.push(ROUTES.ADD_ADDRESS)}
             />
